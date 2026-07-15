@@ -1,0 +1,27 @@
+# dependencies and build output
+node_modules/
+dist/
+artifacts/
+
+# local environment and signing material
+.env
+.env.*
+!.env.example
+.crx-key.pem
+
+# logs and OS files
+*.log
+.DS_Store
+
+# local tooling state and scratch space
+.claude/
+tmp/
+
+# legacy store upload packages (pnpm package now writes artifacts/)
+web-clipper-v*.zip
+
+# test artifacts
+coverage/
+test-results/
+playwright-report/
+.playwright/

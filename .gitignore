@@ -22,6 +22,3 @@ web-clipper-v*.zip
 
 # test artifacts
 coverage/
-test-results/
-playwright-report/
-.playwright/

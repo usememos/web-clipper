@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import browser from "webextension-polyfill";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import type { OAuthUser } from "./oauth-session";
@@ -7,7 +7,8 @@ type AuthContextValue = {
   isLoaded: boolean;
   isSignedIn: boolean;
   user: OAuthUser | null;
-  reload: () => Promise<void>;
+  error: string | null;
+  reload: () => Promise<OAuthUser | null>;
   signOut: () => Promise<void>;
 };
 
@@ -16,17 +17,34 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<OAuthUser | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const reloadPromise = useRef<Promise<OAuthUser | null> | null>(null);
 
-  const reload = useCallback(async () => {
-    const next = await sendBackgroundRequest({ type: "GET_AUTH_USER" });
-    setUser(next);
-    setIsLoaded(true);
+  const reload = useCallback(() => {
+    if (reloadPromise.current) return reloadPromise.current;
+    const task = sendBackgroundRequest({ type: "GET_AUTH_USER" })
+      .then((next) => {
+        setUser(next);
+        setError(null);
+        return next;
+      })
+      .catch((cause) => {
+        setError("The extension couldn't refresh your usememos.com account.");
+        throw cause;
+      })
+      .finally(() => {
+        // A failed first request must not leave the whole options page behind an endless spinner.
+        setIsLoaded(true);
+        reloadPromise.current = null;
+      });
+    reloadPromise.current = task;
+    return task;
   }, []);
 
   useEffect(() => {
-    void reload();
+    void reload().catch(() => {});
     const listener = (message: unknown) => {
-      if ((message as { type?: string } | null)?.type === "AUTH_CHANGED") void reload();
+      if ((message as { type?: string } | null)?.type === "AUTH_CHANGED") void reload().catch(() => {});
     };
     browser.runtime.onMessage.addListener(listener);
     return () => browser.runtime.onMessage.removeListener(listener);
@@ -37,13 +55,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoaded,
       isSignedIn: user !== null,
       user,
+      error,
       reload,
       signOut: async () => {
-        await sendBackgroundRequest({ type: "SIGN_OUT" });
-        setUser(null);
+        try {
+          await sendBackgroundRequest({ type: "SIGN_OUT" });
+          setUser(null);
+          setError(null);
+        } catch (cause) {
+          setError("The extension couldn't sign you out. Please try again.");
+          throw cause;
+        }
       },
     }),
-    [isLoaded, reload, user],
+    [error, isLoaded, reload, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

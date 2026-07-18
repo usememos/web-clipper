@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  checkVersion,
   clearCachedVersion,
   readCachedVersion,
   readCachedVersionSync,
@@ -51,6 +52,16 @@ describe("resolveVersion", () => {
     seedStorage({ [VERSION_CACHE_KEY]: { instanceUrl: creds.instanceUrl, version: "0.27.1" } });
     const fetchImpl = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
     expect(await resolveVersion(creds, { refresh: true }, { fetchImpl })).toBe("0.27.1");
+  });
+
+  it("reports a live-check failure separately from its cached fallback", async () => {
+    seedStorage({ [VERSION_CACHE_KEY]: { instanceUrl: creds.instanceUrl, version: "0.29.1" } });
+    const fetchImpl = vi.fn().mockRejectedValue(new DOMException("timed out", "TimeoutError"));
+    await expect(checkVersion(creds, { refresh: true }, { fetchImpl })).resolves.toEqual({
+      version: "0.29.1",
+      errorKind: "timeout",
+      fromCache: true,
+    });
   });
 });
 

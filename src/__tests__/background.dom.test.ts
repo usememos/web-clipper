@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { VERSION_CACHE_KEY } from "@/lib/instance-version";
+import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { browserMock, seedStorage } from "@/test/browser-mock";
 import { jsonResponse, testCreds } from "@/test/fixtures";
 
@@ -299,6 +300,7 @@ describe("background — context menu quick save", () => {
 
   it("ready → saves the selection through the template and flashes a success badge", async () => {
     ready();
+    seedStorage({ [CLIP_TEMPLATE_KEY]: "{{content}}\n\nSource: {{url}} #local-template" });
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/7", uid: "xy" }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -308,6 +310,7 @@ describe("background — context menu quick save", () => {
     const body = JSON.parse(fetchMock.mock.calls[0]![1].body);
     expect(body.content).toContain("clip me");
     expect(body.content).toContain("https://example.com/post");
+    expect(body.content).toContain("#local-template");
     // After a successful save, the page selection is cleared and an in-page toast is shown.
     expect(browserMock.tabs.sendMessage).toHaveBeenCalledWith(5, { type: "CLEAR_SELECTION" });
     expect(browserMock.tabs.sendMessage).toHaveBeenCalledWith(5, {

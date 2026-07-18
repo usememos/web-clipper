@@ -79,7 +79,7 @@ export function describeSaveError(kind: SaveErrorKind): SaveErrorDetail {
         primaryAction: "settings",
         title: "No Memos instance connected",
         why: "You haven't connected a Memos instance to the clipper yet.",
-        howToFix: ["Open the extension settings and connect your instance URL and access token."],
+        howToFix: ["Open the extension settings, then connect your instance on usememos.com."],
       };
     case "mixed-content":
       return {

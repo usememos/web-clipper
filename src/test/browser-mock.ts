@@ -93,6 +93,7 @@ function build() {
     },
     storage: {
       local: makeStorageArea(),
+      onChanged: fakeEvent(),
     },
     scripting: {
       executeScript: vi.fn(async (_opts: unknown) => [{ result: null }] as Array<{ result: unknown }>),

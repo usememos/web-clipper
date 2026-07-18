@@ -3,7 +3,7 @@ import type { OAuthUser } from "@/auth/oauth-session";
 let mockUser: OAuthUser | null = null;
 let loaded = true;
 
-export const reloadAuth = vi.fn(async () => undefined);
+export const reloadAuth = vi.fn(async () => mockUser);
 export const signOut = vi.fn(async () => {
   mockUser = null;
 });
@@ -32,6 +32,7 @@ export function useAuth() {
     isLoaded: loaded,
     isSignedIn: mockUser !== null,
     user: mockUser,
+    error: null,
     reload: reloadAuth,
     signOut,
   };

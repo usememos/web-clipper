@@ -1,4 +1,4 @@
-import type { MemosCredentials } from "./memos-client";
+import { isValidInstanceUrl, type MemosCredentials, normalizeInstanceUrl } from "./memos-client";
 import { isSupportedVersion } from "./versions";
 
 /** The raw Clerk metadata `memos` object, or null — the one place that owns this shape. */
@@ -13,8 +13,8 @@ export function readCredentials(metadata: unknown): MemosCredentials | null {
   const memos = readMemosObject(metadata);
   if (!memos) return null;
   const { instanceUrl, accessToken } = memos;
-  if (typeof instanceUrl === "string" && instanceUrl && typeof accessToken === "string" && accessToken) {
-    return { instanceUrl, accessToken };
+  if (typeof instanceUrl === "string" && isValidInstanceUrl(instanceUrl) && typeof accessToken === "string" && accessToken.trim()) {
+    return { instanceUrl: normalizeInstanceUrl(instanceUrl), accessToken };
   }
   return null;
 }
@@ -31,10 +31,4 @@ export function connectionStatus(credentials: MemosCredentials | null, version: 
   if (!credentials) return "disconnected";
   if (version === undefined) return "checking";
   return version && isSupportedVersion(version) ? "ready" : "unsupported";
-}
-
-/** Reads the user's memo template from `metadata.memos.template`, or null when unset/blank. */
-export function readTemplate(metadata: unknown): string | null {
-  const template = readMemosObject(metadata)?.template;
-  return typeof template === "string" && template.trim() ? template : null;
 }

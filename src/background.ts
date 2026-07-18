@@ -3,11 +3,12 @@ import { beginOAuthSignIn, clearOAuthSession, getOAuthUser } from "@/auth/oauth-
 import { reconcilePopupState } from "@/background/auth-session";
 import { savePopupMemo, saveSelectionClip } from "@/background/memo-save";
 import { isTrustedBackgroundRequest, parseBackgroundRequest, type RuntimeSender } from "@/lib/background-protocol";
-import { connectionStatus, readCredentials, readTemplate } from "@/lib/connection";
+import { connectionStatus, readCredentials } from "@/lib/connection";
 import { describeSaveError, type SaveErrorKind } from "@/lib/errors";
 import { resolveVersion } from "@/lib/instance-version";
 import type { Request, SaveResult, SelectionClip } from "@/lib/messages";
 import { clearPopupState } from "@/lib/popup-state";
+import { readClipTemplate } from "@/lib/template-settings";
 
 /** Runs Clerk's public OAuth application through the browser identity API with PKCE. */
 async function openSignInFlow(): Promise<void> {
@@ -150,7 +151,7 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     return;
   }
 
-  const template = readTemplate(user.unsafeMetadata);
+  const template = await readClipTemplate();
   const title = tab?.title ?? "";
   const url = info.pageUrl ?? tab?.url ?? "";
   const result = await saveSelectionClip(await clipPromise, title, url, credentials, template);

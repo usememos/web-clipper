@@ -148,7 +148,7 @@ function ReconciliationBar({ state }: { state: BlockedPopupState }) {
         {signedOut ? "You’re signed out" : state.status === "disconnected" ? "Memos is disconnected" : "Memos needs an upgrade"}
       </AlertTitle>
       <AlertDescription>Your draft is preserved, but it can’t be saved until the connection is ready.</AlertDescription>
-      <Button size="xs" className="mt-2 w-fit" onClick={signedOut ? openSignIn : openOptions}>
+      <Button size="xs" className="mt-2 w-fit" onClick={() => (signedOut ? void openSignIn().catch(() => {}) : openOptions())}>
         {signedOut ? "Sign in" : "Open settings"}
       </Button>
     </Alert>
@@ -288,7 +288,7 @@ export function App() {
           <p className="text-sm text-muted-foreground">
             Sign in with your usememos.com account to start clipping. Your saved Memos connection will load automatically.
           </p>
-          <Button className="mt-2 w-full" onClick={openSignIn}>
+          <Button className="mt-2 w-full" onClick={() => void openSignIn().catch(() => {})}>
             Sign in with usememos.com
           </Button>
         </div>

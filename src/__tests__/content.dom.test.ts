@@ -55,3 +55,21 @@ describe("content script — CLEAR_SELECTION", () => {
     expect(document.activeElement).not.toBe(input);
   });
 });
+
+describe("content script — GET_SELECTION", () => {
+  it("parses selected markup inertly and resolves relative image attachments", async () => {
+    document.body.innerHTML = '<p>Hello<script>window.bad = true</script><img src="/clip.png" alt="clip"></p>';
+    const range = document.createRange();
+    range.selectNodeContents(document.querySelector("p")!);
+    window.getSelection()?.addRange(range);
+
+    const result = (await browserMock.runtime.onMessage.emitFirst({ type: "GET_SELECTION" })) as {
+      markdown: string;
+      images: string[];
+    };
+
+    expect(result.markdown).toContain("Hello");
+    expect(result.markdown).not.toContain("window.bad");
+    expect(result.images).toEqual([new URL("/clip.png", document.baseURI).href]);
+  });
+});

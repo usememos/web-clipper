@@ -1,8 +1,9 @@
 import { getOAuthUser, type OAuthUser } from "@/auth/oauth-session";
-import { readCredentials, readTemplate } from "@/lib/connection";
+import { readCredentials } from "@/lib/connection";
 import { resolveVersion } from "@/lib/instance-version";
 import type { PopupStateResult } from "@/lib/messages";
 import { writePopupState } from "@/lib/popup-state";
+import { readClipTemplate } from "@/lib/template-settings";
 import { isSupportedVersion } from "@/lib/versions";
 
 async function getPopupState(signedInUser?: OAuthUser): Promise<PopupStateResult> {
@@ -19,7 +20,7 @@ async function getPopupState(signedInUser?: OAuthUser): Promise<PopupStateResult
     displayName: user.displayName,
     ...(user.imageUrl ? { imageUrl: user.imageUrl } : {}),
   };
-  const template = readTemplate(user.unsafeMetadata);
+  const template = await readClipTemplate();
   const credentials = readCredentials(user.unsafeMetadata);
   if (!credentials) {
     const state: PopupStateResult = { status: "disconnected", identity, template, updatedAt };

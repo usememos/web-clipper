@@ -3,6 +3,7 @@ import { CLERK_OAUTH_CLIENT_ID, CLERK_OAUTH_ISSUER } from "@/config/env";
 
 const SESSION_KEY = "clerkOAuthSessionV1";
 const EXPIRY_SKEW_MS = 60_000;
+const OAUTH_REQUEST_TIMEOUT_MS = 15_000;
 
 export type OAuthUser = {
   id: string;
@@ -83,6 +84,7 @@ async function requestToken(body: URLSearchParams): Promise<TokenResponse> {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
+    signal: AbortSignal.timeout(OAUTH_REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) throw new OAuthResponseError("OAuth token request failed", response.status);
   const token = (await response.json()) as Partial<TokenResponse>;
@@ -125,7 +127,10 @@ async function activeSession(): Promise<StoredSession | null> {
 }
 
 async function fetchUserInfo(accessToken: string): Promise<OAuthUser> {
-  const response = await fetch(issuerUrl("/oauth/userinfo"), { headers: { Authorization: `Bearer ${accessToken}` } });
+  const response = await fetch(issuerUrl("/oauth/userinfo"), {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    signal: AbortSignal.timeout(OAUTH_REQUEST_TIMEOUT_MS),
+  });
   if (!response.ok) throw new OAuthResponseError("OAuth user info request failed", response.status);
   const info = (await response.json()) as UserInfoResponse;
   if (!info.sub) throw new Error("OAuth user info did not include a subject");

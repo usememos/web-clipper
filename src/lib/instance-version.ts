@@ -1,4 +1,5 @@
 import browser from "webextension-polyfill";
+import { InstanceError, type InstanceErrorKind } from "./errors";
 import { getInstanceProfile, type InstanceFetchDeps, type MemosCredentials } from "./memos-client";
 
 /**
@@ -83,15 +84,40 @@ export async function resolveVersion(
   opts: { refresh?: boolean } = {},
   deps?: InstanceFetchDeps,
 ): Promise<string | null> {
+  return (await checkVersion(creds, opts, deps)).version;
+}
+
+export type VersionCheckResult = {
+  version: string | null;
+  /** Set when the live check failed. A cached version may still be present. */
+  errorKind: InstanceErrorKind | null;
+  fromCache: boolean;
+};
+
+/**
+ * The options page needs to distinguish "old version" from "could not verify". Keep
+ * resolveVersion's compact cache-fallback contract for save gates, and expose this richer
+ * result for settings UI and recovery behavior.
+ */
+export async function checkVersion(
+  creds: MemosCredentials,
+  opts: { refresh?: boolean } = {},
+  deps?: InstanceFetchDeps,
+): Promise<VersionCheckResult> {
   if (!opts.refresh) {
     const cached = await readCachedVersion(creds.instanceUrl);
-    if (cached) return cached;
+    if (cached) return { version: cached, errorKind: null, fromCache: true };
   }
   try {
     const { version } = await getInstanceProfile(creds, deps);
     if (version) await writeCachedVersion(creds.instanceUrl, version);
-    return version || null;
-  } catch {
-    return readCachedVersion(creds.instanceUrl);
+    return { version: version || null, errorKind: null, fromCache: false };
+  } catch (error) {
+    const cached = await readCachedVersion(creds.instanceUrl);
+    return {
+      version: cached,
+      errorKind: error instanceof InstanceError ? error.kind : "bad-response",
+      fromCache: Boolean(cached),
+    };
   }
 }

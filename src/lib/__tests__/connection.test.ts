@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { connectionStatus, readCredentials, readTemplate } from "@/lib/connection";
+import { connectionStatus, readCredentials } from "@/lib/connection";
 
 const creds = { instanceUrl: "https://m.com", accessToken: "t" };
 
@@ -21,6 +21,19 @@ describe("readCredentials", () => {
     expect(readCredentials({ memos: { instanceUrl: "", accessToken: "" } })).toBeNull();
     expect(readCredentials({ memos: { instanceUrl: "https://m.com" } })).toBeNull();
   });
+
+  it("rejects malformed or credential-bearing instance URLs", () => {
+    expect(readCredentials({ memos: { instanceUrl: "not a url", accessToken: "t" } })).toBeNull();
+    expect(readCredentials({ memos: { instanceUrl: "https://user:pass@m.com", accessToken: "t" } })).toBeNull();
+    expect(readCredentials({ memos: { instanceUrl: "https://m.com?redirect=evil", accessToken: "t" } })).toBeNull();
+  });
+
+  it("normalizes a valid instance URL before use", () => {
+    expect(readCredentials({ memos: { instanceUrl: "https://m.com///", accessToken: "t" } })).toEqual({
+      instanceUrl: "https://m.com",
+      accessToken: "t",
+    });
+  });
 });
 
 describe("connectionStatus", () => {
@@ -37,17 +50,5 @@ describe("connectionStatus", () => {
   });
   it("is ready when connected with a supported version", () => {
     expect(connectionStatus(creds, "0.29.1")).toBe("ready");
-  });
-});
-
-describe("readTemplate", () => {
-  it("reads a template stored beside the connection", () => {
-    expect(readTemplate({ memos: { instanceUrl: "https://m.com", accessToken: "t", template: "{{content}}" } })).toBe("{{content}}");
-  });
-
-  it("returns null when absent or blank", () => {
-    expect(readTemplate({ memos: { instanceUrl: "https://m.com", accessToken: "t" } })).toBeNull();
-    expect(readTemplate({ memos: { template: "   " } })).toBeNull();
-    expect(readTemplate(undefined)).toBeNull();
   });
 });

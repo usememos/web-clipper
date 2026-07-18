@@ -14,11 +14,22 @@ import type { Request, SelectionClip } from "@/lib/messages";
 async function clipSelection(): Promise<SelectionClip> {
   const html = selectionToHtml(window.getSelection());
   if (!html) return { markdown: "", images: [] };
-  const container = document.createElement("div");
-  container.innerHTML = html;
+  // Parse into an inert document instead of assigning page-controlled markup to innerHTML in
+  // the live page. This also keeps executable nodes out of the extension's conversion path.
+  const parsed = new DOMParser().parseFromString(html, "text/html");
+  const container = parsed.body;
+  for (const executable of container.querySelectorAll("script,style,template,noscript")) executable.remove();
   const imgs = Array.from(container.querySelectorAll("img"));
-  // img.src resolves to an absolute URL; keep only what the background can fetch (http(s)/data:).
-  const images = imgs.map((img) => img.src).filter((src) => /^(https?|data):/i.test(src));
+  // Inert documents have no page base URL, so resolve the raw attribute against the live page.
+  const images = imgs
+    .map((img) => {
+      try {
+        return new URL(img.getAttribute("src") ?? "", document.baseURI).href;
+      } catch {
+        return "";
+      }
+    })
+    .filter((src) => /^(https?|data):/i.test(src));
   for (const img of imgs) img.remove();
   // Turndown is loaded lazily: this script runs on every page, but markdown conversion is only
   // needed on the rare context-menu save — keep the per-page cost to this thin shell.

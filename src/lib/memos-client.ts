@@ -86,18 +86,17 @@ async function instanceFetchJson(
   } catch (error) {
     const name = typeof error === "object" && error !== null && "name" in error ? (error as { name?: unknown }).name : undefined;
     if (name === "TimeoutError" || name === "AbortError") throw new InstanceError("timeout");
-    console.error("[memos-web-clipper] fetch threw", { path, method: options.method, error: String(error) });
+    const errorName = typeof error === "object" && error !== null && "name" in error ? String(error.name) : "Error";
+    console.error("[memos-web-clipper] fetch threw", { path, method: options.method, errorName });
     throw new InstanceError((await isReachable(creds.instanceUrl, deps)) ? "cors" : "unreachable");
   }
 
   if (!response.ok || response.type === "opaqueredirect" || response.status === 0) {
-    const detail = await response.text().catch(() => "");
     console.error("[memos-web-clipper] request not ok", {
       path,
       method: options.method,
       status: response.status,
       type: response.type,
-      detail: detail.slice(0, 300),
     });
     if (response.status === 401 || response.status === 403) throw new InstanceError("unauthorized");
     throw new InstanceError("bad-response");

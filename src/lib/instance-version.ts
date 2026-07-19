@@ -13,47 +13,6 @@ import { getInstanceProfile, type InstanceFetchDeps, type MemosCredentials } fro
 export const VERSION_CACHE_KEY = "memosInstanceVersion";
 type CachedVersion = { instanceUrl: string; version: string };
 
-/**
- * `storage.local` is async, so a page can't read the cached version on its first paint — which
- * makes even a known-good connection flash a "checking" spinner every popup open. We mirror the
- * cache into `localStorage`, which is synchronous and shared across the extension's page origin
- * (popup + options), purely so the UI can seed a synchronous initial value. `storage.local`
- * stays the source of truth (the service worker has no `localStorage`); this is a read cache.
- */
-function pageLocalStorage(): Storage | null {
-  // Guard on `window`: page contexts (popup/options) have it; the service worker does not, so
-  // background callers safely get null and stick to `storage.local`.
-  try {
-    return typeof window !== "undefined" ? window.localStorage : null;
-  } catch {
-    // Access can throw in restricted contexts — treat as unavailable.
-    return null;
-  }
-}
-
-/** Synchronous best-effort read of the mirrored version for this URL (page contexts only). */
-export function readCachedVersionSync(instanceUrl: string): string | null {
-  const ls = pageLocalStorage();
-  if (!ls) return null;
-  try {
-    const rec = JSON.parse(ls.getItem(VERSION_CACHE_KEY) ?? "null") as CachedVersion | null;
-    return rec && rec.instanceUrl === instanceUrl && rec.version ? rec.version : null;
-  } catch {
-    return null;
-  }
-}
-
-function mirror(rec: CachedVersion | null): void {
-  const ls = pageLocalStorage();
-  if (!ls) return;
-  try {
-    if (rec) ls.setItem(VERSION_CACHE_KEY, JSON.stringify(rec));
-    else ls.removeItem(VERSION_CACHE_KEY);
-  } catch {
-    // A full/blocked localStorage just means no fast path next open — not fatal.
-  }
-}
-
 /** The cached version for this instance URL, or null when absent or recorded for a different URL. */
 export async function readCachedVersion(instanceUrl: string): Promise<string | null> {
   const got = await browser.storage.local.get(VERSION_CACHE_KEY);
@@ -65,13 +24,11 @@ export async function readCachedVersion(instanceUrl: string): Promise<string | n
 export async function writeCachedVersion(instanceUrl: string, version: string): Promise<void> {
   const rec: CachedVersion = { instanceUrl, version };
   await browser.storage.local.set({ [VERSION_CACHE_KEY]: rec });
-  mirror(rec);
 }
 
 /** Forgets the cached version (used on disconnect). */
 export async function clearCachedVersion(): Promise<void> {
   await browser.storage.local.remove(VERSION_CACHE_KEY);
-  mirror(null);
 }
 
 /**

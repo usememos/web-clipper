@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ConnectionStateResult } from "@/lib/messages";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { Options } from "@/options/Options";
 import { oauthUserWithMemos, reloadAuth, setMockOAuthUser, signOut } from "@/test/auth-mock";
@@ -8,19 +9,19 @@ import { act, renderWithUser, screen, waitFor } from "@/test/render";
 vi.mock("@/auth/auth-provider", () => import("@/test/auth-mock"));
 
 type Conn = {
-  credentials: { instanceUrl: string; accessToken: string } | null;
+  instanceUrl: string | null;
   version: string | null | undefined;
   status: "disconnected" | "invalid" | "checking" | "unsupported" | "error" | "ready";
   isChecking: boolean;
-  verificationError: "timeout" | null;
+  verificationError: ConnectionStateResult["verificationError"];
   isUsingCachedVersion: boolean;
-  reverify: () => Promise<null>;
+  reverify: () => Promise<ConnectionStateResult | null>;
 };
 let conn: Conn;
 vi.mock("@/hooks/use-memos-connection", () => ({ useMemosConnection: () => conn }));
 
 const baseConn = (over: Partial<Conn> = {}): Conn => ({
-  credentials: null,
+  instanceUrl: null,
   version: null,
   status: "disconnected",
   isChecking: false,
@@ -28,6 +29,14 @@ const baseConn = (over: Partial<Conn> = {}): Conn => ({
   isUsingCachedVersion: false,
   reverify: vi.fn(async () => null),
   ...over,
+});
+
+const connectedState = (): ConnectionStateResult => ({
+  instanceUrl: "https://memos.example.com",
+  version: "0.29.1",
+  status: "ready",
+  verificationError: null,
+  isUsingCachedVersion: false,
 });
 
 describe("Options OAuth settings", () => {
@@ -63,7 +72,7 @@ describe("Options OAuth settings", () => {
   it("shows a read-only connected summary", async () => {
     setMockOAuthUser(oauthUserWithMemos());
     conn = baseConn({
-      credentials: { instanceUrl: "https://memos.example.com", accessToken: "tok" },
+      instanceUrl: "https://memos.example.com",
       version: "0.29.1",
       status: "ready",
     });
@@ -74,6 +83,21 @@ describe("Options OAuth settings", () => {
       "href",
       "https://usememos.com/settings/connections?source=web-clipper",
     );
+  });
+
+  it("warns when the connected instance uses unencrypted http", () => {
+    setMockOAuthUser(oauthUserWithMemos());
+    conn = baseConn({
+      instanceUrl: "http://memos.example.com",
+      version: "0.29.1",
+      status: "ready",
+    });
+
+    renderWithUser(<Options />);
+
+    expect(screen.getByText(/connection is not encrypted/i)).toBeInTheDocument();
+    expect(screen.getByText(/access token and clip content over http/i)).toBeInTheDocument();
+    expect(screen.getByText(/only for a local development instance such as localhost/i)).toBeInTheDocument();
   });
 
   it("keeps the template step locked while signed out", () => {
@@ -90,7 +114,7 @@ describe("Options OAuth settings", () => {
   });
 
   it("marks the web handoff as pending and explains the automatic return check", async () => {
-    setMockOAuthUser({ ...oauthUserWithMemos(), unsafeMetadata: {} });
+    setMockOAuthUser(oauthUserWithMemos());
     const { user } = renderWithUser(<Options />);
     await user.click(screen.getByRole("link", { name: /connect on usememos\.com/i }));
     expect(screen.getByRole("link", { name: /waiting for connection/i })).toBeInTheDocument();
@@ -98,16 +122,18 @@ describe("Options OAuth settings", () => {
   });
 
   it("refreshes OAuth metadata and clears the pending handoff when the user returns", async () => {
-    setMockOAuthUser({ ...oauthUserWithMemos(), unsafeMetadata: {} });
+    setMockOAuthUser(oauthUserWithMemos());
+    conn.reverify = vi.fn(async () => connectedState());
     const { user } = renderWithUser(<Options />);
     await user.click(screen.getByRole("link", { name: /connect on usememos\.com/i }));
 
     const connectedUser = oauthUserWithMemos();
     setMockOAuthUser(connectedUser);
     reloadAuth.mockResolvedValueOnce(connectedUser);
-    window.dispatchEvent(new Event("focus"));
+    act(() => window.dispatchEvent(new Event("focus")));
 
     await waitFor(() => expect(reloadAuth).toHaveBeenCalled());
+    await waitFor(() => expect(conn.reverify).toHaveBeenCalled());
     await waitFor(() => expect(screen.getByRole("link", { name: /connect on usememos\.com/i })).toBeInTheDocument());
     expect(screen.queryByText(/will check again when you return/i)).not.toBeInTheDocument();
   });
@@ -115,9 +141,11 @@ describe("Options OAuth settings", () => {
   it("resumes a pending handoff when a fresh options page is already focused", async () => {
     sessionStorage.setItem("memosConnectionSetupStartedAt", String(Date.now()));
     setMockOAuthUser(oauthUserWithMemos());
+    conn.reverify = vi.fn(async () => connectedState());
     renderWithUser(<Options />);
 
     await waitFor(() => expect(reloadAuth).toHaveBeenCalled());
+    await waitFor(() => expect(conn.reverify).toHaveBeenCalled());
     await waitFor(() => expect(screen.getByRole("link", { name: /connect on usememos\.com/i })).toBeInTheDocument());
     expect(sessionStorage.getItem("memosConnectionSetupStartedAt")).toBeNull();
   });
@@ -125,7 +153,7 @@ describe("Options OAuth settings", () => {
   it("preserves a last-known supported connection during a live timeout", () => {
     setMockOAuthUser(oauthUserWithMemos());
     conn = baseConn({
-      credentials: { instanceUrl: "https://memos.example.com", accessToken: "tok" },
+      instanceUrl: "https://memos.example.com",
       version: "0.29.1",
       status: "ready",
       verificationError: "timeout",
@@ -147,7 +175,7 @@ describe("Options OAuth settings", () => {
   it("shows the device-local template editor as step three and saves its override", async () => {
     setMockOAuthUser(oauthUserWithMemos());
     conn = baseConn({
-      credentials: { instanceUrl: "https://memos.example.com", accessToken: "tok" },
+      instanceUrl: "https://memos.example.com",
       version: "0.29.1",
       status: "ready",
     });
@@ -165,7 +193,7 @@ describe("Options OAuth settings", () => {
   it("preserves an unsaved draft when another settings page changes storage", async () => {
     setMockOAuthUser(oauthUserWithMemos());
     conn = baseConn({
-      credentials: { instanceUrl: "https://memos.example.com", accessToken: "tok" },
+      instanceUrl: "https://memos.example.com",
       version: "0.29.1",
       status: "ready",
     });

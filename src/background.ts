@@ -1,14 +1,37 @@
 import browser from "webextension-polyfill";
-import { beginOAuthSignIn, clearOAuthSession, getOAuthUser } from "@/auth/oauth-session";
-import { reconcilePopupState } from "@/background/auth-session";
-import { savePopupMemo, saveSelectionClip } from "@/background/memo-save";
+import {
+  beginOAuthSignIn,
+  clearOAuthSession,
+  getOAuthUser,
+  OAuthUnavailableError,
+  type OAuthUser,
+  toOAuthIdentity,
+} from "@/auth/oauth-session";
+import { getOptionsConnectionState, reconcilePopupState } from "@/background/auth-session";
+import { clearMemoSaveAttempts, savePopupMemo, saveSelectionClip } from "@/background/memo-save";
 import { isTrustedBackgroundRequest, parseBackgroundRequest, type RuntimeSender } from "@/lib/background-protocol";
 import { connectionStatus, readCredentials } from "@/lib/connection";
 import { describeSaveError, type SaveErrorKind } from "@/lib/errors";
-import { resolveVersion } from "@/lib/instance-version";
+import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
 import type { Request, SaveResult, SelectionClip } from "@/lib/messages";
 import { clearPopupState } from "@/lib/popup-state";
 import { readClipTemplate } from "@/lib/template-settings";
+
+type RestrictableStorageArea = typeof browser.storage.local & {
+  setAccessLevel?: (options: { accessLevel: "TRUSTED_CONTEXTS" }) => Promise<void>;
+};
+
+// storage.local is exposed to content scripts by default. No content script in this
+// extension needs storage, so keep OAuth and Memos credentials in trusted contexts only.
+async function restrictLocalStorage(): Promise<void> {
+  try {
+    await (browser.storage.local as RestrictableStorageArea).setAccessLevel?.({ accessLevel: "TRUSTED_CONTEXTS" });
+  } catch {
+    // Firefox versions without this Chromium API still keep page scripts outside the
+    // content-script isolated world; the optional call is defense in depth where available.
+  }
+}
+void restrictLocalStorage();
 
 /** Runs Clerk's public OAuth application through the browser identity API with PKCE. */
 async function openSignInFlow(): Promise<void> {
@@ -23,11 +46,17 @@ async function broadcastAuthChanged(): Promise<void> {
   await browser.runtime.sendMessage(authChanged).catch(() => {});
 }
 
+async function getAuthIdentity() {
+  const user = await getOAuthUser();
+  return user ? toOAuthIdentity(user) : null;
+}
+
 browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) => {
   const req = parseBackgroundRequest(message);
   if (!req || !isTrustedBackgroundRequest(req, sender, browser.runtime.id)) return undefined;
   if (req?.type === "GET_POPUP_STATE") return reconcilePopupState();
-  if (req?.type === "GET_AUTH_USER") return getOAuthUser();
+  if (req?.type === "GET_AUTH_USER") return getAuthIdentity();
+  if (req?.type === "GET_CONNECTION_STATE") return getOptionsConnectionState(req.refresh ?? true);
   if (req?.type === "SAVE_MEMO") {
     return savePopupMemo(
       req.content,
@@ -48,7 +77,7 @@ browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) 
   if (req?.type === "SIGN_OUT") {
     return (async () => {
       await clearOAuthSession();
-      await clearPopupState();
+      await Promise.all([clearPopupState(), clearCachedVersion(), clearMemoSaveAttempts()]);
       await broadcastAuthChanged();
     })();
   }
@@ -140,7 +169,15 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
   // The item follows the same gate as the popup. When a setup gate isn't met we open the place
   // that resolves it (opening the tab is the feedback).
-  const user = await getOAuthUser();
+  let user: OAuthUser | null;
+  try {
+    user = await getOAuthUser();
+  } catch (error) {
+    if (!(error instanceof OAuthUnavailableError)) throw error;
+    const result: SaveResult = { ok: false, errorKind: "auth-unavailable" };
+    await Promise.all([flashBadge("!", "#dc2626"), showSaveResultInTab(tab?.id, result)]);
+    return;
+  }
   if (!user) return openSignInFlow();
   const credentials = readCredentials(user.unsafeMetadata);
   // Version is a per-device cache (see instance-version.ts); resolve it, self-populating on a

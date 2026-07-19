@@ -1,10 +1,16 @@
 import type { Visibility } from "./memos-client";
 import type { Request } from "./messages";
 
-export type BackgroundRequest = Extract<Request, { type: "GET_POPUP_STATE" | "OPEN_SIGN_IN" | "SIGN_OUT" | "GET_AUTH_USER" | "SAVE_MEMO" }>;
+export type BackgroundRequest = Extract<
+  Request,
+  { type: "GET_POPUP_STATE" | "OPEN_SIGN_IN" | "SIGN_OUT" | "GET_AUTH_USER" | "GET_CONNECTION_STATE" | "SAVE_MEMO" }
+>;
 export type RuntimeSender = { id?: string; url?: string };
 
 const VISIBILITIES = new Set<Visibility>(["PRIVATE", "PROTECTED", "PUBLIC"]);
+const MAX_REMOTE_IMAGE_URL_CHARS = 8_192;
+const MAX_DATA_IMAGE_URL_CHARS = 14 * 1024 * 1024;
+const MAX_TOTAL_IMAGE_SOURCE_CHARS = 16 * 1024 * 1024;
 
 /** Parse the untrusted JSON boundary before the service worker dispatches privileged work. */
 export function parseBackgroundRequest(value: unknown): BackgroundRequest | null {
@@ -17,6 +23,10 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
     request.type === "GET_AUTH_USER"
   ) {
     return { type: request.type };
+  }
+  if (request.type === "GET_CONNECTION_STATE") {
+    if (request.refresh !== undefined && typeof request.refresh !== "boolean") return null;
+    return { type: "GET_CONNECTION_STATE", ...(request.refresh !== undefined ? { refresh: request.refresh } : {}) };
   }
   if (request.type !== "SAVE_MEMO") return null;
 
@@ -37,6 +47,13 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
   }
   if (request.images !== undefined) {
     if (!Array.isArray(request.images) || request.images.length > 100 || !request.images.every((image) => typeof image === "string")) {
+      return null;
+    }
+    const images = request.images as string[];
+    if (
+      images.some((image) => image.length > (image.startsWith("data:") ? MAX_DATA_IMAGE_URL_CHARS : MAX_REMOTE_IMAGE_URL_CHARS)) ||
+      images.reduce((total, image) => total + image.length, 0) > MAX_TOTAL_IMAGE_SOURCE_CHARS
+    ) {
       return null;
     }
   }
@@ -69,6 +86,7 @@ export function isTrustedBackgroundRequest(request: BackgroundRequest, sender: R
     return false;
   }
 
+  if (request.type === "GET_CONNECTION_STATE") return path === "/src/options/index.html";
   if (request.type === "OPEN_SIGN_IN" || request.type === "SIGN_OUT" || request.type === "GET_AUTH_USER") {
     return path === "/src/popup/index.html" || path === "/src/options/index.html";
   }

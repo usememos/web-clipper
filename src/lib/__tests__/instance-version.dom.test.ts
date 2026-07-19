@@ -1,13 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  checkVersion,
-  clearCachedVersion,
-  readCachedVersion,
-  readCachedVersionSync,
-  resolveVersion,
-  VERSION_CACHE_KEY,
-  writeCachedVersion,
-} from "@/lib/instance-version";
+import { checkVersion, clearCachedVersion, readCachedVersion, resolveVersion, VERSION_CACHE_KEY } from "@/lib/instance-version";
 import { browserMock, seedStorage } from "@/test/browser-mock";
 import { testCreds as creds, jsonResponse } from "@/test/fixtures";
 
@@ -37,7 +29,6 @@ describe("resolveVersion", () => {
     const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ version: "0.29.1" }));
     expect(await resolveVersion(creds, {}, { fetchImpl })).toBe("0.29.1");
     expect(fetchImpl).toHaveBeenCalledOnce();
-    // Cached for next time.
     expect(await readCachedVersion(creds.instanceUrl)).toBe("0.29.1");
   });
 
@@ -70,20 +61,5 @@ describe("clearCachedVersion", () => {
     seedStorage({ [VERSION_CACHE_KEY]: { instanceUrl: creds.instanceUrl, version: "0.29.1" } });
     await clearCachedVersion();
     expect(await readCachedVersion(creds.instanceUrl)).toBeNull();
-  });
-});
-
-describe("readCachedVersionSync (page-side mirror, removes the checking-spinner flash)", () => {
-  it("reads back a version written by writeCachedVersion, matched by URL", async () => {
-    await writeCachedVersion(creds.instanceUrl, "0.29.1");
-    expect(readCachedVersionSync(creds.instanceUrl)).toBe("0.29.1");
-    expect(readCachedVersionSync("https://other.example.com")).toBeNull();
-  });
-
-  it("returns null before anything is cached, and after a disconnect clears it", async () => {
-    expect(readCachedVersionSync(creds.instanceUrl)).toBeNull();
-    await writeCachedVersion(creds.instanceUrl, "0.29.1");
-    await clearCachedVersion();
-    expect(readCachedVersionSync(creds.instanceUrl)).toBeNull();
   });
 });

@@ -1,24 +1,24 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import browser from "webextension-polyfill";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
-import type { OAuthUser } from "./oauth-session";
+import type { OAuthIdentity } from "./oauth-session";
 
 type AuthContextValue = {
   isLoaded: boolean;
   isSignedIn: boolean;
-  user: OAuthUser | null;
+  user: OAuthIdentity | null;
   error: string | null;
-  reload: () => Promise<OAuthUser | null>;
+  reload: () => Promise<OAuthIdentity | null>;
   signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<OAuthUser | null>(null);
+  const [user, setUser] = useState<OAuthIdentity | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const reloadPromise = useRef<Promise<OAuthUser | null> | null>(null);
+  const reloadPromise = useRef<Promise<OAuthIdentity | null> | null>(null);
 
   const reload = useCallback(() => {
     if (reloadPromise.current) return reloadPromise.current;
@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return next;
       })
       .catch((cause) => {
+        setUser(null);
         setError("The extension couldn't refresh your usememos.com account.");
         throw cause;
       })

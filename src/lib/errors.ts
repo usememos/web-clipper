@@ -11,7 +11,7 @@ export type InstanceErrorKind =
   | "unsupported-version";
 
 /** Client-side preconditions that fail before any request is made. */
-export type ClientErrorKind = "not-configured" | "auth-changed" | "extension-error" | "invalid-url";
+export type ClientErrorKind = "not-configured" | "auth-changed" | "auth-unavailable" | "extension-error" | "invalid-url";
 
 /** Everything a save attempt can report back to the UI. */
 export type SaveErrorKind = InstanceErrorKind | ClientErrorKind;
@@ -73,6 +73,14 @@ export function describeSaveError(kind: SaveErrorKind): SaveErrorDetail {
         why: "The signed-in account or Memos destination changed after this popup opened.",
         howToFix: ["Review the current account, then try saving again."],
       };
+    case "auth-unavailable":
+      return {
+        kind,
+        primaryAction: "retry",
+        title: "Your account couldn't be verified",
+        why: "The extension couldn't reach usememos.com, so it did not use cached credentials for this write.",
+        howToFix: ["Check your connection and try again."],
+      };
     case "not-configured":
       return {
         kind,
@@ -85,9 +93,9 @@ export function describeSaveError(kind: SaveErrorKind): SaveErrorDetail {
       return {
         kind,
         primaryAction: "settings",
-        title: "Your instance uses http://",
-        why: "Browsers block https pages from calling http:// addresses.",
-        howToFix: ["Serve your Memos instance over https.", "Reconnect after switching to the https URL."],
+        title: "Your connection is not encrypted",
+        why: "The extension will send your Memos access token and clip content over http:// without TLS encryption.",
+        howToFix: ["Serve your Memos instance over https.", "Use http:// only for a local development instance such as localhost."],
       };
     case "cors":
       return {

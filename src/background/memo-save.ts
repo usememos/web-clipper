@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill";
-import { getOAuthUser } from "@/auth/oauth-session";
+import { getOAuthUser, OAuthUnavailableError, type OAuthUser } from "@/auth/oauth-session";
 import { readCredentials } from "@/lib/connection";
 import { toSaveErrorKind } from "@/lib/errors";
 import { composeMemoContent, toQuotedMarkdown } from "@/lib/format";
@@ -31,6 +31,11 @@ type AttemptRecord = {
 
 type AttemptStore = Record<string, AttemptRecord>;
 const inFlight = new Map<string, Promise<SaveResult>>();
+
+export async function clearMemoSaveAttempts(): Promise<void> {
+  inFlight.clear();
+  await browser.storage.local.remove(SAVE_ATTEMPTS_KEY);
+}
 
 function saveFingerprint(content: string, visibility: Visibility, expected: SaveExpectation, images: string[]): string {
   const value = [content, visibility, expected.userId, expected.instanceUrl, ...images].join("\u0000");
@@ -67,7 +72,13 @@ export async function savePopupMemo(
   expected: SaveExpectation,
   operation: SaveOperation = { requestId: `legacy_${Date.now()}_${Math.random().toString(36).slice(2)}`, startedAt: Date.now() },
 ): Promise<SaveResult> {
-  const user = await getOAuthUser();
+  let user: OAuthUser | null;
+  try {
+    user = await getOAuthUser();
+  } catch (error) {
+    if (error instanceof OAuthUnavailableError) return { ok: false, errorKind: "auth-unavailable" };
+    throw error;
+  }
   const credentials = readCredentials(user?.unsafeMetadata);
   if (!credentials) return { ok: false, errorKind: "not-configured" };
   if (user?.id !== expected.userId || credentials.instanceUrl !== expected.instanceUrl) {
@@ -153,12 +164,101 @@ async function savePopupMemoOnce(
 
 const MAX_IMAGES_PER_CLIP = 10;
 const IMAGE_DOWNLOAD_TIMEOUT_MS = 8_000;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_DATA_URL_LENGTH = Math.ceil((MAX_IMAGE_BYTES * 4) / 3) + 1024;
+const SAFE_IMAGE_TYPES = new Set(["image/avif", "image/gif", "image/jpeg", "image/png", "image/webp"]);
+const PRIVATE_HOST_SUFFIXES = [".corp", ".home", ".internal", ".lan", ".local", ".localdomain"];
+
+function blockedIpv4(hostname: string): boolean {
+  const octets = hostname.split(".").map(Number);
+  if (octets.length !== 4 || octets.some((value) => !Number.isInteger(value) || value < 0 || value > 255)) return false;
+  const [a, b] = octets as [number, number, number, number];
+  return (
+    a === 0 ||
+    a === 10 ||
+    a === 127 ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) ||
+    a >= 224
+  );
+}
+
+function blockedImageHostname(hostname: string): boolean {
+  const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host === "metadata.google.internal" ||
+    PRIVATE_HOST_SUFFIXES.some((suffix) => host.endsWith(suffix))
+  ) {
+    return true;
+  }
+  if (blockedIpv4(host)) return true;
+  // Single-label hostnames normally resolve through a private DNS search domain. IPv4-mapped
+  // IPv6 literals are blocked as a class so alternate spellings cannot bypass the IPv4 ranges.
+  if (!host.includes(".") && !host.includes(":")) return true;
+  return host === "::" || host === "::1" || /^f[cd]/.test(host) || /^fe[89ab]/.test(host) || /(^|:)ffff:/.test(host);
+}
+
+function validImageSource(srcUrl: string): URL | null {
+  if (!srcUrl || srcUrl.length > MAX_DATA_URL_LENGTH) return null;
+  let url: URL;
+  try {
+    url = new URL(srcUrl);
+  } catch {
+    return null;
+  }
+  if (url.protocol === "data:") return /^data:image\/[a-z0-9.+-]+[;,]/i.test(srcUrl) ? url : null;
+  if (url.protocol !== "https:" || url.username || url.password || blockedImageHostname(url.hostname)) return null;
+  return url;
+}
+
+async function readImageBytes(response: Response): Promise<{ bytes: Uint8Array; type: string } | null> {
+  const type = response.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() ?? "";
+  // SVG and arbitrary image/* subtypes can carry active content. Only passive raster formats
+  // that browsers and Memos serve safely are accepted as attachments.
+  if (!SAFE_IMAGE_TYPES.has(type)) return null;
+
+  const declaredLength = Number(response.headers.get("content-length"));
+  if (Number.isFinite(declaredLength) && declaredLength > MAX_IMAGE_BYTES) return null;
+  if (!response.body) {
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    return bytes.byteLength <= MAX_IMAGE_BYTES ? { bytes, type } : null;
+  }
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_IMAGE_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return { bytes, type };
+}
 
 async function uploadImages(images: string[], credentials: MemosCredentials): Promise<{ names: string[]; failed: number }> {
   const capped = images.slice(0, MAX_IMAGES_PER_CLIP);
-  const names = (await Promise.all(capped.map((src) => uploadImageAttachment(src, credentials)))).filter(
-    (name): name is string => name !== null,
-  );
+  const names: string[] = [];
+  // Sequential downloads keep the peak memory bounded to one decoded/base64 image.
+  for (const src of capped) {
+    const name = await uploadImageAttachment(src, credentials);
+    if (name) names.push(name);
+  }
   return { names, failed: images.length - names.length };
 }
 
@@ -181,16 +281,28 @@ function imageFilename(srcUrl: string, type: string): string {
 }
 
 async function uploadImageAttachment(srcUrl: string, credentials: MemosCredentials): Promise<string | null> {
+  const source = validImageSource(srcUrl);
+  if (!source) return null;
   try {
-    const res = await fetch(srcUrl, { signal: AbortSignal.timeout(IMAGE_DOWNLOAD_TIMEOUT_MS) });
+    const res = await fetch(source, {
+      credentials: "omit",
+      redirect: "error",
+      referrerPolicy: "no-referrer",
+      signal: AbortSignal.timeout(IMAGE_DOWNLOAD_TIMEOUT_MS),
+    });
     if (!res.ok) return null;
-    const blob = await res.blob();
-    const type = blob.type || "image/png";
-    const content = bytesToBase64(new Uint8Array(await blob.arrayBuffer()));
-    const attachment = await createAttachment(credentials, { filename: imageFilename(srcUrl, type), type, content });
+    const image = await readImageBytes(res);
+    if (!image) return null;
+    const content = bytesToBase64(image.bytes);
+    const attachment = await createAttachment(credentials, {
+      filename: imageFilename(source.toString(), image.type),
+      type: image.type,
+      content,
+    });
     return attachment.name;
   } catch (error) {
-    console.error("[memos-web-clipper] image attachment failed", srcUrl, error);
+    const errorName = typeof error === "object" && error !== null && "name" in error ? String(error.name) : "Error";
+    console.warn("[memos-web-clipper] image attachment failed", { origin: source.origin, errorName });
     return null;
   }
 }
@@ -231,7 +343,9 @@ async function createMemoWithAttachments(
     });
     return { ok: true, webUrl: memoWebUrl(credentials.instanceUrl, memo) };
   } catch (error) {
-    console.error("[memos-web-clipper] save failed", error);
-    return { ok: false, errorKind: toSaveErrorKind(error) };
+    const errorKind = toSaveErrorKind(error);
+    const errorName = typeof error === "object" && error !== null && "name" in error ? String(error.name) : "Error";
+    console.error("[memos-web-clipper] save failed", { errorKind, errorName });
+    return { ok: false, errorKind };
   }
 }

@@ -17,6 +17,12 @@ Create one OAuth application for the web clipper with these settings:
 unsafe metadata. The extension reads `unsafe_metadata.memos` from `/oauth/userinfo`; it never
 writes Clerk metadata. Connection changes remain on usememos.com.
 
+The complete userinfo response is background-only. Popup and Options messages receive only a
+display identity or sanitized connection diagnostics, never `unsafe_metadata` or the Memos access
+token. Local OAuth session V2 persists only the OAuth access/refresh token set and expiry; an
+existing V1 session is migrated without its cached userinfo. If live userinfo verification is
+unavailable, privileged writes fail closed instead of falling back to cached connection metadata.
+
 ## Redirect URIs
 
 Chromium redirect URIs use this shape:
@@ -60,7 +66,8 @@ required in the extension.
 2. Build/load each store variant and collect its exact redirect URI.
 3. Register all redirect URIs in Clerk.
 4. Set the public OAuth client ID in `.env`.
-5. Run `pnpm package` and test sign-in from all three packaged variants.
-6. Once the OAuth release is live, remove legacy extension URLs from Clerk `allowed_origins`.
+5. Commit the release source so the Git working tree is clean.
+6. Run `pnpm package` and test sign-in from all three packaged variants.
+7. Once the OAuth release is live, remove legacy extension URLs from Clerk `allowed_origins`.
 
 Keep the normal usememos.com web origins configured for the web app itself.

@@ -66,6 +66,7 @@ function makeStorageArea() {
     clear: vi.fn(async () => {
       store.clear();
     }),
+    setAccessLevel: vi.fn(async (_options: { accessLevel: "TRUSTED_CONTEXTS" }) => undefined),
   };
 }
 

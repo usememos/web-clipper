@@ -12,6 +12,10 @@ const save = {
 describe("background protocol", () => {
   it("parses valid popup requests", () => {
     expect(parseBackgroundRequest({ type: "GET_POPUP_STATE" })).toEqual({ type: "GET_POPUP_STATE" });
+    expect(parseBackgroundRequest({ type: "GET_CONNECTION_STATE", refresh: true })).toEqual({
+      type: "GET_CONNECTION_STATE",
+      refresh: true,
+    });
     expect(parseBackgroundRequest(save)).toEqual(save);
   });
 
@@ -21,8 +25,10 @@ describe("background protocol", () => {
     { ...save, visibility: "SECRET" },
     { ...save, expectedUserId: "" },
     { ...save, images: ["ok", 2] },
+    { ...save, images: [`https://cdn.example.com/${"x".repeat(8_193)}`] },
     { ...save, saveRequestId: "bad id" },
     { ...save, saveStartedAt: Number.NaN },
+    { type: "GET_CONNECTION_STATE", refresh: "yes" },
     { type: "UNKNOWN" },
   ])("rejects malformed input %#", (input) => {
     expect(parseBackgroundRequest(input)).toBeNull();
@@ -41,5 +47,11 @@ describe("background protocol", () => {
     const request = parseBackgroundRequest({ type: "OPEN_SIGN_IN" })!;
     expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/options/index.html" }, "ext")).toBe(true);
     expect(isTrustedBackgroundRequest(request, { id: "ext", url: "https://example.com" }, "ext")).toBe(false);
+  });
+
+  it("allows sanitized connection diagnostics only from options", () => {
+    const request = parseBackgroundRequest({ type: "GET_CONNECTION_STATE", refresh: true })!;
+    expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/options/index.html" }, "ext")).toBe(true);
+    expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/popup/index.html" }, "ext")).toBe(false);
   });
 });

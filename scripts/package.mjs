@@ -14,6 +14,7 @@ import { loadEnv } from "vite";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = join(ROOT, "dist");
 const ARTIFACTS = join(ROOT, "artifacts");
+const REVIEW_SOURCE_MARKER = ".memos-amo-source.json";
 const FIREFOX_ADDON_ID = "web-clipper@usememos.com";
 // Firefox desktop gained built-in data consent in 140; Android gained it in 142.
 // `gecko.strict_min_version` covers both unless a separate Android manifest is used.
@@ -26,6 +27,31 @@ if (!VALID_TARGETS.has(requestedTarget)) {
 }
 
 const packageJson = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+
+const requireTrustedSourceTree = () => {
+  if (existsSync(join(ROOT, ".git"))) {
+    const status = execFileSync("git", ["status", "--porcelain", "--untracked-files=normal"], {
+      cwd: ROOT,
+      encoding: "utf8",
+    });
+    if (status.trim()) throw new Error("Refusing to package a dirty working tree. Commit or stash all tracked and untracked files first.");
+    return true;
+  }
+
+  const markerPath = join(ROOT, REVIEW_SOURCE_MARKER);
+  if (!existsSync(markerPath))
+    throw new Error("Packaging requires either a clean Git checkout or an official AMO reviewer source archive.");
+  const marker = JSON.parse(readFileSync(markerPath, "utf8"));
+  if (marker.format !== 1 || marker.version !== packageJson.version || !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(marker.commit)) {
+    throw new Error("The AMO reviewer source marker is invalid or does not match package.json.");
+  }
+  return false;
+};
+
+// Every store archive must correspond to one reproducible tracked source tree.
+// Official reviewer archives carry a generated marker because they intentionally omit .git.
+const isGitCheckout = requireTrustedSourceTree();
+
 const baseManifestPath = join(DIST, "manifest.json");
 if (!existsSync(baseManifestPath)) throw new Error("dist/manifest.json is missing; run `pnpm build` first.");
 
@@ -112,9 +138,9 @@ const packageFirefoxSource = () => {
   const sourcePath = join(ARTIFACTS, `memos-web-clipper-firefox-source-v${packageJson.version}.zip`);
 
   try {
-    // Include committed and non-ignored working-tree files so the archive matches the
-    // exact source used for this local build, while naturally excluding .env and output.
-    const files = execFileSync("git", ["ls-files", "-z", "--cached", "--others", "--exclude-standard"], {
+    // Reviewer source is an exact tracked tree. Local and untracked files must never
+    // enter a store upload, even when they are not covered by .gitignore.
+    const files = execFileSync("git", ["ls-files", "-z", "--cached"], {
       cwd: ROOT,
       encoding: "utf8",
     })
@@ -133,6 +159,8 @@ const packageFirefoxSource = () => {
     // lets AMO reproduce the bundle without leaking CLERK_SECRET_KEY or other secrets.
     const viteEnv = publicViteEnvironment();
     if (viteEnv) writeFileSync(join(stage, ".env"), `# Public build-time values used for this submission.\n${viteEnv}\n`);
+    const commit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+    writeFileSync(join(stage, REVIEW_SOURCE_MARKER), `${JSON.stringify({ format: 1, version: packageJson.version, commit }, null, 2)}\n`);
 
     zipDirectory(stage, sourcePath);
   } finally {
@@ -157,7 +185,7 @@ const packageFirefox = () => {
     rmSync(stage, { recursive: true, force: true });
   }
 
-  return { firefoxPath, sourcePath: packageFirefoxSource() };
+  return { firefoxPath, sourcePath: isGitCheckout ? packageFirefoxSource() : null };
 };
 
 const created = [];
@@ -166,7 +194,8 @@ if (requestedTarget === "all" || requestedTarget === "chrome" || requestedTarget
 }
 if (requestedTarget === "all" || requestedTarget === "firefox") {
   const { firefoxPath, sourcePath } = packageFirefox();
-  created.push(firefoxPath, sourcePath);
+  created.push(firefoxPath);
+  if (sourcePath) created.push(sourcePath);
 }
 
 console.log("\nCreated store artifacts:");

@@ -1,57 +1,69 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useMemosConnection } from "@/hooks/use-memos-connection";
-import { VERSION_CACHE_KEY } from "@/lib/instance-version";
+import type { ConnectionStateResult } from "@/lib/messages";
 import { oauthUserWithMemos, setMockOAuthUser } from "@/test/auth-mock";
-import { seedStorage } from "@/test/browser-mock";
+import { browserMock } from "@/test/browser-mock";
 import { renderHook, waitFor } from "@/test/render";
 
 vi.mock("@/auth/auth-provider", () => import("@/test/auth-mock"));
 
-describe("useMemosConnection", () => {
-  beforeEach(() => setMockOAuthUser(null));
-  afterEach(() => vi.unstubAllGlobals());
+const connection = (over: Partial<ConnectionStateResult> = {}): ConnectionStateResult => ({
+  instanceUrl: null,
+  version: null,
+  status: "disconnected",
+  verificationError: null,
+  isUsingCachedVersion: false,
+  ...over,
+});
 
-  it("reads credentials from OAuth unsafe metadata", async () => {
-    setMockOAuthUser({
-      ...oauthUserWithMemos(),
-      unsafeMetadata: {
-        memos: {
-          instanceUrl: "https://memos.example.com",
-          accessToken: "tok",
-        },
-      },
-    });
-    window.localStorage.setItem(VERSION_CACHE_KEY, JSON.stringify({ instanceUrl: "https://memos.example.com", version: "0.29.1" }));
-    const { result } = renderHook(() => useMemosConnection());
-    await waitFor(() => expect(result.current.status).toBe("ready"));
-    expect(result.current.credentials).toEqual({ instanceUrl: "https://memos.example.com", accessToken: "tok" });
+describe("useMemosConnection", () => {
+  beforeEach(() => {
+    setMockOAuthUser(null);
+    browserMock.runtime.sendMessage.mockResolvedValue(connection());
   });
 
-  it("is read-only and disconnected when userinfo has no Memos settings", () => {
-    setMockOAuthUser({ ...oauthUserWithMemos(), unsafeMetadata: {} });
+  it("reads sanitized connection state without exposing credentials", async () => {
+    setMockOAuthUser(oauthUserWithMemos());
+    browserMock.runtime.sendMessage.mockResolvedValue(
+      connection({ instanceUrl: "https://memos.example.com", version: "0.29.1", status: "ready" }),
+    );
+
     const { result } = renderHook(() => useMemosConnection());
+
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    expect(result.current.instanceUrl).toBe("https://memos.example.com");
+    expect(result.current).not.toHaveProperty("credentials");
+    expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith({ type: "GET_CONNECTION_STATE", refresh: true });
+  });
+
+  it("is read-only and disconnected when the background has no Memos settings", async () => {
+    setMockOAuthUser(oauthUserWithMemos());
+    const { result } = renderHook(() => useMemosConnection());
+    await waitFor(() => expect(result.current.isChecking).toBe(false));
     expect(result.current.status).toBe("disconnected");
     expect(result.current).not.toHaveProperty("connect");
     expect(result.current).not.toHaveProperty("disconnect");
   });
 
-  it("classifies malformed synced metadata without crashing the options page", () => {
-    setMockOAuthUser({
-      ...oauthUserWithMemos(),
-      unsafeMetadata: { memos: { instanceUrl: "not a url", accessToken: "tok" } },
-    });
+  it("reports malformed background-owned metadata as invalid", async () => {
+    setMockOAuthUser(oauthUserWithMemos());
+    browserMock.runtime.sendMessage.mockResolvedValue(connection({ status: "invalid" }));
     const { result } = renderHook(() => useMemosConnection());
-    expect(result.current.credentials).toBeNull();
-    expect(result.current.status).toBe("invalid");
+    await waitFor(() => expect(result.current.status).toBe("invalid"));
+    expect(result.current.instanceUrl).toBeNull();
   });
 
-  it("keeps a supported cached version usable while reporting a live timeout", async () => {
-    const user = oauthUserWithMemos();
-    setMockOAuthUser(user);
-    seedStorage({ [VERSION_CACHE_KEY]: { instanceUrl: "https://memos.example.com", version: "0.29.1" } });
-    window.localStorage.setItem(VERSION_CACHE_KEY, JSON.stringify({ instanceUrl: "https://memos.example.com", version: "0.29.1" }));
-    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new DOMException("timed out", "TimeoutError")));
-
+  it("keeps sanitized cached diagnostics while reporting a live timeout", async () => {
+    setMockOAuthUser(oauthUserWithMemos());
+    browserMock.runtime.sendMessage.mockResolvedValue(
+      connection({
+        instanceUrl: "https://memos.example.com",
+        version: "0.29.1",
+        status: "ready",
+        verificationError: "timeout",
+        isUsingCachedVersion: true,
+      }),
+    );
     const { result } = renderHook(() => useMemosConnection());
     await waitFor(() => expect(result.current.isChecking).toBe(false));
     expect(result.current.status).toBe("ready");
@@ -59,13 +71,12 @@ describe("useMemosConnection", () => {
     expect(result.current.isUsingCachedVersion).toBe(true);
   });
 
-  it("reports a verification error instead of calling an unreachable instance unsupported", async () => {
+  it("fails closed when the background cannot verify the account", async () => {
     setMockOAuthUser(oauthUserWithMemos());
-    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new DOMException("timed out", "TimeoutError")));
-
+    browserMock.runtime.sendMessage.mockRejectedValue(new Error("oauth unavailable"));
     const { result } = renderHook(() => useMemosConnection());
     await waitFor(() => expect(result.current.status).toBe("error"));
-    expect(result.current.verificationError).toBe("timeout");
+    expect(result.current.verificationError).toBe("auth-unavailable");
     expect(result.current.version).toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 # Memos Web Clipper
 
-Save pages, selections, and images directly to your Memos instance. Available for Chrome and Firefox.
+Save pages, selections, and images directly to your Memos instance. Available for Chromium-based browsers and Firefox.
 
 ## Install
 
@@ -32,14 +32,6 @@ Browser-owned pages, such as extension stores and internal browser URLs, may blo
 
 ## Browser support
 
-- Google Chrome
+- Chromium-based browsers that support Chrome extensions, including Google Chrome, Microsoft Edge, Brave, and Arc
 - Mozilla Firefox 142 or later
 - Memos 0.26.0 or later in the 0.x series
-
-## Privacy
-
-Memos Web Clipper does not include analytics, advertising, or telemetry. It captures page content only after you open the extension or use its context-menu action.
-
-The extension communicates with usememos.com for sign-in and with your Memos instance when saving a clip. OAuth session data, the clip template, visibility preference, and small connection caches are stored in browser-local extension storage. Signing out removes the local OAuth session.
-
-The extension requests page access to capture the active page, work with selections, reach self-hosted Memos instances, and download selected images from their original hosts.

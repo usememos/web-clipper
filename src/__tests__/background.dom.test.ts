@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { SAVE_ATTEMPTS_KEY } from "@/background/memo-save";
 import { VERSION_CACHE_KEY } from "@/lib/instance-version";
+import { POPUP_STATE_KEY } from "@/lib/popup-state";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { browserMock, seedStorage } from "@/test/browser-mock";
 import { jsonResponse, testCreds } from "@/test/fixtures";
@@ -22,11 +24,23 @@ const oauthMocks = vi.hoisted(() => ({
   beginOAuthSignIn: vi.fn(async () => undefined),
   clearOAuthSession: vi.fn(async () => undefined),
   getOAuthUser: vi.fn(),
+  OAuthUnavailableError: class OAuthUnavailableError extends Error {
+    constructor() {
+      super("OAuth unavailable");
+      this.name = "OAuthUnavailableError";
+    }
+  },
 }));
 vi.mock("@/auth/oauth-session", () => ({
   beginOAuthSignIn: oauthMocks.beginOAuthSignIn,
   clearOAuthSession: oauthMocks.clearOAuthSession,
   getOAuthUser: oauthMocks.getOAuthUser,
+  OAuthUnavailableError: oauthMocks.OAuthUnavailableError,
+  toOAuthIdentity: (user: { id: string; displayName: string; imageUrl?: string }) => ({
+    id: user.id,
+    displayName: user.displayName,
+    ...(user.imageUrl ? { imageUrl: user.imageUrl } : {}),
+  }),
 }));
 
 const memos = (extra: Record<string, unknown> = {}) => ({
@@ -38,6 +52,7 @@ const ready = () => {
 };
 const expected = { expectedUserId: "user_123", expectedInstanceUrl: testCreds.instanceUrl };
 const popupSender = { id: "test-id", url: "chrome-extension://test-id/src/popup/index.html" };
+const optionsSender = { id: "test-id", url: "chrome-extension://test-id/src/options/index.html" };
 const emitRuntime = (message: unknown, sender = popupSender) => browserMock.runtime.onMessage.emitFirst(message, sender);
 
 // Import once: the module registers its listeners on the shared browser mock at load.
@@ -55,6 +70,12 @@ beforeEach(async () => {
     };
   });
   await import("@/background");
+});
+
+describe("background — storage isolation", () => {
+  it("restricts storage.local to trusted extension contexts", () => {
+    expect(browserMock.storage.local.setAccessLevel).toHaveBeenCalledWith({ accessLevel: "TRUSTED_CONTEXTS" });
+  });
 });
 
 describe("background — SAVE_MEMO message", () => {
@@ -155,10 +176,96 @@ describe("background — SAVE_MEMO message", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not fetch an image from a private or loopback address", async () => {
+    const privateImage = "https://127.0.0.1/admin.png";
+    const mappedLoopbackImage = "https://[::ffff:127.0.0.1]/admin.png";
+    const fetchMock = vi.fn((url: unknown) => {
+      if (String(url).endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      return Promise.resolve(new Response(null, { status: 404 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime({
+      type: "SAVE_MEMO",
+      content: "hello",
+      visibility: "PRIVATE",
+      ...expected,
+      images: [privateImage, mappedLoopbackImage],
+    });
+
+    expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/xy", failedImages: 2 });
+    expect(fetchMock.mock.calls.some(([url]) => [privateImage, mappedLoopbackImage].includes(String(url)))).toBe(false);
+    vi.unstubAllGlobals();
+  });
+
+  it("rejects an oversized image before buffering or uploading it", async () => {
+    const fetchMock = vi.fn((url: unknown) => {
+      const value = String(url);
+      if (value === "https://cdn.example.com/huge.png") {
+        return Promise.resolve(
+          new Response(new Uint8Array([1]), {
+            headers: { "content-type": "image/png", "content-length": String(10 * 1024 * 1024 + 1) },
+          }),
+        );
+      }
+      if (value.endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      return Promise.resolve(new Response(null, { status: 404 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime({
+      type: "SAVE_MEMO",
+      content: "hello",
+      visibility: "PRIVATE",
+      ...expected,
+      images: ["https://cdn.example.com/huge.png"],
+    });
+
+    expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/xy", failedImages: 1 });
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/v1/attachments"))).toBe(false);
+    vi.unstubAllGlobals();
+  });
+
+  it("rejects active SVG content instead of uploading it as an attachment", async () => {
+    const fetchMock = vi.fn((url: unknown) => {
+      const value = String(url);
+      if (value === "https://cdn.example.com/active.svg") {
+        return Promise.resolve(new Response("<svg><script>alert(1)</script></svg>", { headers: { "content-type": "image/svg+xml" } }));
+      }
+      if (value.endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      return Promise.resolve(new Response(null, { status: 404 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime({
+      type: "SAVE_MEMO",
+      content: "hello",
+      visibility: "PRIVATE",
+      ...expected,
+      images: ["https://cdn.example.com/active.svg"],
+    });
+
+    expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/xy", failedImages: 1 });
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/v1/attachments"))).toBe(false);
+    vi.unstubAllGlobals();
+  });
+
   it("returns not-configured when there is no Memos connection", async () => {
     mockUser = { id: "user_123", unsafeMetadata: {} };
     const result = await emitRuntime({ type: "SAVE_MEMO", content: "hi", visibility: "PRIVATE", ...expected });
     expect(result).toEqual({ ok: false, errorKind: "not-configured" });
+  });
+
+  it("fails closed when the OAuth identity service is temporarily unavailable", async () => {
+    oauthMocks.getOAuthUser.mockRejectedValueOnce(new oauthMocks.OAuthUnavailableError());
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime({ type: "SAVE_MEMO", content: "hi", visibility: "PRIVATE", ...expected });
+
+    expect(result).toEqual({ ok: false, errorKind: "auth-unavailable" });
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
   });
 
   it("maps an InstanceError to its kind (401 -> unauthorized)", async () => {
@@ -265,6 +372,49 @@ describe("background — popup state", () => {
     });
     expect(JSON.stringify(result)).not.toContain(testCreds.accessToken);
     expect(browserMock.storage.local.set).toHaveBeenCalledWith(expect.objectContaining({ popupStateV1: result }));
+  });
+});
+
+describe("background — sanitized options protocol", () => {
+  beforeEach(ready);
+
+  it("returns identity fields without unsafe metadata or either access token", async () => {
+    const result = await emitRuntime({ type: "GET_AUTH_USER" }, optionsSender);
+
+    expect(result).toEqual({ id: "user_123", displayName: "Steven Li" });
+    expect(JSON.stringify(result)).not.toContain("unsafeMetadata");
+    expect(JSON.stringify(result)).not.toContain(testCreds.accessToken);
+  });
+
+  it("returns only sanitized connection diagnostics", async () => {
+    const result = await emitRuntime({ type: "GET_CONNECTION_STATE", refresh: false }, optionsSender);
+
+    expect(result).toEqual({
+      instanceUrl: testCreds.instanceUrl,
+      version: "0.29.1",
+      status: "ready",
+      verificationError: null,
+      isUsingCachedVersion: true,
+    });
+    expect(JSON.stringify(result)).not.toContain(testCreds.accessToken);
+  });
+});
+
+describe("background — sign-out", () => {
+  beforeEach(ready);
+
+  it("clears popup, version, and ambiguous-save caches before broadcasting", async () => {
+    seedStorage({
+      [POPUP_STATE_KEY]: { status: "ready" },
+      [VERSION_CACHE_KEY]: { instanceUrl: testCreds.instanceUrl, version: "0.29.1" },
+      [SAVE_ATTEMPTS_KEY]: { request_1: { fingerprint: "x", startedAt: Date.now() } },
+    });
+
+    await emitRuntime({ type: "SIGN_OUT" }, optionsSender);
+
+    await expect(browserMock.storage.local.get([POPUP_STATE_KEY, VERSION_CACHE_KEY, SAVE_ATTEMPTS_KEY])).resolves.toEqual({});
+    expect(oauthMocks.clearOAuthSession).toHaveBeenCalledOnce();
+    expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith({ type: "AUTH_CHANGED" });
   });
 });
 

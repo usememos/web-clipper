@@ -1,4 +1,4 @@
-import type { OAuthUser } from "@/auth/oauth-session";
+import type { OAuthIdentity } from "@/auth/oauth-session";
 import type { SaveErrorKind } from "./errors";
 import type { Visibility } from "./memos-client";
 import type { PopupState } from "./popup-state";
@@ -25,6 +25,7 @@ export type Request =
   | { type: "OPEN_SIGN_IN" }
   | { type: "SIGN_OUT" }
   | { type: "GET_AUTH_USER" }
+  | { type: "GET_CONNECTION_STATE"; refresh?: boolean }
   | { type: "GET_POPUP_STATE" }
   | { type: "AUTH_CHANGED" } // background → extension pages: OAuth session or settings changed
   // Credentials are NOT part of save messages: the background sources them from OAuth userinfo metadata.
@@ -43,7 +44,18 @@ export type Request =
 
 export type PopupStateResult = PopupState;
 
-export type AuthUserResult = OAuthUser | null;
+export type AuthUserResult = OAuthIdentity | null;
+
+export type MemosConnectionStatus = "disconnected" | "invalid" | "unsupported" | "error" | "ready";
+
+/** Sanitized options-page state: credentials never leave the background service worker. */
+export type ConnectionStateResult = {
+  instanceUrl: string | null;
+  version: string | null;
+  status: MemosConnectionStatus;
+  verificationError: SaveErrorKind | null;
+  isUsingCachedVersion: boolean;
+};
 
 export type SaveResult =
   // failedImages: how many captured images could not be uploaded — surfaced so success is never silently partial.

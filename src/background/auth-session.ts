@@ -1,7 +1,7 @@
 import { getOAuthUser, type OAuthUser } from "@/auth/oauth-session";
-import { readCredentials } from "@/lib/connection";
-import { resolveVersion } from "@/lib/instance-version";
-import type { PopupStateResult } from "@/lib/messages";
+import { readCredentials, readMemosObject } from "@/lib/connection";
+import { checkVersion, resolveVersion } from "@/lib/instance-version";
+import type { ConnectionStateResult, PopupStateResult } from "@/lib/messages";
 import { writePopupState } from "@/lib/popup-state";
 import { readClipTemplate } from "@/lib/template-settings";
 import { isSupportedVersion } from "@/lib/versions";
@@ -40,11 +40,41 @@ async function getPopupState(signedInUser?: OAuthUser): Promise<PopupStateResult
 let popupStatePromise: Promise<PopupStateResult> | undefined;
 
 export function reconcilePopupState(signedInUser?: OAuthUser): Promise<PopupStateResult> {
-  // Sign-in already fetched and stored userinfo, so reuse it instead of immediately
-  // requesting the same endpoint again.
+  // Sign-in already fetched userinfo, so reuse that in-memory result instead of
+  // immediately requesting the same endpoint again.
   if (signedInUser) return getPopupState(signedInUser);
   popupStatePromise ??= getPopupState().finally(() => {
     popupStatePromise = undefined;
   });
   return popupStatePromise;
+}
+
+/** Live, sanitized connection diagnostics for Options. Memos credentials stay in this worker. */
+export async function getOptionsConnectionState(refresh = true): Promise<ConnectionStateResult> {
+  const user = await getOAuthUser();
+  if (!user) {
+    return { instanceUrl: null, version: null, status: "disconnected", verificationError: null, isUsingCachedVersion: false };
+  }
+
+  const memosObject = readMemosObject(user.unsafeMetadata);
+  const credentials = readCredentials(user.unsafeMetadata);
+  if (!credentials) {
+    return {
+      instanceUrl: null,
+      version: null,
+      status: memosObject ? "invalid" : "disconnected",
+      verificationError: null,
+      isUsingCachedVersion: false,
+    };
+  }
+
+  const result = await checkVersion(credentials, { refresh });
+  const status = result.version && isSupportedVersion(result.version) ? "ready" : result.errorKind ? "error" : "unsupported";
+  return {
+    instanceUrl: credentials.instanceUrl,
+    version: result.version,
+    status,
+    verificationError: result.errorKind,
+    isUsingCachedVersion: result.fromCache,
+  };
 }

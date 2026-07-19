@@ -11,7 +11,6 @@ import { UserBadge } from "@/components/user-badge";
 import { WEB_APP_URL } from "@/config/env";
 import { useClipTemplate } from "@/hooks/use-clip-template";
 import { useMemosConnection } from "@/hooks/use-memos-connection";
-import { readCredentials } from "@/lib/connection";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
 import { ErrorNotice, StepRow } from "./connection-controls";
 import { TemplateEditor } from "./template-editor";
@@ -33,6 +32,15 @@ function safeHost(instanceUrl?: string): string {
     return new URL(instanceUrl).host;
   } catch {
     return "";
+  }
+}
+
+function usesInsecureHttp(instanceUrl?: string): boolean {
+  if (!instanceUrl) return false;
+  try {
+    return new URL(instanceUrl).protocol === "http:";
+  } catch {
+    return false;
   }
 }
 
@@ -113,7 +121,7 @@ function LocalTemplateStep({ enabled, isSignedIn }: { enabled: boolean; isSigned
 
 export function Options() {
   const { error: authError, isLoaded, isSignedIn, reload, signOut, user } = useAuth();
-  const { credentials, isChecking, status, verificationError, version } = useMemosConnection();
+  const { instanceUrl, isChecking, reverify, status, verificationError, version } = useMemosConnection();
   const [signInError, setSignInError] = useState<string | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [pendingSetup, setPendingSetup] = useState(readPendingSetup);
@@ -123,7 +131,8 @@ export function Options() {
   const lastRefreshAt = useRef(0);
   const resumePendingOnMount = useRef(pendingSetup);
 
-  const host = safeHost(credentials?.instanceUrl);
+  const host = safeHost(instanceUrl ?? undefined);
+  const insecureHttp = usesInsecureHttp(instanceUrl ?? undefined);
   const ready = status === "ready";
   const setupBusy = refreshingAccount || isChecking;
 
@@ -142,15 +151,17 @@ export function Options() {
       const task = (async () => {
         const delays = retryMissing ? METADATA_RETRY_DELAYS_MS : ([0] as const);
         let nextUser = user;
+        let nextConnection = null;
         for (const delay of delays) {
           if (delay) await wait(delay);
           nextUser = await reload();
-          if (!nextUser || readCredentials(nextUser.unsafeMetadata)) break;
+          if (!nextUser) break;
+          nextConnection = await reverify();
+          if (nextConnection && nextConnection.status !== "disconnected" && nextConnection.status !== "invalid") break;
         }
 
         lastRefreshAt.current = Date.now();
-        const nextCredentials = readCredentials(nextUser?.unsafeMetadata);
-        if (nextCredentials) {
+        if (nextConnection?.instanceUrl) {
           clearPending();
           return;
         }
@@ -167,7 +178,7 @@ export function Options() {
       refreshPromise.current = task;
       return task;
     },
-    [clearPending, reload, user],
+    [clearPending, reload, reverify, user],
   );
 
   useEffect(() => {
@@ -212,7 +223,7 @@ export function Options() {
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-6 py-10">
       <div>
-        <OptionsHeader sub={sub} instanceUrl={credentials?.instanceUrl} />
+        <OptionsHeader sub={sub} instanceUrl={instanceUrl ?? undefined} />
 
         <StepRow n={1} state={isSignedIn ? "done" : "active"} title={isSignedIn ? "Signed in" : "Sign in"}>
           {!isLoaded ? (
@@ -256,7 +267,7 @@ export function Options() {
           state={ready ? "done" : isSignedIn ? "active" : "locked"}
           title={ready ? "Instance connected" : "Connect your Memos instance"}
           summary={
-            credentials && version ? (
+            instanceUrl && version ? (
               <>
                 <span className="text-fact">{`${host || "Connected instance"} · ${version}`}</span>
                 {ready && verificationError ? (
@@ -283,9 +294,12 @@ export function Options() {
                   </p>
                 </div>
               ) : null}
+              {insecureHttp ? <ErrorNotice kind="mixed-content" /> : null}
               {status === "unsupported" ? <ErrorNotice kind="unsupported-version" /> : null}
-              {status === "error" && verificationError ? <ErrorNotice kind={verificationError} /> : null}
-              {ready && verificationError ? <ErrorNotice kind={verificationError} /> : null}
+              {status === "error" && verificationError && verificationError !== "mixed-content" ? (
+                <ErrorNotice kind={verificationError} />
+              ) : null}
+              {ready && verificationError && verificationError !== "mixed-content" ? <ErrorNotice kind={verificationError} /> : null}
               {setupReturnedWithoutConnection ? (
                 <div role="alert" className="rounded-lg border bg-muted/30 p-3 text-sm">
                   <p className="font-medium">No connection was found for this account.</p>

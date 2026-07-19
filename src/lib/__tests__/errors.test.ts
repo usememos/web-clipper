@@ -18,6 +18,7 @@ describe("describeSaveError", () => {
 
   it("describes client-side preconditions distinctly from HTTP failures", () => {
     expect(describeSaveError("not-configured").title).toMatch(/no memos instance/i);
+    expect(describeSaveError("auth-unavailable")).toMatchObject({ primaryAction: "retry" });
   });
 
   it("falls back to bad-response copy for unknown kinds", () => {

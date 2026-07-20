@@ -7,6 +7,20 @@ Save pages, selections, and images directly to your Memos instance. Available fo
 - [Chrome Web Store](https://chromewebstore.google.com/detail/memos-web-clipper/nebaoebnljalfegiidibihhkebeiklbl)
 - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/memos-web-clipper/)
 
+### Manual installation
+
+Versioned packages and checksums are available from [GitHub Releases](https://github.com/usememos/web-clipper/releases). Store installation is recommended for automatic updates.
+
+For Chromium-based browsers:
+
+1. Download and extract `memos-web-clipper-chromium-v<version>.zip`.
+2. Open the browser's extensions page, such as `chrome://extensions` or `edge://extensions`.
+3. Enable **Developer mode**, choose **Load unpacked**, and select the extracted directory.
+
+For Firefox, download `memos-web-clipper-firefox-v<version>.xpi` and open it with Firefox. GitHub release XPIs are the same Mozilla-signed packages published on Firefox Add-ons.
+
+To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in the directory containing the downloaded package. Do not rely on manually installed packages receiving browser-store-managed updates; check GitHub Releases for new versions.
+
 ## Features
 
 - Capture the page title, URL, and readable description.

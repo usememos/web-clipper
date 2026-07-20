@@ -29,3 +29,4 @@ jobs:
       - run: pnpm build
       - run: pnpm audit --prod
       - run: node scripts/package.mjs firefox
+      - run: node scripts/package.mjs release

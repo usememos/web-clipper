@@ -1,0 +1,121 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID }}
+      VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER }}
+      VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL }}
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Validate release configuration
+        id: version
+        run: |
+          for name in \
+            VITE_CLERK_OAUTH_CLIENT_ID \
+            VITE_CLERK_OAUTH_ISSUER \
+            VITE_WEB_APP_URL
+          do
+            if [ -z "${!name}" ]; then
+              echo "Required release variable or secret is missing: $name" >&2
+              exit 1
+            fi
+          done
+
+          package_version="$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "v${package_version}" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version ${package_version}." >&2
+            exit 1
+          fi
+          echo "VERSION=${package_version}" >> "$GITHUB_ENV"
+          echo "version=${package_version}" >> "$GITHUB_OUTPUT"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify release source
+        run: |
+          pnpm lint
+          pnpm test
+      - name: Build release packages
+        run: pnpm package:release
+      - name: Download signed Firefox package
+        run: |
+          metadata="$(mktemp)"
+          trap 'rm -f "$metadata"' EXIT
+          curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' \
+            https://addons.mozilla.org/api/v5/addons/addon/memos-web-clipper/ \
+            --output "$metadata"
+
+          amo_version="$(jq -r '.current_version.version // empty' "$metadata")"
+          download_url="$(jq -r '.current_version.file.url // empty' "$metadata")"
+          if [ "$amo_version" != "$VERSION" ] || [ -z "$download_url" ]; then
+            echo "Firefox Add-ons publishes ${amo_version:-no version}; expected ${VERSION}. Publish the release candidate there before merging the Release Please PR." >&2
+            exit 1
+          fi
+
+          curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' \
+            "$download_url" \
+            --output "artifacts/memos-web-clipper-firefox-v${VERSION}.xpi"
+      - name: Verify release packages
+        run: |
+          verify_stage="$(mktemp -d)"
+          trap 'rm -rf "$verify_stage"' EXIT
+          mkdir "$verify_stage/unsigned-firefox" "$verify_stage/signed-firefox"
+          unzip -p "artifacts/memos-web-clipper-chromium-v${VERSION}.zip" manifest.json > "$verify_stage/chromium.json"
+          unzip -p "artifacts/memos-web-clipper-firefox-v${VERSION}.xpi" manifest.json > "$verify_stage/firefox.json"
+          unzip -q "artifacts/memos-web-clipper-firefox-v${VERSION}.zip" -d "$verify_stage/unsigned-firefox"
+          unzip -q "artifacts/memos-web-clipper-firefox-v${VERSION}.xpi" -d "$verify_stage/signed-firefox"
+          rm -rf "$verify_stage/signed-firefox/META-INF"
+          diff -qr "$verify_stage/unsigned-firefox" "$verify_stage/signed-firefox"
+
+          node --input-type=module - "$verify_stage" "$VERSION" <<'NODE'
+          import { readFileSync } from "node:fs";
+          import { join } from "node:path";
+
+          const [stage, version] = process.argv.slice(2);
+          const chromium = JSON.parse(readFileSync(join(stage, "chromium.json"), "utf8"));
+          const firefox = JSON.parse(readFileSync(join(stage, "firefox.json"), "utf8"));
+          if (chromium.version !== version || !chromium.key) throw new Error("Chromium release manifest has the wrong version or identity key.");
+          if (firefox.version !== version) throw new Error("Firefox release manifest has the wrong version.");
+          if (firefox.browser_specific_settings?.gecko?.id !== "web-clipper@usememos.com") {
+            throw new Error("Firefox release manifest has the wrong add-on ID.");
+          }
+          NODE
+      - name: Generate checksums
+        working-directory: artifacts
+        run: |
+          sha256sum \
+            "memos-web-clipper-chromium-v${VERSION}.zip" \
+            "memos-web-clipper-firefox-v${VERSION}.xpi" \
+            > SHA256SUMS
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/memos-web-clipper-chromium-v${{ steps.version.outputs.version }}.zip
+            artifacts/memos-web-clipper-firefox-v${{ steps.version.outputs.version }}.xpi
+            artifacts/SHA256SUMS

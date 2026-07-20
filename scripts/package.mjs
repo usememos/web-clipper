@@ -1,4 +1,4 @@
-// Builds store-specific upload archives from one fresh dist/ build.
+// Builds store-upload and manual-release archives from one fresh dist/ build.
 //
 // Chromium stores share the exact same package. Firefox needs an MV3 background
 // script fallback, a stable Gecko ID, and data-collection declarations. AMO also
@@ -19,7 +19,7 @@ const FIREFOX_ADDON_ID = "web-clipper@usememos.com";
 // Firefox desktop gained built-in data consent in 140; Android gained it in 142.
 // `gecko.strict_min_version` covers both unless a separate Android manifest is used.
 const FIREFOX_MIN_VERSION = "142.0";
-const VALID_TARGETS = new Set(["all", "chrome", "edge", "firefox"]);
+const VALID_TARGETS = new Set(["all", "release", "chrome", "edge", "firefox"]);
 
 const requestedTarget = process.argv[2] ?? "all";
 if (!VALID_TARGETS.has(requestedTarget)) {
@@ -60,7 +60,7 @@ if (baseManifest.version !== packageJson.version) {
   throw new Error(`Version mismatch: package.json is ${packageJson.version}, dist manifest is ${baseManifest.version}.`);
 }
 
-if (requestedTarget === "all") rmSync(ARTIFACTS, { recursive: true, force: true });
+if (requestedTarget === "all" || requestedTarget === "release") rmSync(ARTIFACTS, { recursive: true, force: true });
 mkdirSync(ARTIFACTS, { recursive: true });
 
 const zipDirectory = (sourceDir, outputPath) => {
@@ -100,11 +100,37 @@ const storeManifest = (target) => {
   return manifest;
 };
 
-const createStoreStage = (target) => {
-  const stage = mkdtempSync(join(tmpdir(), `memos-web-clipper-${target}-`));
+const manualChromiumManifest = () => {
+  const manifest = structuredClone(baseManifest);
+  // Manual Chromium installs need the public key so chrome.identity uses the
+  // registered store extension ID regardless of the extracted directory.
+  if (!manifest.key) throw new Error("The manual Chromium package requires a manifest key to preserve its OAuth identity.");
+  delete manifest.update_url;
+  return manifest;
+};
+
+const createStage = (label, manifest) => {
+  const stage = mkdtempSync(join(tmpdir(), `memos-web-clipper-${label}-`));
   cpSync(DIST, stage, { recursive: true });
-  writeFileSync(join(stage, "manifest.json"), `${JSON.stringify(storeManifest(target), null, 2)}\n`);
+  writeFileSync(join(stage, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
   return stage;
+};
+
+const createStoreStage = (target) => {
+  return createStage(target, storeManifest(target));
+};
+
+const packageReleaseChromium = () => {
+  const stage = createStage("chromium-release", manualChromiumManifest());
+  const outputPath = join(ARTIFACTS, `memos-web-clipper-chromium-v${packageJson.version}.zip`);
+
+  try {
+    zipDirectory(stage, outputPath);
+  } finally {
+    rmSync(stage, { recursive: true, force: true });
+  }
+
+  return outputPath;
 };
 
 const packageChromium = (targets) => {
@@ -170,7 +196,7 @@ const packageFirefoxSource = () => {
   return sourcePath;
 };
 
-const packageFirefox = () => {
+const packageFirefox = ({ includeSource = isGitCheckout } = {}) => {
   const stage = createStoreStage("firefox");
   const firefoxPath = join(ARTIFACTS, `memos-web-clipper-firefox-v${packageJson.version}.zip`);
 
@@ -185,10 +211,16 @@ const packageFirefox = () => {
     rmSync(stage, { recursive: true, force: true });
   }
 
-  return { firefoxPath, sourcePath: isGitCheckout ? packageFirefoxSource() : null };
+  return { firefoxPath, sourcePath: includeSource && isGitCheckout ? packageFirefoxSource() : null };
 };
 
 const created = [];
+if (requestedTarget === "release") {
+  created.push(packageReleaseChromium());
+  const { firefoxPath, sourcePath } = packageFirefox({ includeSource: false });
+  created.push(firefoxPath);
+  if (sourcePath) created.push(sourcePath);
+}
 if (requestedTarget === "all" || requestedTarget === "chrome" || requestedTarget === "edge") {
   created.push(...packageChromium(requestedTarget === "all" ? ["chrome", "edge"] : [requestedTarget]));
 }
@@ -198,6 +230,6 @@ if (requestedTarget === "all" || requestedTarget === "firefox") {
   if (sourcePath) created.push(sourcePath);
 }
 
-console.log("\nCreated store artifacts:");
+console.log("\nCreated artifacts:");
 for (const file of created) console.log(`- artifacts/${basename(file)}`);
 console.log("\ndist/ remains the unpacked development build with its stable Chrome key.");

@@ -99,6 +99,13 @@ describe("App — signed-in, connected", () => {
     expect(screen.getByRole("button", { name: /save to memos/i })).toBeEnabled();
   });
 
+  it("displays the selected visibility in title case", async () => {
+    renderWithUser(<App />);
+
+    expect(await screen.findByRole("combobox")).toHaveTextContent("Private");
+    expect(screen.getByRole("combobox")).not.toHaveTextContent("PRIVATE");
+  });
+
   it("renders from the durable snapshot while live auth reconciliation is still pending", async () => {
     seedStorage({ [POPUP_STATE_KEY]: readyState });
     browserMock.runtime.sendMessage.mockImplementation(async (msg: unknown) => {

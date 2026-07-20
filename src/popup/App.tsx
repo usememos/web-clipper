@@ -140,6 +140,12 @@ type ClipperState = ReturnType<typeof useClipper>;
 type ReadyPopupState = Extract<PopupState, { status: "ready" }>;
 type BlockedPopupState = Exclude<PopupState, { status: "ready" }>;
 
+const VISIBILITY_LABELS: Record<Visibility, string> = {
+  PRIVATE: "Private",
+  PROTECTED: "Protected",
+  PUBLIC: "Public",
+};
+
 function ReconciliationBar({ state }: { state: BlockedPopupState }) {
   const signedOut = state.status === "signed-out";
   return (
@@ -232,14 +238,14 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
           </p>
         )}
         <div className="flex items-center gap-2">
-          <Select value={c.visibility} onValueChange={(v) => c.setVisibility(v as Visibility)}>
+          <Select items={VISIBILITY_LABELS} value={c.visibility} onValueChange={(v) => c.setVisibility(v as Visibility)}>
             <SelectTrigger className="w-30">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="PRIVATE">Private</SelectItem>
-              <SelectItem value="PROTECTED">Protected</SelectItem>
-              <SelectItem value="PUBLIC">Public</SelectItem>
+              <SelectItem value="PRIVATE">{VISIBILITY_LABELS.PRIVATE}</SelectItem>
+              <SelectItem value="PROTECTED">{VISIBILITY_LABELS.PROTECTED}</SelectItem>
+              <SelectItem value="PUBLIC">{VISIBILITY_LABELS.PUBLIC}</SelectItem>
             </SelectContent>
           </Select>
           <Button className="flex-1" disabled={c.busy || !!blocked || !c.content.trim()} onClick={onSave}>

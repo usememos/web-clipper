@@ -8,8 +8,10 @@ import { renderHook, waitFor } from "@/test/render";
 vi.mock("@/auth/auth-provider", () => import("@/test/auth-mock"));
 
 const connection = (over: Partial<ConnectionStateResult> = {}): ConnectionStateResult => ({
+  source: null,
   instanceUrl: null,
   version: null,
+  displayName: null,
   status: "disconnected",
   verificationError: null,
   isUsingCachedVersion: false,
@@ -33,7 +35,7 @@ describe("useMemosConnection", () => {
     await waitFor(() => expect(result.current.status).toBe("ready"));
     expect(result.current.instanceUrl).toBe("https://memos.example.com");
     expect(result.current).not.toHaveProperty("credentials");
-    expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith({ type: "GET_CONNECTION_STATE", refresh: true });
+    expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith({ type: "GET_CONNECTION_STATE", refresh: true, source: "active" });
   });
 
   it("is read-only and disconnected when the background has no Memos settings", async () => {

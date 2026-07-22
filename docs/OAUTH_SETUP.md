@@ -21,7 +21,8 @@ The complete userinfo response is background-only. Popup and Options messages re
 display identity or sanitized connection diagnostics, never `unsafe_metadata` or the Memos access
 token. Local OAuth session V2 persists only the OAuth access/refresh token set and expiry; an
 existing V1 session is migrated without its cached userinfo. If live userinfo verification is
-unavailable, privileged writes fail closed instead of falling back to cached connection metadata.
+unavailable, writes using the usememos.com source fail closed instead of falling back to cached
+connection metadata. The separately selected direct-connection source does not depend on OAuth.
 
 ## Redirect URIs
 

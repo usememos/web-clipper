@@ -35,10 +35,13 @@ The default template keeps the captured content first and adds a link back to th
 
 ## How to use
 
-1. Sign in with your usememos.com account.
-2. Connect the Memos instance you want to use.
-3. Open the extension on a page.
-4. Review the captured content, choose its visibility, and save.
+1. Open the extension settings and choose a connection method:
+   - **usememos.com (Recommended):** sign in, then connect an instance. Your connection information is available after signing in on another device.
+   - **Direct connection:** enter your Memos instance URL and a personal access token. No usememos.com account is required, and the connection stays in this browser.
+2. Open the extension on a page.
+3. Review the captured content, choose its visibility, and save.
+
+For a direct connection, create a PAT in your Memos user settings at `/setting#access-token`. The clipper tests the instance URL, supported Memos version, and token before saving the connection. The saved token is never displayed again in the extension UI.
 
 You can also right-click selected text or an image and choose **Save selection to Memos**. Context-menu saves are always private.
 

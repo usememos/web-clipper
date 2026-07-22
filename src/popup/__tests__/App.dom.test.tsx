@@ -12,6 +12,7 @@ const capture = {
 const identity = { userId: "user_123", displayName: "Steven Li", imageUrl: "https://img.example.com/a.png" };
 const readyState: PopupState = {
   status: "ready",
+  source: "usememos",
   identity,
   template: null,
   instanceUrl: "https://memos.example.com",
@@ -34,14 +35,14 @@ describe("App — signed-out", () => {
   beforeEach(() => {
     browserMock.tabs.query.mockResolvedValue([{ id: 7 }]);
     browserMock.scripting.executeScript.mockResolvedValue([{ result: capture }]);
-    wireSaveResult(undefined, { status: "signed-out", updatedAt: 1 });
+    wireSaveResult(undefined, { status: "signed-out", source: null, updatedAt: 1 });
   });
 
-  it("shows the sign-in prompt and delegates the flow to the background", async () => {
+  it("opens settings so the user can choose a connection method", async () => {
     const { user } = renderWithUser(<App />);
-    expect(await screen.findByText(/sign in with your usememos\.com account to start clipping/i)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /sign in with usememos\.com/i }));
-    await waitFor(() => expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith({ type: "OPEN_SIGN_IN" }));
+    expect(await screen.findByText(/choose how to connect/i)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /open settings/i }));
+    await waitFor(() => expect(browserMock.runtime.openOptionsPage).toHaveBeenCalled());
   });
 });
 
@@ -49,7 +50,7 @@ describe("App — signed-in, no connection", () => {
   beforeEach(() => {
     browserMock.tabs.query.mockResolvedValue([{ id: 7 }]);
     browserMock.scripting.executeScript.mockResolvedValue([{ result: capture }]);
-    wireSaveResult(undefined, { status: "disconnected", identity, template: null, updatedAt: 1 });
+    wireSaveResult(undefined, { status: "disconnected", source: "usememos", identity, template: null, updatedAt: 1 });
   });
 
   it("prompts to connect and opens the options page", async () => {
@@ -66,6 +67,7 @@ describe("App — signed-in, unsupported version", () => {
     browserMock.scripting.executeScript.mockResolvedValue([{ result: capture }]);
     wireSaveResult(undefined, {
       status: "unsupported",
+      source: "usememos",
       identity,
       template: null,
       instanceUrl: "https://memos.example.com",
@@ -134,7 +136,7 @@ describe("App — signed-in, connected", () => {
     await user.clear(editor);
     await user.type(editor, "keep this draft");
 
-    await act(async () => resolveState({ status: "signed-out", updatedAt: 2 }));
+    await act(async () => resolveState({ status: "signed-out", source: "usememos", updatedAt: 2 }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(/you’re signed out/i);
     expect(screen.getByRole<HTMLTextAreaElement>("textbox", { name: /memo content/i }).value).toBe("keep this draft");

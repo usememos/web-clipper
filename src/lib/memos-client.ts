@@ -35,6 +35,25 @@ export function isValidInstanceUrl(instanceUrl: string): boolean {
   }
 }
 
+function isLoopbackHttp(instanceUrl: string): boolean {
+  const url = new URL(instanceUrl);
+  if (url.protocol !== "http:") return false;
+  const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (host === "localhost" || host === "::1") return true;
+  const octets = host.split(".").map(Number);
+  return octets.length === 4 && octets.every((part) => Number.isInteger(part) && part >= 0 && part <= 255) && octets[0] === 127;
+}
+
+/** Plaintext HTTP to a non-loopback host sends the access token unencrypted; the user must opt in. */
+export function requiresInsecureHttpConfirmation(instanceUrl: string): boolean {
+  try {
+    const normalized = normalizeInstanceUrl(instanceUrl.trim());
+    return new URL(normalized).protocol === "http:" && !isLoopbackHttp(normalized);
+  } catch {
+    return false;
+  }
+}
+
 function buildUrl(instanceUrl: string, path: string): string {
   return `${normalizeInstanceUrl(instanceUrl)}${path}`;
 }
@@ -112,7 +131,12 @@ async function instanceFetchJson(
 }
 
 export type InstanceProfile = { version: string };
-export type CurrentMemosUser = { name: string };
+export type CurrentMemosUser = { name: string; displayName?: string; username?: string };
+
+/** Human-readable name for a Memos user, falling back to the id in the `users/<id>` resource name. */
+export function memosUserDisplayName(user: CurrentMemosUser): string {
+  return user.displayName || user.username || user.name.replace(/^users\//, "");
+}
 
 function badResponse(): never {
   throw new InstanceError("bad-response");
@@ -135,7 +159,11 @@ export async function getCurrentUser(creds: MemosCredentials, deps?: InstanceFet
   if (typeof raw !== "object" || raw === null || typeof (raw as { user?: unknown }).user !== "object") return badResponse();
   const user = (raw as { user: Record<string, unknown> }).user;
   if (typeof user.name !== "string" || !user.name.trim()) return badResponse();
-  return { name: user.name };
+  return {
+    name: user.name,
+    ...(typeof user.displayName === "string" && user.displayName.trim() ? { displayName: user.displayName } : {}),
+    ...(typeof user.username === "string" && user.username.trim() ? { username: user.username } : {}),
+  };
 }
 
 export type CreatedMemo = { name: string; uid?: string };

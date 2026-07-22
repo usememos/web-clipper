@@ -1,3 +1,4 @@
+import type { ConnectionSource } from "./connection-config";
 import { MIN_SUPPORTED_VERSION_LABEL } from "./versions";
 
 /** Failure modes of an actual HTTP request to the user's Memos instance. */
@@ -11,7 +12,7 @@ export type InstanceErrorKind =
   | "unsupported-version";
 
 /** Client-side preconditions that fail before any request is made. */
-export type ClientErrorKind = "not-configured" | "auth-changed" | "auth-unavailable" | "extension-error" | "invalid-url";
+export type ClientErrorKind = "not-configured" | "auth-changed" | "auth-unavailable" | "extension-error" | "invalid-url" | "storage-error";
 
 /** Everything a save attempt can report back to the UI. */
 export type SaveErrorKind = InstanceErrorKind | ClientErrorKind;
@@ -42,12 +43,21 @@ export class InstanceError extends Error {
   }
 }
 
-/** Maps a thrown error to the SaveErrorKind the UI can describe. */
-export function toSaveErrorKind(error: unknown): SaveErrorKind {
-  return error instanceof InstanceError ? error.kind : "bad-response";
+export class ClientError extends Error {
+  readonly kind: ClientErrorKind;
+  constructor(kind: ClientErrorKind) {
+    super(kind);
+    this.name = "ClientError";
+    this.kind = kind;
+  }
 }
 
-export function describeSaveError(kind: SaveErrorKind): SaveErrorDetail {
+/** Maps a thrown error to the SaveErrorKind the UI can describe. */
+export function toSaveErrorKind(error: unknown): SaveErrorKind {
+  return error instanceof InstanceError || error instanceof ClientError ? error.kind : "bad-response";
+}
+
+export function describeSaveError(kind: SaveErrorKind, source?: ConnectionSource | null): SaveErrorDetail {
   switch (kind) {
     case "invalid-url":
       return {
@@ -64,6 +74,14 @@ export function describeSaveError(kind: SaveErrorKind): SaveErrorDetail {
         title: "The extension stopped responding",
         why: "The popup couldn't reach its background service worker, so the save result is unknown.",
         howToFix: ["Keep this popup open and try again; your draft is still here."],
+      };
+    case "storage-error":
+      return {
+        kind,
+        primaryAction: "retry",
+        title: "Couldn't save this connection",
+        why: "The connection was verified, but the browser couldn't store it on this device.",
+        howToFix: ["Check that extension storage is available, then try again."],
       };
     case "auth-changed":
       return {
@@ -87,7 +105,7 @@ export function describeSaveError(kind: SaveErrorKind): SaveErrorDetail {
         primaryAction: "settings",
         title: "No Memos instance connected",
         why: "You haven't connected a Memos instance to the clipper yet.",
-        howToFix: ["Open the extension settings, then connect your instance on usememos.com."],
+        howToFix: ["Open the extension settings, choose a connection method, then connect your instance."],
       };
     case "mixed-content":
       return {
@@ -103,7 +121,7 @@ export function describeSaveError(kind: SaveErrorKind): SaveErrorDetail {
         primaryAction: "settings",
         title: "Your instance blocked the request (CORS)",
         why: "The server is reachable but didn't allow the extension to read the response.",
-        howToFix: ["Confirm the instance is online and reachable.", "Try reconnecting from usememos.com."],
+        howToFix: ["Confirm the instance is online and reachable.", "Check the instance URL and try the connection again."],
       };
     case "unreachable":
       return {
@@ -119,7 +137,10 @@ export function describeSaveError(kind: SaveErrorKind): SaveErrorDetail {
         primaryAction: "settings",
         title: "Access token rejected",
         why: "The instance returned 401/403 — the token is invalid or expired.",
-        howToFix: ["Sign in to usememos.com and reconnect.", "If it persists, regenerate your access token in Memos settings."],
+        howToFix:
+          source === "direct"
+            ? ["Replace the token in extension settings.", "If needed, create a new token in your Memos user settings."]
+            : ["Sign in to usememos.com and reconnect.", "If it persists, regenerate your access token in Memos settings."],
       };
     case "timeout":
       return {

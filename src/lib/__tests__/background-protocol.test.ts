@@ -5,7 +5,8 @@ const save = {
   type: "SAVE_MEMO",
   content: "draft",
   visibility: "PRIVATE",
-  expectedUserId: "user_123",
+  expectedSource: "usememos",
+  expectedConnectionId: "user_123",
   expectedInstanceUrl: "https://memos.example.com",
 } as const;
 
@@ -21,9 +22,17 @@ describe("background protocol", () => {
 
   it.each([
     null,
-    { type: "SAVE_MEMO", content: 1, visibility: "PRIVATE", expectedUserId: "u", expectedInstanceUrl: "https://x" },
+    {
+      type: "SAVE_MEMO",
+      content: 1,
+      visibility: "PRIVATE",
+      expectedSource: "usememos",
+      expectedConnectionId: "u",
+      expectedInstanceUrl: "https://x",
+    },
     { ...save, visibility: "SECRET" },
-    { ...save, expectedUserId: "" },
+    { ...save, expectedSource: "other" },
+    { ...save, expectedConnectionId: "" },
     { ...save, images: ["ok", 2] },
     { ...save, images: [`https://cdn.example.com/${"x".repeat(8_193)}`] },
     { ...save, saveRequestId: "bad id" },
@@ -53,5 +62,16 @@ describe("background protocol", () => {
     const request = parseBackgroundRequest({ type: "GET_CONNECTION_STATE", refresh: true })!;
     expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/options/index.html" }, "ext")).toBe(true);
     expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/popup/index.html" }, "ext")).toBe(false);
+  });
+
+  it("accepts direct credentials only from options and enforces input limits", () => {
+    const input = { type: "CONNECT_DIRECT", instanceUrl: "https://memos.example.com", accessToken: "secret" };
+    const request = parseBackgroundRequest(input)!;
+    expect(request).toEqual(input);
+    expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/options/index.html" }, "ext")).toBe(true);
+    expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/popup/index.html" }, "ext")).toBe(false);
+    expect(parseBackgroundRequest({ ...input, instanceUrl: "x".repeat(2_049) })).toBeNull();
+    expect(parseBackgroundRequest({ ...input, accessToken: "x".repeat(8_193) })).toBeNull();
+    expect(parseBackgroundRequest({ ...input, allowInsecureHttp: "yes" })).toBeNull();
   });
 });

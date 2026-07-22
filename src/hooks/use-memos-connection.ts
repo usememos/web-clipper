@@ -4,36 +4,29 @@ import type { ConnectionStateResult } from "@/lib/messages";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 
 const DISCONNECTED: ConnectionStateResult = {
+  source: null,
   instanceUrl: null,
   version: null,
+  displayName: null,
   status: "disconnected",
   verificationError: null,
   isUsingCachedVersion: false,
 };
 
-/**
- * Reads only sanitized connection diagnostics from the background. The renderer never
- * receives unsafeMetadata or the Memos access token.
- */
-export function useMemosConnection() {
+/** Reads sanitized connection diagnostics; saved credentials never leave the worker. */
+export function useMemosConnection(source: "active" | "usememos" = "active") {
   const { isSignedIn, user } = useAuth();
   const [connection, setConnection] = useState<ConnectionStateResult>(DISCONNECTED);
   const connectionRef = useRef<ConnectionStateResult>(DISCONNECTED);
-  const [isChecking, setIsChecking] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   const generation = useRef(0);
 
   const runCheck = useCallback(
-    async (refresh = true): Promise<ConnectionStateResult | null> => {
+    async (refresh = true): Promise<ConnectionStateResult> => {
       const currentGeneration = ++generation.current;
-      if (!isSignedIn) {
-        setConnection(DISCONNECTED);
-        setIsChecking(false);
-        return null;
-      }
-
       setIsChecking(true);
       try {
-        const next = await sendBackgroundRequest({ type: "GET_CONNECTION_STATE", refresh });
+        const next = await sendBackgroundRequest({ type: "GET_CONNECTION_STATE", refresh, source });
         if (generation.current === currentGeneration) {
           connectionRef.current = next;
           setConnection(next);
@@ -42,10 +35,12 @@ export function useMemosConnection() {
       } catch {
         const current = connectionRef.current;
         const unavailable: ConnectionStateResult = {
+          source: current.source,
           instanceUrl: current.instanceUrl,
           version: current.version,
+          displayName: current.displayName,
           status: "error",
-          verificationError: "auth-unavailable",
+          verificationError: source === "usememos" || isSignedIn ? "auth-unavailable" : "extension-error",
           isUsingCachedVersion: Boolean(current.version),
         };
         if (generation.current === currentGeneration) {
@@ -57,31 +52,25 @@ export function useMemosConnection() {
         if (generation.current === currentGeneration) setIsChecking(false);
       }
     },
-    [isSignedIn],
+    [source, isSignedIn],
   );
 
   useEffect(() => {
     generation.current += 1;
-    if (!isSignedIn) {
-      connectionRef.current = DISCONNECTED;
-      setConnection(DISCONNECTED);
-      setIsChecking(false);
-      return;
-    }
     connectionRef.current = DISCONNECTED;
     setConnection(DISCONNECTED);
     void runCheck(true);
-  }, [isSignedIn, runCheck, user?.id]);
-
-  const reverify = useCallback(() => runCheck(true), [runCheck]);
+  }, [runCheck, user?.id]);
 
   return {
+    source: connection.source,
     instanceUrl: connection.instanceUrl,
     version: connection.version,
+    displayName: connection.displayName,
     status: connection.status,
     isChecking,
     verificationError: connection.verificationError,
     isUsingCachedVersion: connection.isUsingCachedVersion,
-    reverify,
+    reverify: useCallback(() => runCheck(true), [runCheck]),
   };
 }

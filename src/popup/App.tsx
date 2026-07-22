@@ -2,7 +2,6 @@ import { ExternalLinkIcon, GlobeIcon, PaperclipIcon, SettingsIcon, TriangleAlert
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import browser from "webextension-polyfill";
-import { openSignIn } from "@/auth/actions";
 import { AccountBadge } from "@/components/account-badge";
 import { AppBrand } from "@/components/app-brand";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -154,8 +153,8 @@ function ReconciliationBar({ state }: { state: BlockedPopupState }) {
         {signedOut ? "You’re signed out" : state.status === "disconnected" ? "Memos is disconnected" : "Memos needs an upgrade"}
       </AlertTitle>
       <AlertDescription>Your draft is preserved, but it can’t be saved until the connection is ready.</AlertDescription>
-      <Button size="xs" className="mt-2 w-fit" onClick={() => (signedOut ? void openSignIn().catch(() => {}) : openOptions())}>
-        {signedOut ? "Sign in" : "Open settings"}
+      <Button size="xs" className="mt-2 w-fit" onClick={openOptions}>
+        Open settings
       </Button>
     </Alert>
   );
@@ -206,7 +205,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
       });
     } else {
       // Persistent inline state, not a toast: the error stays until it's acted on.
-      setError(describeSaveError(result.errorKind));
+      setError(describeSaveError(result.errorKind, state.source));
     }
   };
 
@@ -264,7 +263,8 @@ export function App() {
   if (state?.status === "ready") lastReady.current = state;
   const templateReady = state !== null && state.status !== "signed-out";
   const template = state && state.status !== "signed-out" ? state.template : null;
-  const expectation = state?.status === "ready" ? { userId: state.identity.userId, instanceUrl: state.instanceUrl } : null;
+  const expectation =
+    state?.status === "ready" ? { source: state.source, connectionId: state.identity.userId, instanceUrl: state.instanceUrl } : null;
   // This hook stays mounted while cached auth is reconciled, so a gate transition cannot erase
   // edits made during the optimistic window.
   const clipper = useClipper(capture, template, templateReady, expectation);
@@ -291,11 +291,9 @@ export function App() {
       <Frame>
         <Header left={<AppBrand />} />
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Sign in with your usememos.com account to start clipping. Your saved Memos connection will load automatically.
-          </p>
-          <Button className="mt-2 w-full" onClick={() => void openSignIn().catch(() => {})}>
-            Sign in with usememos.com
+          <p className="text-sm text-muted-foreground">Choose how to connect the clipper to your Memos instance.</p>
+          <Button className="mt-2 w-full" onClick={openOptions}>
+            Open settings
           </Button>
         </div>
       </Frame>

@@ -1,6 +1,7 @@
 import browser from "webextension-polyfill";
-import { getOAuthUser, OAuthUnavailableError, type OAuthUser } from "@/auth/oauth-session";
-import { readCredentials } from "@/lib/connection";
+import { OAuthUnavailableError } from "@/auth/oauth-session";
+import { resolveActiveConnection } from "@/background/connection-source";
+import type { ConnectionSource } from "@/lib/connection-config";
 import { toSaveErrorKind } from "@/lib/errors";
 import { composeMemoContent, toQuotedMarkdown } from "@/lib/format";
 import {
@@ -14,7 +15,7 @@ import {
 } from "@/lib/memos-client";
 import type { SaveResult, SelectionClip } from "@/lib/messages";
 
-export type SaveExpectation = { userId: string; instanceUrl: string };
+export type SaveExpectation = { source: ConnectionSource; connectionId: string; instanceUrl: string };
 export type SaveOperation = { requestId: string; startedAt: number; serverMemoId?: string };
 
 export const SAVE_ATTEMPTS_KEY = "memoSaveAttemptsV1";
@@ -38,7 +39,7 @@ export async function clearMemoSaveAttempts(): Promise<void> {
 }
 
 function saveFingerprint(content: string, visibility: Visibility, expected: SaveExpectation, images: string[]): string {
-  const value = [content, visibility, expected.userId, expected.instanceUrl, ...images].join("\u0000");
+  const value = [content, visibility, expected.source, expected.connectionId, expected.instanceUrl, ...images].join("\u0000");
   let hash = 0x811c9dc5;
   for (let index = 0; index < value.length; index += 1) {
     hash ^= value.charCodeAt(index);
@@ -72,16 +73,20 @@ export async function savePopupMemo(
   expected: SaveExpectation,
   operation: SaveOperation = { requestId: `legacy_${Date.now()}_${Math.random().toString(36).slice(2)}`, startedAt: Date.now() },
 ): Promise<SaveResult> {
-  let user: OAuthUser | null;
+  let connection: Awaited<ReturnType<typeof resolveActiveConnection>>;
   try {
-    user = await getOAuthUser();
+    connection = await resolveActiveConnection();
   } catch (error) {
     if (error instanceof OAuthUnavailableError) return { ok: false, errorKind: "auth-unavailable" };
     throw error;
   }
-  const credentials = readCredentials(user?.unsafeMetadata);
-  if (!credentials) return { ok: false, errorKind: "not-configured" };
-  if (user?.id !== expected.userId || credentials.instanceUrl !== expected.instanceUrl) {
+  if (!connection) return { ok: false, errorKind: "not-configured" };
+  const { credentials } = connection;
+  if (
+    connection.source !== expected.source ||
+    connection.connectionId !== expected.connectionId ||
+    credentials.instanceUrl !== expected.instanceUrl
+  ) {
     return { ok: false, errorKind: "auth-changed" };
   }
   const running = inFlight.get(operation.requestId);

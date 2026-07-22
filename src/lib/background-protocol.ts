@@ -3,7 +3,19 @@ import type { Request } from "./messages";
 
 export type BackgroundRequest = Extract<
   Request,
-  { type: "GET_POPUP_STATE" | "OPEN_SIGN_IN" | "SIGN_OUT" | "GET_AUTH_USER" | "GET_CONNECTION_STATE" | "SAVE_MEMO" }
+  {
+    type:
+      | "GET_POPUP_STATE"
+      | "OPEN_SIGN_IN"
+      | "SIGN_OUT"
+      | "SELECT_USEMEMOS_SOURCE"
+      | "ACTIVATE_USEMEMOS_CONNECTION"
+      | "CONNECT_DIRECT"
+      | "DISCONNECT_CONNECTION"
+      | "GET_AUTH_USER"
+      | "GET_CONNECTION_STATE"
+      | "SAVE_MEMO";
+  }
 >;
 export type RuntimeSender = { id?: string; url?: string };
 
@@ -20,18 +32,38 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
     request.type === "GET_POPUP_STATE" ||
     request.type === "OPEN_SIGN_IN" ||
     request.type === "SIGN_OUT" ||
-    request.type === "GET_AUTH_USER"
+    request.type === "GET_AUTH_USER" ||
+    request.type === "SELECT_USEMEMOS_SOURCE" ||
+    request.type === "ACTIVATE_USEMEMOS_CONNECTION" ||
+    request.type === "DISCONNECT_CONNECTION"
   ) {
     return { type: request.type };
   }
+  if (request.type === "CONNECT_DIRECT") {
+    if (typeof request.instanceUrl !== "string" || request.instanceUrl.length > 2_048) return null;
+    if (typeof request.accessToken !== "string" || request.accessToken.length > 8_192) return null;
+    if (request.allowInsecureHttp !== undefined && typeof request.allowInsecureHttp !== "boolean") return null;
+    return {
+      type: "CONNECT_DIRECT",
+      instanceUrl: request.instanceUrl,
+      accessToken: request.accessToken,
+      ...(request.allowInsecureHttp !== undefined ? { allowInsecureHttp: request.allowInsecureHttp } : {}),
+    };
+  }
   if (request.type === "GET_CONNECTION_STATE") {
     if (request.refresh !== undefined && typeof request.refresh !== "boolean") return null;
-    return { type: "GET_CONNECTION_STATE", ...(request.refresh !== undefined ? { refresh: request.refresh } : {}) };
+    if (request.source !== undefined && request.source !== "active" && request.source !== "usememos") return null;
+    return {
+      type: "GET_CONNECTION_STATE",
+      ...(request.refresh !== undefined ? { refresh: request.refresh } : {}),
+      ...(request.source !== undefined ? { source: request.source } : {}),
+    };
   }
   if (request.type !== "SAVE_MEMO") return null;
 
   if (typeof request.content !== "string" || !VISIBILITIES.has(request.visibility as Visibility)) return null;
-  if (typeof request.expectedUserId !== "string" || !request.expectedUserId) return null;
+  if (request.expectedSource !== "direct" && request.expectedSource !== "usememos") return null;
+  if (typeof request.expectedConnectionId !== "string" || !request.expectedConnectionId) return null;
   if (typeof request.expectedInstanceUrl !== "string" || !request.expectedInstanceUrl) return null;
   if (
     request.saveRequestId !== undefined &&
@@ -62,7 +94,8 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
     type: "SAVE_MEMO",
     content: request.content,
     visibility: request.visibility as Visibility,
-    expectedUserId: request.expectedUserId,
+    expectedSource: request.expectedSource,
+    expectedConnectionId: request.expectedConnectionId,
     expectedInstanceUrl: request.expectedInstanceUrl,
     ...(request.images ? { images: request.images as string[] } : {}),
     ...(request.saveRequestId ? { saveRequestId: request.saveRequestId } : {}),
@@ -86,7 +119,15 @@ export function isTrustedBackgroundRequest(request: BackgroundRequest, sender: R
     return false;
   }
 
-  if (request.type === "GET_CONNECTION_STATE") return path === "/src/options/index.html";
+  if (
+    request.type === "GET_CONNECTION_STATE" ||
+    request.type === "SELECT_USEMEMOS_SOURCE" ||
+    request.type === "ACTIVATE_USEMEMOS_CONNECTION" ||
+    request.type === "CONNECT_DIRECT" ||
+    request.type === "DISCONNECT_CONNECTION"
+  ) {
+    return path === "/src/options/index.html";
+  }
   if (request.type === "OPEN_SIGN_IN" || request.type === "SIGN_OUT" || request.type === "GET_AUTH_USER") {
     return path === "/src/popup/index.html" || path === "/src/options/index.html";
   }

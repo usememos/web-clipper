@@ -1,4 +1,5 @@
 import type { OAuthIdentity } from "@/auth/oauth-session";
+import type { ConnectionSource } from "./connection-config";
 import type { SaveErrorKind } from "./errors";
 import type { Visibility } from "./memos-client";
 import type { PopupState } from "./popup-state";
@@ -24,17 +25,22 @@ export type Request =
   | { type: "SHOW_SAVE_RESULT"; ok: boolean; title: string; webUrl?: string } // background → content script: in-page toast
   | { type: "OPEN_SIGN_IN" }
   | { type: "SIGN_OUT" }
+  | { type: "SELECT_USEMEMOS_SOURCE" }
+  | { type: "ACTIVATE_USEMEMOS_CONNECTION" }
+  | { type: "CONNECT_DIRECT"; instanceUrl: string; accessToken: string; allowInsecureHttp?: boolean }
+  | { type: "DISCONNECT_CONNECTION" }
   | { type: "GET_AUTH_USER" }
-  | { type: "GET_CONNECTION_STATE"; refresh?: boolean }
+  | { type: "GET_CONNECTION_STATE"; refresh?: boolean; source?: "active" | "usememos" }
   | { type: "GET_POPUP_STATE" }
   | { type: "AUTH_CHANGED" } // background → extension pages: OAuth session or settings changed
-  // Credentials are NOT part of save messages: the background sources them from OAuth userinfo metadata.
+  // Credentials are NOT part of save messages: the background sources them from the active provider.
   | {
       type: "SAVE_MEMO";
       content: string;
       visibility: Visibility;
       images?: string[];
-      expectedUserId: string;
+      expectedSource: ConnectionSource;
+      expectedConnectionId: string;
       expectedInstanceUrl: string;
       /** Stable across retries of one logical save; lets the worker reconcile an ambiguous POST. */
       saveRequestId?: string;
@@ -50,12 +56,16 @@ export type MemosConnectionStatus = "disconnected" | "invalid" | "unsupported" |
 
 /** Sanitized options-page state: credentials never leave the background service worker. */
 export type ConnectionStateResult = {
+  source: ConnectionSource | null;
   instanceUrl: string | null;
   version: string | null;
+  displayName: string | null;
   status: MemosConnectionStatus;
   verificationError: SaveErrorKind | null;
   isUsingCachedVersion: boolean;
 };
+
+export type ConnectionActionResult = { ok: true; state: ConnectionStateResult } | { ok: false; errorKind: SaveErrorKind };
 
 export type SaveResult =
   // failedImages: how many captured images could not be uploaded — surfaced so success is never silently partial.

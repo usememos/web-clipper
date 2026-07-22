@@ -1,6 +1,7 @@
 import { CheckIcon, ExternalLinkIcon, LockIcon, TriangleAlertIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import type { ConnectionSource } from "@/lib/connection-config";
 import { describeSaveError, type SaveErrorKind } from "@/lib/errors";
 
 type StepState = "done" | "active" | "locked";
@@ -42,16 +43,20 @@ export function StepRow({
         {last ? null : <div className="my-1.5 w-px flex-1 bg-border" />}
       </div>
       <div className="min-w-0 pb-8">
-        <div className={`text-sm leading-6.5 ${state === "locked" ? "font-medium text-muted-foreground" : "font-semibold"}`}>{title}</div>
-        {summary ? <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">{summary}</div> : null}
+        <div
+          className={`text-base leading-6.5 tracking-[-0.01em] ${state === "locked" ? "font-medium text-muted-foreground" : "font-semibold"}`}
+        >
+          {title}
+        </div>
+        {summary ? <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">{summary}</div> : null}
         {children ? <div className="mt-3">{children}</div> : null}
       </div>
     </div>
   );
 }
 
-export function ErrorNotice({ kind, className }: { kind: SaveErrorKind; className?: string }) {
-  const detail = describeSaveError(kind);
+export function ErrorNotice({ kind, source, className }: { kind: SaveErrorKind; source?: ConnectionSource | null; className?: string }) {
+  const detail = describeSaveError(kind, source);
   const danger = kind !== "unsupported-version";
   return (
     <Alert className={className} variant={danger ? "destructive" : "default"}>

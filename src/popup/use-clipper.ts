@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ConnectionSource } from "@/lib/connection-config";
 import { composeMemoContent } from "@/lib/format";
 import type { Visibility } from "@/lib/memos-client";
 import type { SaveResult } from "@/lib/messages";
@@ -11,7 +12,7 @@ import type { PageCapture } from "./page-capture";
  * session loading); this hook composes it into the editor prefill once both the capture and the
  * user's template are available.
  */
-type SaveExpectation = { userId: string; instanceUrl: string };
+type SaveExpectation = { source: ConnectionSource; connectionId: string; instanceUrl: string };
 type SaveOperation = { requestId: string; startedAt: number };
 
 function newSaveOperation(): SaveOperation {
@@ -85,7 +86,8 @@ export function useClipper(
           type: "SAVE_MEMO",
           content,
           visibility,
-          expectedUserId: expectation.userId,
+          expectedSource: expectation.source,
+          expectedConnectionId: expectation.connectionId,
           expectedInstanceUrl: expectation.instanceUrl,
           saveRequestId: currentOperation.requestId,
           saveStartedAt: currentOperation.startedAt,

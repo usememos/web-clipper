@@ -1,21 +1,23 @@
 import browser from "webextension-polyfill";
-import {
-  beginOAuthSignIn,
-  clearOAuthSession,
-  getOAuthUser,
-  OAuthUnavailableError,
-  type OAuthUser,
-  toOAuthIdentity,
-} from "@/auth/oauth-session";
+import { beginOAuthSignIn, clearOAuthSession, getOAuthUser, OAuthUnavailableError, toOAuthIdentity } from "@/auth/oauth-session";
 import { getOptionsConnectionState, reconcilePopupState } from "@/background/auth-session";
+import {
+  clearActiveConnectionConfig,
+  resolveActiveConnection,
+  selectUseMemosSource,
+  type VerifiedConnection,
+  verifyAndActivateDirectConnection,
+  verifyAndActivateUseMemosConnection,
+} from "@/background/connection-source";
 import { clearMemoSaveAttempts, savePopupMemo, saveSelectionClip } from "@/background/memo-save";
 import { isTrustedBackgroundRequest, parseBackgroundRequest, type RuntimeSender } from "@/lib/background-protocol";
-import { connectionStatus, readCredentials } from "@/lib/connection";
-import { describeSaveError, type SaveErrorKind } from "@/lib/errors";
+import { describeSaveError, type SaveErrorKind, toSaveErrorKind } from "@/lib/errors";
 import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
-import type { Request, SaveResult, SelectionClip } from "@/lib/messages";
+import { memosUserDisplayName } from "@/lib/memos-client";
+import type { ConnectionStateResult, Request, SaveResult, SelectionClip } from "@/lib/messages";
 import { clearPopupState } from "@/lib/popup-state";
 import { readClipTemplate } from "@/lib/template-settings";
+import { isSupportedVersion } from "@/lib/versions";
 
 type RestrictableStorageArea = typeof browser.storage.local & {
   setAccessLevel?: (options: { accessLevel: "TRUSTED_CONTEXTS" }) => Promise<void>;
@@ -51,19 +53,63 @@ async function getAuthIdentity() {
   return user ? toOAuthIdentity(user) : null;
 }
 
+function stateFromVerifiedConnection(connection: VerifiedConnection): ConnectionStateResult {
+  const displayName = connection.source === "direct" ? memosUserDisplayName(connection.user) : connection.displayName;
+  return {
+    source: connection.source,
+    instanceUrl: connection.credentials.instanceUrl,
+    version: connection.version,
+    displayName,
+    status: "ready",
+    verificationError: null,
+    isUsingCachedVersion: true,
+  };
+}
+
+async function finishConnectionActivation(connection: VerifiedConnection): Promise<void> {
+  await Promise.allSettled([clearPopupState(), clearMemoSaveAttempts(), ...(connection.source === "direct" ? [clearOAuthSession()] : [])]);
+  await reconcilePopupState().catch(() => undefined);
+  await broadcastAuthChanged();
+}
+
+async function activateConnection(verify: () => Promise<VerifiedConnection>) {
+  let connection: VerifiedConnection;
+  try {
+    connection = await verify();
+  } catch (error) {
+    return { ok: false, errorKind: toSaveErrorKind(error) } as const;
+  }
+  await finishConnectionActivation(connection);
+  return { ok: true, state: stateFromVerifiedConnection(connection) } as const;
+}
+
 browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) => {
   const req = parseBackgroundRequest(message);
   if (!req || !isTrustedBackgroundRequest(req, sender, browser.runtime.id)) return undefined;
   if (req?.type === "GET_POPUP_STATE") return reconcilePopupState();
   if (req?.type === "GET_AUTH_USER") return getAuthIdentity();
-  if (req?.type === "GET_CONNECTION_STATE") return getOptionsConnectionState(req.refresh ?? true);
+  if (req?.type === "GET_CONNECTION_STATE") return getOptionsConnectionState(req.refresh ?? true, req.source ?? "active");
+  if (req?.type === "SELECT_USEMEMOS_SOURCE") {
+    return selectUseMemosSource().then(broadcastAuthChanged);
+  }
+  if (req?.type === "CONNECT_DIRECT") return activateConnection(() => verifyAndActivateDirectConnection(req));
+  if (req?.type === "ACTIVATE_USEMEMOS_CONNECTION") return activateConnection(verifyAndActivateUseMemosConnection);
+  if (req?.type === "DISCONNECT_CONNECTION") {
+    return (async () => {
+      const source = await clearActiveConnectionConfig();
+      if (source !== "direct") await clearOAuthSession();
+      await Promise.all([clearPopupState(), clearCachedVersion(), clearMemoSaveAttempts()]);
+      await broadcastAuthChanged();
+    })();
+  }
   if (req?.type === "SAVE_MEMO") {
     return savePopupMemo(
       req.content,
       req.visibility,
       req.images ?? [],
       {
-        userId: req.expectedUserId,
+        source: req.expectedSource,
+        connectionId: req.expectedConnectionId,
         instanceUrl: req.expectedInstanceUrl,
       },
       {
@@ -76,8 +122,9 @@ browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) 
   if (req?.type === "OPEN_SIGN_IN") return openSignInFlow();
   if (req?.type === "SIGN_OUT") {
     return (async () => {
+      const source = await clearActiveConnectionConfig({ preserveDirect: true });
       await clearOAuthSession();
-      await Promise.all([clearPopupState(), clearCachedVersion(), clearMemoSaveAttempts()]);
+      await Promise.all([clearPopupState(), ...(source !== "direct" ? [clearCachedVersion(), clearMemoSaveAttempts()] : [])]);
       await broadcastAuthChanged();
     })();
   }
@@ -114,11 +161,11 @@ function saveSuccessTitle(failedImages?: number): string {
 }
 
 /** In-page toast with the save outcome (best-effort; the toolbar badge is the fallback on pages without the content script). */
-async function showSaveResultInTab(tabId: number | undefined, result: SaveResult): Promise<void> {
+async function showSaveResultInTab(tabId: number | undefined, result: SaveResult, source?: "direct" | "usememos"): Promise<void> {
   if (tabId === undefined) return;
   // The in-page toast has no buttons, so the fix rides along in the text ("… — Sign in and reconnect.").
   const failureTitle = (kind: SaveErrorKind): string => {
-    const detail = describeSaveError(kind);
+    const detail = describeSaveError(kind, source);
     return detail.howToFix[0] ? `${detail.title} — ${detail.howToFix[0]}` : detail.title;
   };
   const msg: Request = result.ok
@@ -169,21 +216,24 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
   // The item follows the same gate as the popup. When a setup gate isn't met we open the place
   // that resolves it (opening the tab is the feedback).
-  let user: OAuthUser | null;
+  let connection: Awaited<ReturnType<typeof resolveActiveConnection>>;
   try {
-    user = await getOAuthUser();
+    connection = await resolveActiveConnection();
   } catch (error) {
     if (!(error instanceof OAuthUnavailableError)) throw error;
     const result: SaveResult = { ok: false, errorKind: "auth-unavailable" };
     await Promise.all([flashBadge("!", "#dc2626"), showSaveResultInTab(tab?.id, result)]);
     return;
   }
-  if (!user) return openSignInFlow();
-  const credentials = readCredentials(user.unsafeMetadata);
+  if (!connection) {
+    await browser.runtime.openOptionsPage();
+    return;
+  }
+  const { credentials } = connection;
   // Version is a per-device cache (see instance-version.ts); resolve it, self-populating on a
   // device that connected on another machine but never verified here.
   const version = credentials ? await resolveVersion(credentials) : null;
-  if (!credentials || connectionStatus(credentials, version) !== "ready") {
+  if (!version || !isSupportedVersion(version)) {
     await browser.runtime.openOptionsPage();
     return;
   }
@@ -200,6 +250,6 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
   await Promise.all([
     result.ok ? clearTabSelection(tab?.id) : Promise.resolve(),
     result.ok ? flashBadge("✓", "#C96442") : flashBadge("!", "#dc2626"),
-    showSaveResultInTab(tab?.id, result),
+    showSaveResultInTab(tab?.id, result, connection.source),
   ]);
 });

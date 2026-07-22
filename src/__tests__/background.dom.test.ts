@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SAVE_ATTEMPTS_KEY } from "@/background/memo-save";
+import { CONNECTION_CONFIG_KEY } from "@/lib/connection-config";
 import { VERSION_CACHE_KEY } from "@/lib/instance-version";
 import { POPUP_STATE_KEY } from "@/lib/popup-state";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
@@ -50,10 +51,31 @@ const ready = () => {
   mockUser = { id: "user_123", unsafeMetadata: memos(), fullName: "Steven Li" };
   seedVersion("0.29.1");
 };
-const expected = { expectedUserId: "user_123", expectedInstanceUrl: testCreds.instanceUrl };
+const expected = {
+  expectedSource: "usememos" as const,
+  expectedConnectionId: "user_123",
+  expectedInstanceUrl: testCreds.instanceUrl,
+};
 const popupSender = { id: "test-id", url: "chrome-extension://test-id/src/popup/index.html" };
 const optionsSender = { id: "test-id", url: "chrome-extension://test-id/src/options/index.html" };
 const emitRuntime = (message: unknown, sender = popupSender) => browserMock.runtime.onMessage.emitFirst(message, sender);
+
+const seedDirectConnection = () => {
+  seedStorage({
+    [CONNECTION_CONFIG_KEY]: {
+      schemaVersion: 1,
+      activeSource: "direct",
+      direct: {
+        connectionId: "direct_123",
+        instanceUrl: testCreds.instanceUrl,
+        accessToken: testCreds.accessToken,
+        user: { name: "users/steven", displayName: "Steven" },
+        verifiedAt: Date.now(),
+      },
+    },
+    [VERSION_CACHE_KEY]: { instanceUrl: testCreds.instanceUrl, version: "0.29.1" },
+  });
+};
 
 // Import once: the module registers its listeners on the shared browser mock at load.
 beforeEach(async () => {
@@ -116,7 +138,8 @@ describe("background — SAVE_MEMO message", () => {
       type: "SAVE_MEMO",
       content: "hello",
       visibility: "PRIVATE",
-      expectedUserId: "user_123",
+      expectedSource: "usememos",
+      expectedConnectionId: "user_123",
       expectedInstanceUrl: "https://new.example.com",
     });
 
@@ -347,7 +370,8 @@ describe("background — SAVE_MEMO message", () => {
       type: "SAVE_MEMO",
       content: "hello",
       visibility: "PRIVATE",
-      expectedUserId: "different_user",
+      expectedSource: "usememos",
+      expectedConnectionId: "different_user",
       expectedInstanceUrl: testCreds.instanceUrl,
     });
 
@@ -373,6 +397,15 @@ describe("background — popup state", () => {
     expect(JSON.stringify(result)).not.toContain(testCreds.accessToken);
     expect(browserMock.storage.local.set).toHaveBeenCalledWith(expect.objectContaining({ popupStateV1: result }));
   });
+
+  it("shows the source choice when OAuth exists but no connection information is configured", async () => {
+    mockUser = { id: "user_123", unsafeMetadata: {}, fullName: "Steven Li" };
+
+    const result = await emitRuntime({ type: "GET_POPUP_STATE" });
+
+    expect(result).toMatchObject({ status: "signed-out", source: null });
+    expect(result).not.toHaveProperty("identity");
+  });
 });
 
 describe("background — sanitized options protocol", () => {
@@ -390,13 +423,207 @@ describe("background — sanitized options protocol", () => {
     const result = await emitRuntime({ type: "GET_CONNECTION_STATE", refresh: false }, optionsSender);
 
     expect(result).toEqual({
+      source: "usememos",
       instanceUrl: testCreds.instanceUrl,
       version: "0.29.1",
+      displayName: "Steven Li",
       status: "ready",
       verificationError: null,
       isUsingCachedVersion: true,
     });
     expect(JSON.stringify(result)).not.toContain(testCreds.accessToken);
+  });
+});
+
+describe("background — direct connection", () => {
+  it("verifies, stores, and returns a sanitized direct connection", async () => {
+    mockUser = null;
+    const fetchMock = vi.fn((url: unknown) => {
+      if (String(url).endsWith("/api/v1/instance/profile")) return Promise.resolve(jsonResponse({ version: "0.29.1" }));
+      if (String(url).endsWith("/api/v1/auth/me")) {
+        return Promise.resolve(jsonResponse({ user: { name: "users/steven", displayName: "Steven" } }));
+      }
+      return Promise.resolve(new Response(null, { status: 404 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime(
+      { type: "CONNECT_DIRECT", instanceUrl: `${testCreds.instanceUrl}/`, accessToken: ` ${testCreds.accessToken} ` },
+      optionsSender,
+    );
+
+    expect(result).toMatchObject({
+      ok: true,
+      state: {
+        source: "direct",
+        instanceUrl: testCreds.instanceUrl,
+        displayName: "Steven",
+        status: "ready",
+      },
+    });
+    expect(JSON.stringify(result)).not.toContain(testCreds.accessToken);
+    const stored = await browserMock.storage.local.get(CONNECTION_CONFIG_KEY);
+    expect(stored).toMatchObject({
+      [CONNECTION_CONFIG_KEY]: {
+        schemaVersion: 1,
+        activeSource: "direct",
+        direct: {
+          instanceUrl: testCreds.instanceUrl,
+          accessToken: testCreds.accessToken,
+          user: { name: "users/steven", displayName: "Steven" },
+        },
+      },
+    });
+    expect(oauthMocks.clearOAuthSession).toHaveBeenCalledOnce();
+    vi.unstubAllGlobals();
+  });
+
+  it("does not persist credentials when token verification fails", async () => {
+    mockUser = null;
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({}, 401)));
+
+    const result = await emitRuntime(
+      { type: "CONNECT_DIRECT", instanceUrl: testCreds.instanceUrl, accessToken: testCreds.accessToken },
+      optionsSender,
+    );
+
+    expect(result).toEqual({ ok: false, errorKind: "unauthorized" });
+    await expect(browserMock.storage.local.get(CONNECTION_CONFIG_KEY)).resolves.toEqual({});
+    expect(oauthMocks.clearOAuthSession).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("requires explicit confirmation before sending credentials to remote HTTP", async () => {
+    mockUser = null;
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime(
+      { type: "CONNECT_DIRECT", instanceUrl: "http://memos.example.com", accessToken: testCreds.accessToken },
+      optionsSender,
+    );
+
+    expect(result).toEqual({ ok: false, errorKind: "mixed-content" });
+    expect(fetchMock).not.toHaveBeenCalled();
+    await expect(browserMock.storage.local.get(CONNECTION_CONFIG_KEY)).resolves.toEqual({});
+    vi.unstubAllGlobals();
+  });
+
+  it("rejects direct credentials from popup and content-script contexts", async () => {
+    const request = { type: "CONNECT_DIRECT", instanceUrl: testCreds.instanceUrl, accessToken: testCreds.accessToken };
+    await expect(emitRuntime(request, popupSender)).resolves.toBeUndefined();
+    await expect(emitRuntime(request, { id: "test-id", url: "https://example.com" })).resolves.toBeUndefined();
+    await expect(browserMock.storage.local.get(CONNECTION_CONFIG_KEY)).resolves.toEqual({});
+  });
+
+  it("saves with a direct connection while signed out of usememos.com", async () => {
+    mockUser = null;
+    seedDirectConnection();
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/42", uid: "abc" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime({
+      type: "SAVE_MEMO",
+      content: "direct note",
+      visibility: "PRIVATE",
+      expectedSource: "direct",
+      expectedConnectionId: "direct_123",
+      expectedInstanceUrl: testCreds.instanceUrl,
+    });
+
+    expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/abc" });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://memos.example.com/api/v1/memos",
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({ Authorization: `Bearer ${testCreds.accessToken}` }),
+      }),
+    );
+    vi.unstubAllGlobals();
+  });
+
+  it("checks the stored PAT identity as well as the instance version", async () => {
+    mockUser = null;
+    seedDirectConnection();
+    const fetchMock = vi.fn((url: unknown) => {
+      if (String(url).endsWith("/api/v1/instance/profile")) return Promise.resolve(jsonResponse({ version: "0.29.1" }));
+      if (String(url).endsWith("/api/v1/auth/me")) return Promise.resolve(jsonResponse({}, 401));
+      return Promise.resolve(new Response(null, { status: 404 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime({ type: "GET_CONNECTION_STATE", refresh: true }, optionsSender);
+
+    expect(result).toMatchObject({
+      source: "direct",
+      status: "ready",
+      verificationError: "unauthorized",
+      isUsingCachedVersion: false,
+    });
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/v1/auth/me"))).toBe(true);
+    vi.unstubAllGlobals();
+  });
+
+  it("returns success after commit even when post-commit OAuth cleanup fails", async () => {
+    mockUser = null;
+    oauthMocks.clearOAuthSession.mockRejectedValueOnce(new Error("storage unavailable"));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: unknown) =>
+        Promise.resolve(
+          String(url).endsWith("/api/v1/instance/profile")
+            ? jsonResponse({ version: "0.29.1" })
+            : jsonResponse({ user: { name: "users/steven", displayName: "Steven" } }),
+        ),
+      ),
+    );
+
+    const result = await emitRuntime(
+      { type: "CONNECT_DIRECT", instanceUrl: testCreds.instanceUrl, accessToken: testCreds.accessToken },
+      optionsSender,
+    );
+
+    expect(result).toMatchObject({ ok: true, state: { source: "direct", status: "ready" } });
+    await expect(browserMock.storage.local.get(CONNECTION_CONFIG_KEY)).resolves.toMatchObject({
+      [CONNECTION_CONFIG_KEY]: { activeSource: "direct" },
+    });
+    vi.unstubAllGlobals();
+  });
+
+  it("does not let a stale verification reactivate after disconnect", async () => {
+    mockUser = null;
+    let releaseProfile!: (response: Response) => void;
+    let markProfileStarted!: () => void;
+    const profileStarted = new Promise<void>((resolve) => {
+      markProfileStarted = resolve;
+    });
+    const profileResponse = new Promise<Response>((resolve) => {
+      releaseProfile = resolve;
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: unknown) => {
+        if (String(url).endsWith("/api/v1/instance/profile")) {
+          markProfileStarted();
+          return profileResponse;
+        }
+        return Promise.resolve(jsonResponse({ user: { name: "users/steven" } }));
+      }),
+    );
+
+    const connecting = emitRuntime(
+      { type: "CONNECT_DIRECT", instanceUrl: testCreds.instanceUrl, accessToken: testCreds.accessToken },
+      optionsSender,
+    );
+    await profileStarted;
+    await emitRuntime({ type: "DISCONNECT_CONNECTION" }, optionsSender);
+    releaseProfile(jsonResponse({ version: "0.29.1" }));
+
+    await expect(connecting).resolves.toEqual({ ok: false, errorKind: "auth-changed" });
+    await expect(browserMock.storage.local.get(CONNECTION_CONFIG_KEY)).resolves.toEqual({
+      [CONNECTION_CONFIG_KEY]: { schemaVersion: 1, activeSource: null },
+    });
+    vi.unstubAllGlobals();
   });
 });
 
@@ -415,6 +642,18 @@ describe("background — sign-out", () => {
     await expect(browserMock.storage.local.get([POPUP_STATE_KEY, VERSION_CACHE_KEY, SAVE_ATTEMPTS_KEY])).resolves.toEqual({});
     expect(oauthMocks.clearOAuthSession).toHaveBeenCalledOnce();
     expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith({ type: "AUTH_CHANGED" });
+  });
+
+  it("clears a legacy local session without calling OAuth userinfo", async () => {
+    oauthMocks.getOAuthUser.mockRejectedValue(new oauthMocks.OAuthUnavailableError());
+
+    await expect(emitRuntime({ type: "SIGN_OUT" }, optionsSender)).resolves.toBeUndefined();
+
+    expect(oauthMocks.getOAuthUser).not.toHaveBeenCalled();
+    expect(oauthMocks.clearOAuthSession).toHaveBeenCalledOnce();
+    await expect(browserMock.storage.local.get(CONNECTION_CONFIG_KEY)).resolves.toEqual({
+      [CONNECTION_CONFIG_KEY]: { schemaVersion: 1, activeSource: null },
+    });
   });
 });
 
@@ -527,10 +766,10 @@ describe("background — context menu quick save", () => {
     vi.unstubAllGlobals();
   });
 
-  it("signed out → opens the sign-in flow, no save", async () => {
+  it("signed out → opens settings to choose a source, no save", async () => {
     mockUser = null;
     await click();
-    expect(oauthMocks.beginOAuthSignIn).toHaveBeenCalledOnce();
+    expect(oauthMocks.beginOAuthSignIn).not.toHaveBeenCalled();
     expect(browserMock.runtime.openOptionsPage).toHaveBeenCalled();
   });
 

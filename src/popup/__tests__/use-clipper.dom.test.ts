@@ -12,7 +12,7 @@ const capture: PageCapture = {
   selectionMarkdown: "> # Hello\n>\n> Body text",
   images: [],
 };
-const expectation = { userId: "user_123", instanceUrl: "https://memos.example.com" };
+const expectation = { source: "usememos" as const, connectionId: "user_123", instanceUrl: "https://memos.example.com" };
 const useReadyClipper = (cap: PageCapture | null = capture) => useClipper(cap, null, true, expectation);
 
 function wireRuntime(overrides: Record<string, unknown> = {}) {
@@ -84,7 +84,11 @@ describe("useClipper", () => {
     // The editor is the memo: exactly what's on screen is what saves.
     expect(sent.content).toBe(result.current.content);
     expect(sent).not.toHaveProperty("credentials");
-    expect(sent).toMatchObject({ expectedUserId: "user_123", expectedInstanceUrl: "https://memos.example.com" });
+    expect(sent).toMatchObject({
+      expectedSource: "usememos",
+      expectedConnectionId: "user_123",
+      expectedInstanceUrl: "https://memos.example.com",
+    });
     expect(sent.saveRequestId).toMatch(/^(?:[0-9a-f-]{36}|clip_)/);
     expect(sent.saveStartedAt).toEqual(expect.any(Number));
   });

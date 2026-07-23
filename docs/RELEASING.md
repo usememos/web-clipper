@@ -14,6 +14,10 @@ Add these public build values as Actions repository variables:
 
 The release workflow rejects missing values and verifies that the tag exactly matches the version in `package.json`.
 
+Keep GitHub release immutability disabled for this workflow. Release Please publishes the GitHub
+Release before the tag workflow attaches its verified assets, and an immutable published release
+cannot accept those assets afterward.
+
 ## Release process
 
 1. Merge conventional commits into `main`. Release Please creates or updates a release pull request.

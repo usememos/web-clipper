@@ -88,8 +88,17 @@ jobs:
           unzip -p "artifacts/memos-web-clipper-firefox-v${VERSION}.xpi" manifest.json > "$verify_stage/firefox.json"
           unzip -q "artifacts/memos-web-clipper-firefox-v${VERSION}.zip" -d "$verify_stage/unsigned-firefox"
           unzip -q "artifacts/memos-web-clipper-firefox-v${VERSION}.xpi" -d "$verify_stage/signed-firefox"
-          rm -rf "$verify_stage/signed-firefox/META-INF"
-          diff -qr "$verify_stage/unsigned-firefox" "$verify_stage/signed-firefox"
+
+          # AMO may normalize insignificant JSON whitespace while signing. Compare the
+          # manifests semantically, then require every other payload file to match exactly.
+          jq --sort-keys . "$verify_stage/unsigned-firefox/manifest.json" > "$verify_stage/unsigned-manifest.json"
+          jq --sort-keys . "$verify_stage/signed-firefox/manifest.json" > "$verify_stage/signed-manifest.json"
+          diff -u "$verify_stage/unsigned-manifest.json" "$verify_stage/signed-manifest.json"
+          diff -qr \
+            --exclude=META-INF \
+            --exclude=manifest.json \
+            "$verify_stage/unsigned-firefox" \
+            "$verify_stage/signed-firefox"
 
           node --input-type=module - "$verify_stage" "$VERSION" <<'NODE'
           import { readFileSync } from "node:fs";

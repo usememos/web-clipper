@@ -25,6 +25,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
         } as React.CSSProperties
       }
       toastOptions={{
+        style: {
+          padding: "10px 12px",
+        },
         classNames: {
           toast: "cn-toast",
         },

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/usememos/web-clipper/compare/v0.2.0...v0.2.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* publish verified Firefox downloads reliably ([84af3cc](https://github.com/usememos/web-clipper/commit/84af3ccbaf39bb1f0b2a4295b5b824f2257bfa96))
+
 ## [0.2.0](https://github.com/usememos/web-clipper/compare/v0.1.0...v0.2.0) (2026-07-23)
 
 ### What's new

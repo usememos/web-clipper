@@ -1,6 +1,6 @@
 {
   "name": "@usememos/web-clipper",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Browser extension for clipping web content to Memos.",
   "engines": {

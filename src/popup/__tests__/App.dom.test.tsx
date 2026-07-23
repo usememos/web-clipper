@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { POPUP_STATE_KEY, type PopupState } from "@/lib/popup-state";
 import { App } from "@/popup/App";
-import { browserMock, seedStorage } from "@/test/browser-mock";
+import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { act, renderWithUser, screen, waitFor } from "@/test/render";
+import japaneseMessages from "../../../public/_locales/ja/messages.json" with { type: "json" };
 
 const capture = {
   title: "Hello World",
@@ -96,16 +97,46 @@ describe("App — signed-in, connected", () => {
     // The prefill is the full composition: quoted selection + linked title.
     expect(editor.value).toContain("[Hello World](https://example.com/post)");
     expect(screen.getByText("Steven Li")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open your Memos instance" })).toHaveAttribute("href", "https://memos.example.com");
     // No per-clip tag input: default tags live in the extension-level template.
     expect(screen.queryByLabelText(/tags/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save to memos/i })).toBeEnabled();
   });
 
+  it("renders popup controls in Japanese", async () => {
+    setBrowserLocale("ja", japaneseMessages);
+    renderWithUser(<App />);
+
+    expect(await screen.findByRole("button", { name: "Memosに保存" })).toBeEnabled();
+    expect(screen.getByRole("textbox", { name: "メモの内容" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox")).toHaveTextContent("非公開");
+  });
+
   it("displays the selected visibility in title case", async () => {
     renderWithUser(<App />);
 
-    expect(await screen.findByRole("combobox")).toHaveTextContent("Private");
-    expect(screen.getByRole("combobox")).not.toHaveTextContent("PRIVATE");
+    const selector = await screen.findByRole("combobox", { name: "Visibility" });
+    expect(selector).toHaveTextContent("Private");
+    expect(selector).not.toHaveTextContent("PRIVATE");
+    expect(selector.querySelector("svg")).toBeInTheDocument();
+  });
+
+  it("shows an icon and audience description for every visibility option", async () => {
+    const { user } = renderWithUser(<App />);
+    await user.click(await screen.findByRole("combobox", { name: "Visibility" }));
+
+    for (const [label, description] of [
+      ["Private", "Only visible to you"],
+      ["Protected", "Visible to signed-in users"],
+      ["Public", "Visible to everyone"],
+    ]) {
+      const option = screen.getByRole("option", { name: new RegExp(`${label}.*${description}`, "i") });
+      expect(option).toBeInTheDocument();
+      expect(option.querySelector("svg")).toBeInTheDocument();
+    }
+
+    await user.click(screen.getByRole("option", { name: /Protected.*Visible to signed-in users/i }));
+    expect(screen.getByRole("combobox", { name: "Visibility" })).toHaveTextContent("Protected");
   });
 
   it("renders from the durable snapshot while live auth reconciliation is still pending", async () => {
@@ -172,7 +203,7 @@ describe("App — signed-in, connected", () => {
     browserMock.scripting.executeScript.mockRejectedValue(new Error("Cannot access a chrome:// URL"));
     browserMock.tabs.query.mockResolvedValue([{ id: 7, title: "Extensions", url: "chrome://extensions" }]);
     renderWithUser(<App />);
-    expect(await screen.findByText(/chrome blocks page access here/i)).toBeInTheDocument();
+    expect(await screen.findByText(/browser blocks page access here/i)).toBeInTheDocument();
   });
 
   it("saves and shows a success toast with an Open link", async () => {

@@ -1,0 +1,684 @@
+{
+  "extensionName": {
+    "message": "Memos Web Clipper",
+    "description": "Extension name shown by the browser."
+  },
+  "extensionDescription": {
+    "message": "WebページをMemosインスタンスに保存します。",
+    "description": "Extension description shown by the browser."
+  },
+  "actionTitle": {
+    "message": "Memosにクリップ",
+    "description": "Toolbar button tooltip."
+  },
+  "popupDocumentTitle": {
+    "message": "Memosにクリップ"
+  },
+  "optionsDocumentTitle": {
+    "message": "Memos Web Clipper — 設定"
+  },
+  "optionsLanguage": {
+    "message": "言語"
+  },
+  "localeBrowserDefault": {
+    "message": "ブラウザーの言語"
+  },
+  "optionsLanguageSaveError": {
+    "message": "言語設定を保存できませんでした。もう一度お試しください。"
+  },
+  "commonLoading": {
+    "message": "読み込み中"
+  },
+  "commonOpen": {
+    "message": "開く"
+  },
+  "commonOpenSettings": {
+    "message": "設定を開く"
+  },
+  "commonRetrying": {
+    "message": "再試行中…"
+  },
+  "commonTryAgain": {
+    "message": "もう一度試す"
+  },
+  "commonSaving": {
+    "message": "保存中…"
+  },
+  "commonPrivate": {
+    "message": "非公開"
+  },
+  "commonProtected": {
+    "message": "保護"
+  },
+  "commonPublic": {
+    "message": "公開"
+  },
+  "commonRecommended": {
+    "message": "推奨"
+  },
+  "commonCancel": {
+    "message": "キャンセル"
+  },
+  "commonChecking": {
+    "message": "確認中…"
+  },
+  "commonConnected": {
+    "message": "接続済み"
+  },
+  "commonDirect": {
+    "message": "直接接続"
+  },
+  "popupOpenInstance": {
+    "message": "Memosインスタンスを開く"
+  },
+  "popupExtensionSettings": {
+    "message": "拡張機能の設定"
+  },
+  "popupMemoContent": {
+    "message": "メモの内容"
+  },
+  "popupVisibility": {
+    "message": "公開範囲"
+  },
+  "popupPrivateDescription": {
+    "message": "自分だけに表示"
+  },
+  "popupProtectedDescription": {
+    "message": "ログイン中のユーザーに表示"
+  },
+  "popupPublicDescription": {
+    "message": "すべてのユーザーに表示"
+  },
+  "popupEmptyCapturePlaceholder": {
+    "message": "このページから取得できませんでした — ここにメモを入力してください"
+  },
+  "popupSaveToMemos": {
+    "message": "Memosに保存"
+  },
+  "popupSavedToMemos": {
+    "message": "Memosに保存しました"
+  },
+  "popupFailedImages_one": {
+    "message": "$COUNT$ 枚の画像をアップロードできませんでした",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupFailedImages_other": {
+    "message": "$COUNT$ 枚の画像をアップロードできませんでした",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSelectionImages_one": {
+    "message": "選択範囲の画像 $COUNT$ 枚を添付します",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupSelectionImages_other": {
+    "message": "選択範囲の画像 $COUNT$ 枚を添付します",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSignedOut": {
+    "message": "サインアウトしています"
+  },
+  "popupDisconnected": {
+    "message": "Memosに接続されていません"
+  },
+  "popupNeedsUpgrade": {
+    "message": "Memosのアップグレードが必要です"
+  },
+  "popupDraftPreserved": {
+    "message": "下書きは保持されていますが、接続の準備が整うまで保存できません。"
+  },
+  "popupCaptureRestricted": {
+    "message": "ページへのアクセスがブラウザーでブロックされているため、ページのリンクのみ取得しました。"
+  },
+  "popupCaptureTimedOut": {
+    "message": "ページの取得がタイムアウトしたため、ページのリンクのみ取得しました。"
+  },
+  "popupCaptureNoDescriptionSelection": {
+    "message": "選択範囲とページのリンクを取得しましたが、読み取り可能な説明が見つかりませんでした。"
+  },
+  "popupCaptureNoDescription": {
+    "message": "読み取り可能な説明が見つからなかったため、ページのリンクのみ取得しました。"
+  },
+  "popupCaptureContentUnavailable": {
+    "message": "ページの内容を取得できなかったため、ページのリンクのみ取得しました。"
+  },
+  "popupCaptureFailed": {
+    "message": "このページを取得できませんでした。メモを手動で入力できます。"
+  },
+  "popupChooseConnection": {
+    "message": "クリッパーをMemosインスタンスに接続する方法を選択してください。"
+  },
+  "popupConnectToStart": {
+    "message": "クリップを開始するにはMemosインスタンスを接続してください。"
+  },
+  "popupUnsupportedWithVersion": {
+    "message": "インスタンスのバージョンは $VERSION$ です。$WHY$ $FIX$",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      },
+      "why": {
+        "content": "$2",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$3",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "popupUnsupportedWithoutVersion": {
+    "message": "$WHY$ $FIX$",
+    "placeholders": {
+      "why": {
+        "content": "$1",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "optionsClipTemplate": {
+    "message": "クリップテンプレート"
+  },
+  "optionsTemplateLocked": {
+    "message": "まず対応している Memos インスタンスに接続すると、クリップの書式を設定できます。"
+  },
+  "optionsTemplateDescription": {
+    "message": "Memos に送信する前のクリップの書式をカスタマイズします。この設定はこのブラウザーにのみ保存されます。"
+  },
+  "optionsLoadingTemplate": {
+    "message": "テンプレートを読み込み中…"
+  },
+  "optionsSignInTitle": {
+    "message": "usememos.comでサインイン"
+  },
+  "optionsAccountConnectionDescription": {
+    "message": "接続情報をアカウントに保存し、ほかのデバイスでサインインした後も使用できます。"
+  },
+  "optionsContinueUseMemos": {
+    "message": "usememos.com で続行"
+  },
+  "optionsDirectConnection": {
+    "message": "直接接続"
+  },
+  "optionsDirectDescription": {
+    "message": "インスタンス URL と個人アクセストークンでこのブラウザーを接続します。usememos.com アカウントは不要です。"
+  },
+  "optionsConnectDirectly": {
+    "message": "直接接続する"
+  },
+  "optionsBackToMethods": {
+    "message": "接続方法に戻る"
+  },
+  "optionsDirectSetupDescription": {
+    "message": "Memos インスタンスのアドレスと個人アクセストークンを入力してください。"
+  },
+  "optionsInstanceUrl": {
+    "message": "インスタンスURL"
+  },
+  "optionsAccessToken": {
+    "message": "アクセストークン"
+  },
+  "optionsCreateToken": {
+    "message": "Memos の設定でトークンを作成"
+  },
+  "optionsEnterUrlForTokenSettings": {
+    "message": "トークン設定を開くにはインスタンス URL を入力してください"
+  },
+  "optionsHideAccessToken": {
+    "message": "アクセストークンを隠す"
+  },
+  "optionsShowAccessToken": {
+    "message": "アクセストークンを表示"
+  },
+  "optionsTokenAdvice": {
+    "message": "「Web Clipper」という専用トークンを使用し、有効期限を設定することをおすすめします。"
+  },
+  "optionsInvalidUrlField": {
+    "message": "完全な http:// または https:// の Memos アドレスを入力してください。"
+  },
+  "optionsMissingTokenField": {
+    "message": "個人アクセストークンを入力してください。"
+  },
+  "optionsUnencryptedTitle": {
+    "message": "この接続は暗号化されていません"
+  },
+  "optionsUnencryptedBody": {
+    "message": "アクセストークンと今後のクリップは HTTP で送信されます。信頼できるネットワーク以外では HTTPS を使用してください。"
+  },
+  "optionsContinueHttp": {
+    "message": "HTTP で続行"
+  },
+  "optionsTestingConnection": {
+    "message": "接続をテスト中…"
+  },
+  "optionsTestAndSave": {
+    "message": "テストして保存"
+  },
+  "optionsTestingDirectConnection": {
+    "message": "Memos への直接接続をテストしています"
+  },
+  "optionsUseMemosSetupDescription": {
+    "message": "別のデバイスでサインインしたときも、接続情報をアカウントから利用できます。"
+  },
+  "optionsCheckingAccount": {
+    "message": "アカウントを確認しています…"
+  },
+  "optionsSupported": {
+    "message": "対応済み"
+  },
+  "optionsUseThisConnection": {
+    "message": "この接続を使用"
+  },
+  "optionsFinishSetup": {
+    "message": "設定を完了"
+  },
+  "optionsSavedConnectionIncomplete": {
+    "message": "保存された接続情報が不完全です。usememos.com で修復してください。"
+  },
+  "optionsNoConnectionFound": {
+    "message": "このアカウントの接続が見つかりませんでした。usememos.com で同じアカウントを使用していることを確認してください。"
+  },
+  "optionsRepairDestination": {
+    "message": "usememos.com で接続先を接続または修復してから、ここに戻って確認してください。"
+  },
+  "optionsWaitingForConnection": {
+    "message": "接続を待っています"
+  },
+  "optionsConnectOnUseMemos": {
+    "message": "usememos.com で接続"
+  },
+  "optionsCheckAgain": {
+    "message": "もう一度確認"
+  },
+  "optionsRefreshConnectionError": {
+    "message": "usememos.com の接続を更新できませんでした。接続を確認して、もう一度お試しください。"
+  },
+  "optionsSignInError": {
+    "message": "サインインがキャンセルされたか、完了できませんでした。もう一度お試しください。"
+  },
+  "optionsCurrentConnectionActive": {
+    "message": "新しい接続が確認されるまで、現在の接続は有効なままです。"
+  },
+  "optionsLastVerified": {
+    "message": "最終確認"
+  },
+  "optionsConnectedAs": {
+    "message": "$NAME$ として接続中",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alex"
+      }
+    }
+  },
+  "optionsTokenSaved": {
+    "message": "アクセストークンはこのブラウザーに保存されています。"
+  },
+  "optionsCheckConnection": {
+    "message": "接続を確認"
+  },
+  "optionsChangeConnection": {
+    "message": "接続を変更"
+  },
+  "optionsDisconnect": {
+    "message": "切断"
+  },
+  "optionsDisconnectConfirm": {
+    "message": "このブラウザーを Memos から切断しますか？Memos サーバー上の直接接続トークンは失効しません。"
+  },
+  "optionsConnectedToHost": {
+    "message": "接続済み · $HOST$ にクリップ",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "memos.example.com"
+      }
+    }
+  },
+  "optionsSetupClipper": {
+    "message": "クリッパーを設定"
+  },
+  "optionsMemosConnected": {
+    "message": "Memosに接続済み"
+  },
+  "optionsChooseHowToConnect": {
+    "message": "接続方法を選択"
+  },
+  "optionsConnectToMemos": {
+    "message": "Memosに接続"
+  },
+  "optionsConnectionSummary": {
+    "message": "インスタンス URL とアクセストークンの取得元を 1 つ選択してください。"
+  },
+  "optionsCheckingConnection": {
+    "message": "接続を確認中…"
+  },
+  "templateAriaLabel": {
+    "message": "テンプレート"
+  },
+  "templateEmptyPreview": {
+    "message": "プレビューする内容がありません。テンプレートは空です。"
+  },
+  "templateSaveError": {
+    "message": "テンプレートを保存できませんでした。下書きは保持されています。もう一度お試しください。"
+  },
+  "templateEditor": {
+    "message": "エディター"
+  },
+  "templateResetDefault": {
+    "message": "初期設定に戻す"
+  },
+  "templateHelp": {
+    "message": "各クリップはエディターに表示される前に、このテンプレートで構成されます。#tags を含むプレーンテキストはそのまま保持されます。"
+  },
+  "templatePlaceholderReference": {
+    "message": "プレースホルダー一覧"
+  },
+  "templateColumnPlaceholder": {
+    "message": "プレースホルダー"
+  },
+  "templateColumnAdds": {
+    "message": "追加される内容"
+  },
+  "templateColumnSource": {
+    "message": "取得元"
+  },
+  "templateExample": {
+    "message": "例：$VALUE$",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Example Article"
+      }
+    }
+  },
+  "templatePreviewContent": {
+    "message": "> すばやい茶色の狐がのろまな犬を飛び越える。"
+  },
+  "templatePreviewTitle": {
+    "message": "記事の例"
+  },
+  "templatePreviewDescription": {
+    "message": "ページの短い要約です。"
+  },
+  "templateContentMeaning": {
+    "message": "引用 Markdown としての選択テキスト"
+  },
+  "templateContentSource": {
+    "message": "ページ上の選択範囲"
+  },
+  "templateContentExample": {
+    "message": "> すばやい茶色の狐…"
+  },
+  "templateDescriptionMeaning": {
+    "message": "ページの要約（最大 $COUNT$ 文字）",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "templateDescriptionSource": {
+    "message": "Open Graph → メタ説明 → 最初の読み取り可能な段落"
+  },
+  "templateTitleMeaning": {
+    "message": "ページタイトル（ない場合は URL）"
+  },
+  "templateTitleSource": {
+    "message": "ブラウザータブ → 文書タイトル"
+  },
+  "templateUrlMeaning": {
+    "message": "ページの正確なアドレス"
+  },
+  "templateUrlSource": {
+    "message": "現在のブラウザータブ"
+  },
+  "templatePreviewSection": {
+    "message": "プレビュー — Memosでの表示"
+  },
+  "templateJustNow": {
+    "message": "たった今"
+  },
+  "templateSave": {
+    "message": "テンプレートを保存"
+  },
+  "templateSavedBrowser": {
+    "message": "このブラウザーに保存しました"
+  },
+  "templateUnsavedChanges": {
+    "message": "未保存の変更"
+  },
+  "templateExternalUpdate": {
+    "message": "別の設定ページでほかのテンプレートが保存されました。未保存の下書きは保持されています。"
+  },
+  "templateLoadSaved": {
+    "message": "保存済みを読み込む"
+  },
+  "templateReadError": {
+    "message": "保存済みテンプレートを読み込めませんでした。現在は既定のテンプレートを表示しています。"
+  },
+  "templateStorageError": {
+    "message": "テンプレートをこのブラウザーに保存できませんでした。もう一度お試しください。"
+  },
+  "authRefreshError": {
+    "message": "拡張機能で usememos.com アカウントを更新できませんでした。"
+  },
+  "authSignOutError": {
+    "message": "拡張機能からサインアウトできませんでした。もう一度お試しください。"
+  },
+  "contextMenuSaveSelection": {
+    "message": "選択範囲をMemosに保存"
+  },
+  "contextFailureWithFix": {
+    "message": "$TITLE$ — $FIX$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Access token rejected"
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Reconnect your account."
+      }
+    }
+  },
+  "contextSavePartial_one": {
+    "message": "Memos に保存しました — $COUNT$ 枚の画像をアップロードできませんでした",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "contextSavePartial_other": {
+    "message": "Memos に保存しました — $COUNT$ 枚の画像をアップロードできませんでした",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "errorInvalidUrlTitle": {
+    "message": "インスタンスURLが無効です"
+  },
+  "errorInvalidUrlWhy": {
+    "message": "接続先には、認証情報、クエリ、フラグメントを含まない完全な http:// または https:// アドレスを指定してください。"
+  },
+  "errorInvalidUrlFix": {
+    "message": "https://memos.example.com のように、Memos を開く際に使用するアドレスを入力してください。"
+  },
+  "errorExtensionTitle": {
+    "message": "拡張機能が応答しません"
+  },
+  "errorExtensionWhy": {
+    "message": "ポップアップからバックグラウンドのサービスワーカーに接続できなかったため、保存結果は不明です。"
+  },
+  "errorExtensionFix": {
+    "message": "このポップアップを開いたまま、もう一度お試しください。下書きは保持されています。"
+  },
+  "errorStorageTitle": {
+    "message": "接続を保存できませんでした"
+  },
+  "errorStorageWhy": {
+    "message": "接続は確認されましたが、ブラウザーでこのデバイスに保存できませんでした。"
+  },
+  "errorStorageFix": {
+    "message": "拡張機能のストレージが利用できることを確認して、もう一度お試しください。"
+  },
+  "errorAuthChangedTitle": {
+    "message": "アカウントが変更されました"
+  },
+  "errorAuthChangedWhy": {
+    "message": "このポップアップを開いた後に、サインイン中のアカウントまたは Memos の接続先が変更されました。"
+  },
+  "errorAuthChangedFix": {
+    "message": "現在のアカウントを確認してから、もう一度保存してください。"
+  },
+  "errorAuthUnavailableTitle": {
+    "message": "アカウントを確認できませんでした"
+  },
+  "errorAuthUnavailableWhy": {
+    "message": "拡張機能から usememos.com に接続できなかったため、この書き込みではキャッシュ済みの認証情報を使用しませんでした。"
+  },
+  "errorAuthUnavailableFix": {
+    "message": "接続を確認して、もう一度お試しください。"
+  },
+  "errorNotConfiguredTitle": {
+    "message": "Memos インスタンスが接続されていません"
+  },
+  "errorNotConfiguredWhy": {
+    "message": "クリッパーに Memos インスタンスがまだ接続されていません。"
+  },
+  "errorNotConfiguredFix": {
+    "message": "拡張機能の設定を開き、接続方法を選択してインスタンスを接続してください。"
+  },
+  "errorMixedContentTitle": {
+    "message": "接続は暗号化されていません"
+  },
+  "errorMixedContentWhy": {
+    "message": "拡張機能は Memos のアクセストークンとクリップ内容を TLS 暗号化なしの http:// で送信します。"
+  },
+  "errorMixedContentFixHttps": {
+    "message": "Memos インスタンスを https で提供してください。"
+  },
+  "errorMixedContentFixLocal": {
+    "message": "http:// は localhost などのローカル開発インスタンスでのみ使用してください。"
+  },
+  "errorCorsTitle": {
+    "message": "インスタンスがリクエストをブロックしました（CORS）"
+  },
+  "errorCorsWhy": {
+    "message": "サーバーには接続できましたが、拡張機能による応答の読み取りが許可されませんでした。"
+  },
+  "errorCorsFixOnline": {
+    "message": "インスタンスがオンラインで接続可能か確認してください。"
+  },
+  "errorCorsFixUrl": {
+    "message": "インスタンス URL を確認して、もう一度接続してください。"
+  },
+  "errorUnreachableTitle": {
+    "message": "インスタンスに接続できませんでした"
+  },
+  "errorUnreachableWhy": {
+    "message": "サーバーから応答がありませんでした。"
+  },
+  "errorUnreachableFixOnline": {
+    "message": "インスタンスがオンラインか確認してください。"
+  },
+  "errorUnreachableFixOpen": {
+    "message": "インスタンス URL をタブで開き、読み込めることを確認してください。"
+  },
+  "errorUnauthorizedTitle": {
+    "message": "アクセストークンが拒否されました"
+  },
+  "errorUnauthorizedWhy": {
+    "message": "インスタンスから 401/403 が返されました。トークンが無効か、期限切れです。"
+  },
+  "errorUnauthorizedDirectFixReplace": {
+    "message": "拡張機能の設定でトークンを置き換えてください。"
+  },
+  "errorUnauthorizedDirectFixCreate": {
+    "message": "必要に応じて、Memos のユーザー設定で新しいトークンを作成してください。"
+  },
+  "errorUnauthorizedAccountFixReconnect": {
+    "message": "usememos.com にサインインして再接続してください。"
+  },
+  "errorUnauthorizedAccountFixRegenerate": {
+    "message": "問題が続く場合は、Memos の設定でアクセストークンを再生成してください。"
+  },
+  "errorTimeoutTitle": {
+    "message": "インスタンスがタイムアウトしました"
+  },
+  "errorTimeoutWhy": {
+    "message": "サーバーが時間内に応答しませんでした。"
+  },
+  "errorTimeoutFixOnline": {
+    "message": "サーバーがオンラインで、過負荷になっていないことを確認してください。"
+  },
+  "errorTimeoutFixRetry": {
+    "message": "しばらくしてから、もう一度お試しください。"
+  },
+  "errorUnsupportedTitle": {
+    "message": "未対応のMemosバージョン"
+  },
+  "errorUnsupportedWhy": {
+    "message": "このクリッパーが使用する API に対応するには、Memos $VERSION$ またはそれ以降の安定版 0.x が必要です。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUnsupportedFix": {
+    "message": "Memos インスタンスを $VERSION$ またはそれ以降の安定版 0.x に更新してから、再接続してください。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUpgradeGuide": {
+    "message": "Memos のアップグレード方法"
+  },
+  "errorBadResponseTitle": {
+    "message": "予期しない応答"
+  },
+  "errorBadResponseWhy": {
+    "message": "インスタンスから有効な API 応答ではない内容が返されました。"
+  },
+  "errorBadResponseFixApi": {
+    "message": "URL が Memos API を指していることを確認してください。"
+  },
+  "errorBadResponseFixRedirect": {
+    "message": "サーバーでリダイレクトする場合は、最終的な URL を使用してください。"
+  }
+}

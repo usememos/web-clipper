@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import browser from "webextension-polyfill";
+import { t } from "@/lib/i18n";
 import { CLIP_TEMPLATE_KEY, readClipTemplate, writeClipTemplate } from "@/lib/template-settings";
+
+type TemplateStorageErrorKey = "templateReadError" | "templateStorageError";
 
 export function useClipTemplate() {
   const [template, setTemplate] = useState<string | null>();
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<TemplateStorageErrorKey | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -12,13 +15,13 @@ export function useClipTemplate() {
       .then((stored) => {
         if (active) {
           setTemplate(stored);
-          setError(null);
+          setErrorKey(null);
         }
       })
       .catch(() => {
         if (active) {
           setTemplate(null);
-          setError("The saved template couldn't be read. The default is shown for now.");
+          setErrorKey("templateReadError");
         }
       });
 
@@ -26,7 +29,7 @@ export function useClipTemplate() {
       if (areaName !== "local" || !changes[CLIP_TEMPLATE_KEY]) return;
       const next = changes[CLIP_TEMPLATE_KEY].newValue;
       setTemplate(typeof next === "string" && next.trim() ? next : null);
-      setError(null);
+      setErrorKey(null);
     };
     browser.storage.onChanged.addListener(onChanged);
     return () => {
@@ -40,12 +43,17 @@ export function useClipTemplate() {
     try {
       await writeClipTemplate(normalized);
       setTemplate(normalized);
-      setError(null);
+      setErrorKey(null);
     } catch (cause) {
-      setError("The template couldn't be saved to this browser. Please try again.");
+      setErrorKey("templateStorageError");
       throw cause;
     }
   }, []);
 
-  return { isLoaded: template !== undefined, template: template ?? null, error, saveTemplate };
+  return {
+    isLoaded: template !== undefined,
+    template: template ?? null,
+    error: errorKey ? t(errorKey) : null,
+    saveTemplate,
+  };
 }

@@ -1,0 +1,684 @@
+{
+  "extensionName": {
+    "message": "Memos 網頁剪藏器",
+    "description": "Extension name shown by the browser."
+  },
+  "extensionDescription": {
+    "message": "將網頁剪藏到您的 Memos 執行個體。",
+    "description": "Extension description shown by the browser."
+  },
+  "actionTitle": {
+    "message": "剪藏到 Memos",
+    "description": "Toolbar button tooltip."
+  },
+  "popupDocumentTitle": {
+    "message": "剪藏到 Memos"
+  },
+  "optionsDocumentTitle": {
+    "message": "Memos 網頁剪藏器 — 設定"
+  },
+  "optionsLanguage": {
+    "message": "語言"
+  },
+  "localeBrowserDefault": {
+    "message": "瀏覽器語言"
+  },
+  "optionsLanguageSaveError": {
+    "message": "無法儲存語言偏好設定，請再試一次。"
+  },
+  "commonLoading": {
+    "message": "載入中"
+  },
+  "commonOpen": {
+    "message": "開啟"
+  },
+  "commonOpenSettings": {
+    "message": "開啟設定"
+  },
+  "commonRetrying": {
+    "message": "正在重試…"
+  },
+  "commonTryAgain": {
+    "message": "重試"
+  },
+  "commonSaving": {
+    "message": "正在儲存…"
+  },
+  "commonPrivate": {
+    "message": "私密"
+  },
+  "commonProtected": {
+    "message": "受保護"
+  },
+  "commonPublic": {
+    "message": "公開"
+  },
+  "commonRecommended": {
+    "message": "推薦"
+  },
+  "commonCancel": {
+    "message": "取消"
+  },
+  "commonChecking": {
+    "message": "正在檢查…"
+  },
+  "commonConnected": {
+    "message": "已連線"
+  },
+  "commonDirect": {
+    "message": "直接連線"
+  },
+  "popupOpenInstance": {
+    "message": "開啟您的 Memos 執行個體"
+  },
+  "popupExtensionSettings": {
+    "message": "擴充功能設定"
+  },
+  "popupMemoContent": {
+    "message": "Memo 內容"
+  },
+  "popupVisibility": {
+    "message": "可見性"
+  },
+  "popupPrivateDescription": {
+    "message": "僅自己可見"
+  },
+  "popupProtectedDescription": {
+    "message": "已登入的使用者可見"
+  },
+  "popupPublicDescription": {
+    "message": "所有人皆可見"
+  },
+  "popupEmptyCapturePlaceholder": {
+    "message": "無法從此頁面擷取內容 — 請在此輸入 memo"
+  },
+  "popupSaveToMemos": {
+    "message": "儲存到 Memos"
+  },
+  "popupSavedToMemos": {
+    "message": "已儲存到 Memos"
+  },
+  "popupFailedImages_one": {
+    "message": "$COUNT$ 張圖片無法上傳",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupFailedImages_other": {
+    "message": "$COUNT$ 張圖片無法上傳",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSelectionImages_one": {
+    "message": "將附加選取內容中的 $COUNT$ 張圖片",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupSelectionImages_other": {
+    "message": "將附加選取內容中的 $COUNT$ 張圖片",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSignedOut": {
+    "message": "你已登出"
+  },
+  "popupDisconnected": {
+    "message": "Memos 未連線"
+  },
+  "popupNeedsUpgrade": {
+    "message": "Memos 需要升級"
+  },
+  "popupDraftPreserved": {
+    "message": "草稿已保留，但連線就緒前無法儲存。"
+  },
+  "popupCaptureRestricted": {
+    "message": "瀏覽器封鎖存取此頁面，因此只擷取了頁面連結。"
+  },
+  "popupCaptureTimedOut": {
+    "message": "頁面擷取超時，因此只擷取了頁面連結。"
+  },
+  "popupCaptureNoDescriptionSelection": {
+    "message": "已擷取選取內容和頁面連結，但找不到可讀的描述。"
+  },
+  "popupCaptureNoDescription": {
+    "message": "找不到可讀的描述，因此只擷取了頁面連結。"
+  },
+  "popupCaptureContentUnavailable": {
+    "message": "頁面內容不可用，因此只擷取了頁面連結。"
+  },
+  "popupCaptureFailed": {
+    "message": "無法擷取此頁面。您可以手動編寫memo。"
+  },
+  "popupChooseConnection": {
+    "message": "選擇如何將剪藏器連線到您的 Memos 執行個體。"
+  },
+  "popupConnectToStart": {
+    "message": "連線 Memos 執行個體以開始剪藏。"
+  },
+  "popupUnsupportedWithVersion": {
+    "message": "您的執行個體正在執行 $VERSION$。$WHY$ $FIX$",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      },
+      "why": {
+        "content": "$2",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$3",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "popupUnsupportedWithoutVersion": {
+    "message": "$WHY$ $FIX$",
+    "placeholders": {
+      "why": {
+        "content": "$1",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "optionsClipTemplate": {
+    "message": "剪藏範本"
+  },
+  "optionsTemplateLocked": {
+    "message": "請先連線受支援的 Memos 執行個體，然後即可設定剪藏格式。"
+  },
+  "optionsTemplateDescription": {
+    "message": "自訂每則剪藏傳送到 Memos 前的格式。此設定僅儲存在目前瀏覽器中。"
+  },
+  "optionsLoadingTemplate": {
+    "message": "正在載入範本…"
+  },
+  "optionsSignInTitle": {
+    "message": "使用 usememos.com 登入"
+  },
+  "optionsAccountConnectionDescription": {
+    "message": "將連線儲存到您的帳戶，登入其他裝置後也可使用。"
+  },
+  "optionsContinueUseMemos": {
+    "message": "使用 usememos.com 繼續"
+  },
+  "optionsDirectConnection": {
+    "message": "直接連線"
+  },
+  "optionsDirectDescription": {
+    "message": "使用執行個體 URL 和個人存取權杖連線此瀏覽器，不需要 usememos.com 帳戶。"
+  },
+  "optionsConnectDirectly": {
+    "message": "直接連線"
+  },
+  "optionsBackToMethods": {
+    "message": "重新連線方式"
+  },
+  "optionsDirectSetupDescription": {
+    "message": "輸入 Memos 執行個體位址和個人存取權杖。"
+  },
+  "optionsInstanceUrl": {
+    "message": "執行個體 URL"
+  },
+  "optionsAccessToken": {
+    "message": "存取權杖"
+  },
+  "optionsCreateToken": {
+    "message": "在 Memos 設定中建立權杖"
+  },
+  "optionsEnterUrlForTokenSettings": {
+    "message": "輸入執行個體 URL 以打開權杖設定"
+  },
+  "optionsHideAccessToken": {
+    "message": "隱藏存取權杖"
+  },
+  "optionsShowAccessToken": {
+    "message": "顯示存取權杖"
+  },
+  "optionsTokenAdvice": {
+    "message": "建議使用名為“Web Clipper”的專用權杖，並設定到期日。"
+  },
+  "optionsInvalidUrlField": {
+    "message": "請輸入完整的 http:// 或 https:// Memos 位址。"
+  },
+  "optionsMissingTokenField": {
+    "message": "請輸入個人存取權杖。"
+  },
+  "optionsUnencryptedTitle": {
+    "message": "此連線未加密"
+  },
+  "optionsUnencryptedBody": {
+    "message": "您的存取權杖與後續剪藏將通過 HTTP 傳輸。除非這是你信任的網路，否則請使用 HTTPS。"
+  },
+  "optionsContinueHttp": {
+    "message": "使用 HTTP 繼續"
+  },
+  "optionsTestingConnection": {
+    "message": "正在測試連線…"
+  },
+  "optionsTestAndSave": {
+    "message": "測試並儲存"
+  },
+  "optionsTestingDirectConnection": {
+    "message": "正在測試與 Memos 的直接連線"
+  },
+  "optionsUseMemosSetupDescription": {
+    "message": "登入其他裝置時，您的帳戶會提供連線資訊。"
+  },
+  "optionsCheckingAccount": {
+    "message": "正在檢查您的帳戶…"
+  },
+  "optionsSupported": {
+    "message": "受支援"
+  },
+  "optionsUseThisConnection": {
+    "message": "使用此連線"
+  },
+  "optionsFinishSetup": {
+    "message": "完成設定"
+  },
+  "optionsSavedConnectionIncomplete": {
+    "message": "儲存的連線資訊不完整。請在 usememos.com 上修復。"
+  },
+  "optionsNoConnectionFound": {
+    "message": "找不到此帳戶的連線。請確保 usememos.com 使用的是同一帳戶。"
+  },
+  "optionsRepairDestination": {
+    "message": "請在 usememos.com 上連線或修復目的地，然後回到此處檢查。"
+  },
+  "optionsWaitingForConnection": {
+    "message": "正在等待連線"
+  },
+  "optionsConnectOnUseMemos": {
+    "message": "在 usememos.com 上連線"
+  },
+  "optionsCheckAgain": {
+    "message": "再次檢查"
+  },
+  "optionsRefreshConnectionError": {
+    "message": "無法重新整理 usememos.com 連線。請檢查網路連線後重試。"
+  },
+  "optionsSignInError": {
+    "message": "登入已取消或無法完成。您可以重試。"
+  },
+  "optionsCurrentConnectionActive": {
+    "message": "在驗證此連線之前，目前連線將保持有效。"
+  },
+  "optionsLastVerified": {
+    "message": "上次驗證"
+  },
+  "optionsConnectedAs": {
+    "message": "已以 $NAME$ 的身分連線",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alex"
+      }
+    }
+  },
+  "optionsTokenSaved": {
+    "message": "存取權杖已儲存在此瀏覽器中。"
+  },
+  "optionsCheckConnection": {
+    "message": "檢查連線"
+  },
+  "optionsChangeConnection": {
+    "message": "變更連線"
+  },
+  "optionsDisconnect": {
+    "message": "中斷連線"
+  },
+  "optionsDisconnectConfirm": {
+    "message": "要中斷此瀏覽器與 Memos 的連線嗎？這不會撤銷 Memos 伺服器上的直接連線權杖。"
+  },
+  "optionsConnectedToHost": {
+    "message": "已連線 · 剪藏到 $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "memos.example.com"
+      }
+    }
+  },
+  "optionsSetupClipper": {
+    "message": "設定剪藏器"
+  },
+  "optionsMemosConnected": {
+    "message": "Memos 已連線"
+  },
+  "optionsChooseHowToConnect": {
+    "message": "選擇連線方式"
+  },
+  "optionsConnectToMemos": {
+    "message": "連線到 Memos"
+  },
+  "optionsConnectionSummary": {
+    "message": "為執行個體 URL 和存取權杖選擇一個來源。"
+  },
+  "optionsCheckingConnection": {
+    "message": "正在檢查連線…"
+  },
+  "templateAriaLabel": {
+    "message": "範本"
+  },
+  "templateEmptyPreview": {
+    "message": "沒有可預覽的內容，範本為空。"
+  },
+  "templateSaveError": {
+    "message": "範本未能儲存。草稿仍在此處，請重試。"
+  },
+  "templateEditor": {
+    "message": "編輯器"
+  },
+  "templateResetDefault": {
+    "message": "恢復預設值"
+  },
+  "templateHelp": {
+    "message": "每則剪藏在進入編辑器前都會通過此範本組合。包括 #tags 在內的純文字將原樣保留。"
+  },
+  "templatePlaceholderReference": {
+    "message": "預留位置參考"
+  },
+  "templateColumnPlaceholder": {
+    "message": "預留位置"
+  },
+  "templateColumnAdds": {
+    "message": "新增的內容"
+  },
+  "templateColumnSource": {
+    "message": "擷取來源"
+  },
+  "templateExample": {
+    "message": "範例：$VALUE$",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Example Article"
+      }
+    }
+  },
+  "templatePreviewContent": {
+    "message": "> 敏捷的棕色狐狸跳過了懶狗。"
+  },
+  "templatePreviewTitle": {
+    "message": "範例文章"
+  },
+  "templatePreviewDescription": {
+    "message": "頁面的簡短摘要。"
+  },
+  "templateContentMeaning": {
+    "message": "以 Markdown 引用格式顯示的選取的文字"
+  },
+  "templateContentSource": {
+    "message": "您在頁面上的選取內容"
+  },
+  "templateContentExample": {
+    "message": "> 敏捷的棕色狐狸…"
+  },
+  "templateDescriptionMeaning": {
+    "message": "頁面摘要，最多 $COUNT$ 個字元",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "templateDescriptionSource": {
+    "message": "Open Graph → 中繼描述 → 第一個可讀段落"
+  },
+  "templateTitleMeaning": {
+    "message": "頁面標題，沒有標題時使用 URL"
+  },
+  "templateTitleSource": {
+    "message": "瀏覽器分頁 → 文件標題"
+  },
+  "templateUrlMeaning": {
+    "message": "精確的頁面位址"
+  },
+  "templateUrlSource": {
+    "message": "目前瀏覽器分頁"
+  },
+  "templatePreviewSection": {
+    "message": "預覽 — 在 Memos 中的效果"
+  },
+  "templateJustNow": {
+    "message": "剛剛"
+  },
+  "templateSave": {
+    "message": "儲存範本"
+  },
+  "templateSavedBrowser": {
+    "message": "已儲存在此瀏覽器中"
+  },
+  "templateUnsavedChanges": {
+    "message": "未儲存的變更"
+  },
+  "templateExternalUpdate": {
+    "message": "另一個設定頁面儲存了其他範本。您未儲存的草稿仍在此處。"
+  },
+  "templateLoadSaved": {
+    "message": "載入已儲存版本"
+  },
+  "templateReadError": {
+    "message": "無法讀取已儲存的範本，目前顯示預設範本。"
+  },
+  "templateStorageError": {
+    "message": "無法將範本儲存到此瀏覽器，請重試。"
+  },
+  "authRefreshError": {
+    "message": "擴充功能無法重新整理您的 usememos.com 帳戶。"
+  },
+  "authSignOutError": {
+    "message": "擴充功能無法將你退出登入，請重試。"
+  },
+  "contextMenuSaveSelection": {
+    "message": "將選取內容儲存到 Memos"
+  },
+  "contextFailureWithFix": {
+    "message": "$TITLE$ — $FIX$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Access token rejected"
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Reconnect your account."
+      }
+    }
+  },
+  "contextSavePartial_one": {
+    "message": "已儲存到 Memos — $COUNT$ 張圖片無法上傳",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "contextSavePartial_other": {
+    "message": "已儲存到 Memos — $COUNT$ 張圖片無法上傳",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "errorInvalidUrlTitle": {
+    "message": "執行個體 URL 無效"
+  },
+  "errorInvalidUrlWhy": {
+    "message": "目的地必須是完整的 http:// 或 https:// 位址，且不得包含內嵌認證資訊、查詢參數或片段。"
+  },
+  "errorInvalidUrlFix": {
+    "message": "請輸入你用於打開 Memos 的位址，例如 https://memos.example.com。"
+  },
+  "errorExtensionTitle": {
+    "message": "擴充功能已停止回應"
+  },
+  "errorExtensionWhy": {
+    "message": "彈出視窗無法連線背景 Service Worker，因此儲存結果未知。"
+  },
+  "errorExtensionFix": {
+    "message": "請保持此彈出視窗打開並重試；草稿仍在此處。"
+  },
+  "errorStorageTitle": {
+    "message": "無法儲存此連線"
+  },
+  "errorStorageWhy": {
+    "message": "連線已驗證，但瀏覽器無法將其儲存在此裝置上。"
+  },
+  "errorStorageFix": {
+    "message": "請檢查擴充功能儲存是否可用，然後重試。"
+  },
+  "errorAuthChangedTitle": {
+    "message": "您的帳戶已變更"
+  },
+  "errorAuthChangedWhy": {
+    "message": "打開此彈出視窗後，登入帳戶或 Memos 目的地已變更。"
+  },
+  "errorAuthChangedFix": {
+    "message": "請檢查目前帳戶，然後再次嘗試儲存。"
+  },
+  "errorAuthUnavailableTitle": {
+    "message": "無法驗證您的帳戶"
+  },
+  "errorAuthUnavailableWhy": {
+    "message": "擴充功能無法存取 usememos.com，因此此次寫入未使用快取的認證資訊。"
+  },
+  "errorAuthUnavailableFix": {
+    "message": "請檢查網路連線後重試。"
+  },
+  "errorNotConfiguredTitle": {
+    "message": "未連線 Memos 執行個體"
+  },
+  "errorNotConfiguredWhy": {
+    "message": "您尚未將 Memos 執行個體連線到剪藏工具。"
+  },
+  "errorNotConfiguredFix": {
+    "message": "打開擴充功能設定，選擇連線方式，然後連線您的執行個體。"
+  },
+  "errorMixedContentTitle": {
+    "message": "您的連線未加密"
+  },
+  "errorMixedContentWhy": {
+    "message": "擴充功能將通過未採用 TLS 加密的 http:// 傳送 Memos 存取權杖和剪藏內容。"
+  },
+  "errorMixedContentFixHttps": {
+    "message": "請通過 https 提供您的 Memos 執行個體。"
+  },
+  "errorMixedContentFixLocal": {
+    "message": "僅对 localhost 等本機開發執行個體使用 http://。"
+  },
+  "errorCorsTitle": {
+    "message": "您的執行個體封鎖了要求（CORS）"
+  },
+  "errorCorsWhy": {
+    "message": "伺服器可以存取，但不允許擴充功能讀取回應。"
+  },
+  "errorCorsFixOnline": {
+    "message": "請確認執行個體上線且可以存取。"
+  },
+  "errorCorsFixUrl": {
+    "message": "請檢查執行個體 URL，然後重新嘗試連線。"
+  },
+  "errorUnreachableTitle": {
+    "message": "無法存取您的執行個體"
+  },
+  "errorUnreachableWhy": {
+    "message": "要求未收到伺服器回應。"
+  },
+  "errorUnreachableFixOnline": {
+    "message": "請檢查執行個體是否上線。"
+  },
+  "errorUnreachableFixOpen": {
+    "message": "請在分頁中打開執行個體 URL，確認它能夠載入。"
+  },
+  "errorUnauthorizedTitle": {
+    "message": "存取權杖遭拒"
+  },
+  "errorUnauthorizedWhy": {
+    "message": "執行個體傳回 401/403，權杖無效或已過期。"
+  },
+  "errorUnauthorizedDirectFixReplace": {
+    "message": "請在擴充功能設定中更換權杖。"
+  },
+  "errorUnauthorizedDirectFixCreate": {
+    "message": "如有需要，請在 Memos 使用者設定中建立新權杖。"
+  },
+  "errorUnauthorizedAccountFixReconnect": {
+    "message": "請登入 usememos.com 並重新連線。"
+  },
+  "errorUnauthorizedAccountFixRegenerate": {
+    "message": "如果問題仍然存在，請在 Memos 設定中重新產生存取權杖。"
+  },
+  "errorTimeoutTitle": {
+    "message": "執行個體回應逾時"
+  },
+  "errorTimeoutWhy": {
+    "message": "伺服器未及時回應。"
+  },
+  "errorTimeoutFixOnline": {
+    "message": "請檢查伺服器是否上線且未過载。"
+  },
+  "errorTimeoutFixRetry": {
+    "message": "請稍後重試。"
+  },
+  "errorUnsupportedTitle": {
+    "message": "不支援的 Memos 版本"
+  },
+  "errorUnsupportedWhy": {
+    "message": "此剪藏工具需要 Memos $VERSION$ 或更新的 0.x 穩定版本，才能與其使用的 API 相符。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUnsupportedFix": {
+    "message": "請將 Memos 執行個體更新到 $VERSION$ 或更新的 0.x 穩定版本，然後重新連線。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUpgradeGuide": {
+    "message": "如何升級 Memos"
+  },
+  "errorBadResponseTitle": {
+    "message": "非預期的回應"
+  },
+  "errorBadResponseWhy": {
+    "message": "執行個體返回的內容不是有效的 API 回應。"
+  },
+  "errorBadResponseFixApi": {
+    "message": "請確認 URL 指向您的 Memos API。"
+  },
+  "errorBadResponseFixRedirect": {
+    "message": "如果伺服器會重新導向，請使用最終 URL。"
+  }
+}

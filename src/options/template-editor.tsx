@@ -5,38 +5,43 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { UserBadge } from "@/components/user-badge";
 import { DESCRIPTION_MAX_CHARS, TEMPLATE_VAR_NAMES, type TemplateVarName } from "@/lib/format";
+import { t } from "@/lib/i18n";
 import { DEFAULT_TEMPLATE, renderTemplate, splitTemplateTokens } from "@/lib/template";
 
 // Record<TemplateVarName, …> keeps the preview in sync with the template engine.
 // Tags are not a variable — default tags are literal #tags typed into the template body.
-const PREVIEW_VARS: Record<TemplateVarName, string> = {
-  content: "> The quick brown fox jumps over the lazy dog.",
-  title: "Example Article",
-  url: "https://example.com/post",
-  description: "A short summary of the page.",
-};
+function previewVars(): Record<TemplateVarName, string> {
+  return {
+    content: t("templatePreviewContent"),
+    title: t("templatePreviewTitle"),
+    url: "https://example.com/post",
+    description: t("templatePreviewDescription"),
+  };
+}
 
 // The reference table's examples come from PREVIEW_VARS, so the table can never disagree
 // with the live preview below it; `example` here is only for deliberate overrides.
-const PLACEHOLDER_META: Record<TemplateVarName, { meaning: string; source: string; example?: string }> = {
-  content: {
-    meaning: "Selected text as quoted Markdown",
-    source: "Your selection on the page",
-    example: "> The quick brown fox…",
-  },
-  description: {
-    meaning: `Page summary, up to ${DESCRIPTION_MAX_CHARS} characters`,
-    source: "Open Graph → meta description → first readable paragraph",
-  },
-  title: {
-    meaning: "Page title, or URL as fallback",
-    source: "Browser tab → document title",
-  },
-  url: {
-    meaning: "Exact page address",
-    source: "Current browser tab",
-  },
-};
+function placeholderMeta(): Record<TemplateVarName, { meaning: string; source: string; example?: string }> {
+  return {
+    content: {
+      meaning: t("templateContentMeaning"),
+      source: t("templateContentSource"),
+      example: t("templateContentExample"),
+    },
+    description: {
+      meaning: t("templateDescriptionMeaning", DESCRIPTION_MAX_CHARS),
+      source: t("templateDescriptionSource"),
+    },
+    title: {
+      meaning: t("templateTitleMeaning"),
+      source: t("templateTitleSource"),
+    },
+    url: {
+      meaning: t("templateUrlMeaning"),
+      source: t("templateUrlSource"),
+    },
+  };
+}
 
 /** The micro-label voice, shared by section labels and the reference table's headers. */
 const SECTION_LABEL_CLASS = "font-mono text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground";
@@ -82,7 +87,7 @@ function TemplateInput({ value, onChange }: { value: string; onChange: (next: st
         <HighlightedTemplate text={value} />
       </div>
       <Textarea
-        aria-label="Template"
+        aria-label={t("templateAriaLabel")}
         className={`relative min-h-24 break-words text-transparent caret-foreground selection:bg-highlight/25 selection:text-transparent md:text-xs ${EDITOR_TEXT}`}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -116,7 +121,7 @@ function InlineMarkdown({ text }: { text: string }) {
             <a href={url} target="_blank" rel="noreferrer" className="font-semibold text-highlight-deep hover:underline">
               {part}
             </a>
-            {host ? <span className="ml-1.5 text-xs text-muted-foreground">{host}</span> : null}
+            {host ? <span className="ms-1.5 text-xs text-muted-foreground">{host}</span> : null}
           </Fragment>
         );
       })}
@@ -133,7 +138,7 @@ function MemoBody({ markdown }: { markdown: string }) {
   const flushQuote = (key: number) => {
     if (!quote.length) return;
     blocks.push(
-      <blockquote key={`q${key}`} className="border-l-[3px] border-highlight pl-3 text-sm leading-relaxed">
+      <blockquote key={`q${key}`} className="border-s-[3px] border-highlight ps-3 text-sm leading-relaxed">
         {quote.map((q, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: quote lines are positional
           <p key={i}>
@@ -162,7 +167,7 @@ function MemoBody({ markdown }: { markdown: string }) {
   flushQuote(lines.length);
 
   if (!blocks.length) {
-    return <p className="text-sm text-muted-foreground">Nothing to preview — the template is empty.</p>;
+    return <p className="text-sm text-muted-foreground">{t("templateEmptyPreview")}</p>;
   }
   return <div className="space-y-2.5">{blocks}</div>;
 }
@@ -179,9 +184,11 @@ export function TemplateEditor({
   const [draft, setDraft] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saveFailed, setSaveFailed] = useState(false);
   const [externalUpdate, setExternalUpdate] = useState(false);
   const previousInitial = useRef(initial);
+  const localizedPreviewVars = previewVars();
+  const localizedPlaceholderMeta = placeholderMeta();
 
   useEffect(() => {
     if (previousInitial.current === initial) return;
@@ -194,7 +201,7 @@ export function TemplateEditor({
     } else if (draft === previous) {
       setDraft(initial);
       setSaved(false);
-      setSaveError(null);
+      setSaveFailed(false);
       setExternalUpdate(false);
     } else {
       setExternalUpdate(true);
@@ -206,7 +213,7 @@ export function TemplateEditor({
   const save = async () => {
     setBusy(true);
     setSaved(false);
-    setSaveError(null);
+    setSaveFailed(false);
     try {
       const useDefault = !draft.trim() || draft.trim() === DEFAULT_TEMPLATE.trim();
       await onSave(useDefault ? null : draft);
@@ -214,7 +221,7 @@ export function TemplateEditor({
       setSaved(true);
       setExternalUpdate(false);
     } catch {
-      setSaveError("The template wasn't saved. Your draft is still here—try again.");
+      setSaveFailed(true);
     } finally {
       setBusy(false);
     }
@@ -224,18 +231,18 @@ export function TemplateEditor({
     <div className="space-y-6">
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <SectionLabel>Editor</SectionLabel>
+          <SectionLabel>{t("templateEditor")}</SectionLabel>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => {
               setDraft(DEFAULT_TEMPLATE);
               setSaved(false);
-              setSaveError(null);
+              setSaveFailed(false);
               setExternalUpdate(false);
             }}
           >
-            Reset to default
+            {t("templateResetDefault")}
           </Button>
         </div>
         <TemplateInput
@@ -243,25 +250,22 @@ export function TemplateEditor({
           onChange={(next) => {
             setDraft(next);
             setSaved(false);
-            setSaveError(null);
+            setSaveFailed(false);
           }}
         />
-        <p className="mt-2 text-xs text-muted-foreground">
-          Every clip is composed through this template before it reaches the editor. Plain text — including{" "}
-          <span className="font-mono text-foreground/80">#tags</span> — is kept as written.
-        </p>
+        <p className="mt-2 text-xs text-muted-foreground">{t("templateHelp")}</p>
       </div>
 
       <div>
-        <SectionLabel>Placeholder reference</SectionLabel>
-        <table className="mt-2 w-full table-fixed text-left text-xs">
+        <SectionLabel>{t("templatePlaceholderReference")}</SectionLabel>
+        <table className="mt-2 w-full table-fixed text-start text-xs">
           <thead>
             <tr className="border-b border-input">
               {(
                 [
-                  ["Placeholder", "w-[30%]"],
-                  ["What it adds", "w-[40%]"],
-                  ["Captured from", "w-[30%]"],
+                  [t("templateColumnPlaceholder"), "w-[30%]"],
+                  [t("templateColumnAdds"), "w-[40%]"],
+                  [t("templateColumnSource"), "w-[30%]"],
                 ] as const
               ).map(([label, width]) => (
                 <th key={label} className={`${width} px-1 py-2 ${SECTION_LABEL_CLASS}`}>
@@ -272,7 +276,7 @@ export function TemplateEditor({
           </thead>
           <tbody>
             {TEMPLATE_VAR_NAMES.map((name) => {
-              const meta = PLACEHOLDER_META[name];
+              const meta = localizedPlaceholderMeta[name];
               return (
                 <tr key={name} className="border-b align-top last:border-b-0">
                   <td className="px-1 py-2.5">
@@ -282,7 +286,9 @@ export function TemplateEditor({
                   </td>
                   <td className="px-1 py-2.5">
                     <span className="block leading-4.5 text-foreground">{meta.meaning}</span>
-                    <span className="mt-0.5 block leading-4.5 text-muted-foreground">Example: {meta.example ?? PREVIEW_VARS[name]}</span>
+                    <span className="mt-0.5 block leading-4.5 text-muted-foreground">
+                      {t("templateExample", meta.example ?? localizedPreviewVars[name])}
+                    </span>
                   </td>
                   <td className="px-1 py-2.5 leading-4.5 text-muted-foreground">{meta.source}</td>
                 </tr>
@@ -293,56 +299,56 @@ export function TemplateEditor({
       </div>
 
       <div>
-        <SectionLabel>Preview — how it lands in Memos</SectionLabel>
+        <SectionLabel>{t("templatePreviewSection")}</SectionLabel>
         <div className="mt-2 rounded-xl border bg-card p-4 shadow-xs">
           <div className="mb-2.5 flex items-center gap-2">
             <UserBadge compact />
-            <span className="text-xs text-muted-foreground">just now</span>
+            <span className="text-xs text-muted-foreground">{t("templateJustNow")}</span>
             <span className="flex-1" />
             <Badge variant="outline" className="text-muted-foreground">
               <LockIcon className="size-2.5" />
-              Private
+              {t("commonPrivate")}
             </Badge>
           </div>
-          <MemoBody markdown={renderTemplate(draft, PREVIEW_VARS)} />
+          <MemoBody markdown={renderTemplate(draft, localizedPreviewVars)} />
         </div>
       </div>
 
       <div className="flex items-center gap-3">
         <Button disabled={busy || !dirty} onClick={save}>
-          {busy ? "Saving…" : "Save template"}
+          {busy ? t("commonSaving") : t("templateSave")}
         </Button>
         <span aria-live="polite" className="text-sm">
           {saved ? (
             <span className="inline-flex items-center gap-1.5 font-medium text-success">
               <CheckIcon className="size-3.5" />
-              Saved in this browser
+              {t("templateSavedBrowser")}
             </span>
           ) : dirty ? (
-            <span className="text-muted-foreground">Unsaved changes</span>
+            <span className="text-muted-foreground">{t("templateUnsavedChanges")}</span>
           ) : null}
         </span>
       </div>
       {externalUpdate ? (
         <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3 text-sm">
-          <span>A different settings page saved another template. Your unsaved draft is still here.</span>
+          <span>{t("templateExternalUpdate")}</span>
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
               setDraft(initial);
               setSaved(false);
-              setSaveError(null);
+              setSaveFailed(false);
               setExternalUpdate(false);
             }}
           >
-            Load saved version
+            {t("templateLoadSaved")}
           </Button>
         </div>
       ) : null}
-      {saveError || storageError ? (
+      {saveFailed || storageError ? (
         <p role="alert" className="text-sm text-destructive">
-          {saveError ?? storageError}
+          {saveFailed ? t("templateSaveError") : storageError}
         </p>
       ) : null}
     </div>

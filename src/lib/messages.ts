@@ -22,7 +22,7 @@ export type SelectionClip = { markdown: string; images: string[]; description?: 
 export type Request =
   | { type: "GET_SELECTION" } // background → content script: markdown + image URLs for the selection
   | { type: "CLEAR_SELECTION" } // background → content script: drop the page selection after a save
-  | { type: "SHOW_SAVE_RESULT"; ok: boolean; title: string; webUrl?: string } // background → content script: in-page toast
+  | { type: "SHOW_SAVE_RESULT"; ok: boolean; title: string; webUrl?: string; openLabel?: string; direction?: "ltr" | "rtl" } // background → content script: in-page toast
   | { type: "OPEN_SIGN_IN" }
   | { type: "SIGN_OUT" }
   | { type: "SELECT_USEMEMOS_SOURCE" }

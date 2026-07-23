@@ -1,16 +1,26 @@
-import { ExternalLinkIcon, GlobeIcon, PaperclipIcon, SettingsIcon, TriangleAlertIcon } from "lucide-react";
+import {
+  EarthIcon,
+  ExternalLinkIcon,
+  GlobeIcon,
+  LockIcon,
+  PaperclipIcon,
+  SettingsIcon,
+  TriangleAlertIcon,
+  UsersRoundIcon,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import browser from "webextension-polyfill";
 import { AccountBadge } from "@/components/account-badge";
 import { AppBrand } from "@/components/app-brand";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Toaster } from "@/components/ui/sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { describeSaveError, type SaveErrorDetail } from "@/lib/errors";
+import { t, tp } from "@/lib/i18n";
 import type { Visibility } from "@/lib/memos-client";
 import type { PopupIdentity, PopupState } from "@/lib/popup-state";
 import { usePageCapture } from "./page-capture";
@@ -27,20 +37,21 @@ function openOptions() {
  */
 function Header({ left, instanceUrl }: { left: React.ReactNode; instanceUrl?: string | null }) {
   return (
-    <header className="flex h-11 shrink-0 items-center justify-between border-b pr-2 pl-3">
+    <header className="flex h-11 shrink-0 items-center justify-between border-b pe-2 ps-3">
       <div className="min-w-0">{left}</div>
       <div className="flex shrink-0 items-center gap-0.5">
         {instanceUrl ? (
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            render={<a href={instanceUrl} target="_blank" rel="noreferrer" />}
-            aria-label="Open your Memos instance"
+          <a
+            className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+            href={instanceUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={t("popupOpenInstance")}
           >
             <GlobeIcon />
-          </Button>
+          </a>
         ) : null}
-        <Button variant="ghost" size="icon-sm" onClick={openOptions} aria-label="Extension settings">
+        <Button variant="ghost" size="icon-sm" onClick={openOptions} aria-label={t("popupExtensionSettings")}>
           <SettingsIcon />
         </Button>
       </div>
@@ -93,7 +104,7 @@ function GatePrompt({
           </a>
         ) : null}
         <Button className="mt-2 w-full" onClick={openOptions}>
-          Open settings
+          {t("commonOpenSettings")}
         </Button>
       </div>
     </Frame>
@@ -124,11 +135,11 @@ function ErrorBar({ error, busy, onRetry }: { error: SaveErrorDetail; busy: bool
       <div className="col-start-2 mt-2 flex items-center gap-2">
         {error.primaryAction === "settings" && (
           <Button size="xs" onClick={openOptions}>
-            Open settings
+            {t("commonOpenSettings")}
           </Button>
         )}
         <Button size="xs" variant={error.primaryAction === "settings" ? "ghost" : "default"} disabled={busy} onClick={onRetry}>
-          {busy ? "Retrying…" : "Try again"}
+          {busy ? t("commonRetrying") : t("commonTryAgain")}
         </Button>
       </div>
     </Alert>
@@ -139,22 +150,16 @@ type ClipperState = ReturnType<typeof useClipper>;
 type ReadyPopupState = Extract<PopupState, { status: "ready" }>;
 type BlockedPopupState = Exclude<PopupState, { status: "ready" }>;
 
-const VISIBILITY_LABELS: Record<Visibility, string> = {
-  PRIVATE: "Private",
-  PROTECTED: "Protected",
-  PUBLIC: "Public",
-};
-
 function ReconciliationBar({ state }: { state: BlockedPopupState }) {
   const signedOut = state.status === "signed-out";
   return (
     <Alert>
       <AlertTitle>
-        {signedOut ? "You’re signed out" : state.status === "disconnected" ? "Memos is disconnected" : "Memos needs an upgrade"}
+        {signedOut ? t("popupSignedOut") : state.status === "disconnected" ? t("popupDisconnected") : t("popupNeedsUpgrade")}
       </AlertTitle>
-      <AlertDescription>Your draft is preserved, but it can’t be saved until the connection is ready.</AlertDescription>
+      <AlertDescription>{t("popupDraftPreserved")}</AlertDescription>
       <Button size="xs" className="mt-2 w-fit" onClick={openOptions}>
-        Open settings
+        {t("commonOpenSettings")}
       </Button>
     </Alert>
   );
@@ -172,16 +177,16 @@ function CaptureNotice({
   if (!reason) return null;
   const text =
     reason === "restricted"
-      ? "Only the page link was captured — Chrome blocks page access here."
+      ? t("popupCaptureRestricted")
       : reason === "timed-out"
-        ? "Only the page link was captured — page capture timed out."
+        ? t("popupCaptureTimedOut")
         : reason === "no-description"
           ? hasSelection
-            ? "The selection and page link were captured — no readable description was found."
-            : "Only the page link was captured — no readable description was found."
+            ? t("popupCaptureNoDescriptionSelection")
+            : t("popupCaptureNoDescription")
           : hasSource
-            ? "Only the page link was captured — page content was unavailable."
-            : "This page could not be captured. You can write the memo manually.";
+            ? t("popupCaptureContentUnavailable")
+            : t("popupCaptureFailed");
   return (
     <p role="status" className="text-xs text-muted-foreground">
       {text}
@@ -191,17 +196,40 @@ function CaptureNotice({
 
 function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopupState; blocked?: BlockedPopupState }) {
   const [error, setError] = useState<SaveErrorDetail | null>(null);
+  const visibilityOptions = {
+    PRIVATE: {
+      label: t("commonPrivate"),
+      description: t("popupPrivateDescription"),
+      icon: LockIcon,
+    },
+    PROTECTED: {
+      label: t("commonProtected"),
+      description: t("popupProtectedDescription"),
+      icon: UsersRoundIcon,
+    },
+    PUBLIC: {
+      label: t("commonPublic"),
+      description: t("popupPublicDescription"),
+      icon: EarthIcon,
+    },
+  } satisfies Record<Visibility, { label: string; description: string; icon: typeof LockIcon }>;
+  const selectedVisibility = visibilityOptions[c.visibility];
+  const SelectedVisibilityIcon = selectedVisibility.icon;
+  const visibilityValues = Object.keys(visibilityOptions) as Visibility[];
+  const visibilityItems = {
+    PRIVATE: visibilityOptions.PRIVATE.label,
+    PROTECTED: visibilityOptions.PROTECTED.label,
+    PUBLIC: visibilityOptions.PUBLIC.label,
+  };
 
   const onSave = async () => {
     const result = await c.save();
     if (result.ok) {
       setError(null);
-      toast.success("Saved to Memos", {
+      toast.success(t("popupSavedToMemos"), {
         // Success is never silently partial: a dropped image is named.
-        description: result.failedImages
-          ? `${result.failedImages} image${result.failedImages > 1 ? "s" : ""} couldn't be uploaded`
-          : undefined,
-        action: { label: "Open", onClick: () => window.open(result.webUrl) },
+        description: result.failedImages ? tp("popupFailedImages", result.failedImages) : undefined,
+        action: { label: t("commonOpen"), onClick: () => window.open(result.webUrl) },
       });
     } else {
       // Persistent inline state, not a toast: the error stays until it's acted on.
@@ -214,7 +242,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
       <Header left={<IdentityBadge identity={state.identity} />} instanceUrl={state.instanceUrl} />
       <div className="flex flex-1 flex-col gap-2.5 p-3">
         <Textarea
-          aria-label="Memo content"
+          aria-label={t("popupMemoContent")}
           // field-sizing-fixed overrides the component's default `field-sizing-content` (which would
           // auto-grow with the memo and push Save off the fixed-height popup); flex-1 + min-h-0 give
           // it a bounded height that scrolls internally instead. The named utility (not the arbitrary
@@ -225,7 +253,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
             c.setContent(e.target.value);
             setError(null);
           }}
-          placeholder="Nothing could be captured from this page — write your memo here"
+          placeholder={t("popupEmptyCapturePlaceholder")}
         />
         <CaptureNotice reason={c.captureFallbackReason} hasSelection={c.hasSelection} hasSource={c.hasSource} />
         {blocked ? <ReconciliationBar state={blocked} /> : null}
@@ -233,22 +261,33 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
         {c.imageCount > 0 && (
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <PaperclipIcon className="h-3 w-3" />
-            {c.imageCount} image{c.imageCount > 1 ? "s" : ""} from your selection will be attached
+            {tp("popupSelectionImages", c.imageCount)}
           </p>
         )}
         <div className="flex items-center gap-2">
-          <Select items={VISIBILITY_LABELS} value={c.visibility} onValueChange={(v) => c.setVisibility(v as Visibility)}>
-            <SelectTrigger className="w-30">
+          <Select items={visibilityItems} value={c.visibility} onValueChange={(v) => c.setVisibility(v as Visibility)}>
+            <SelectTrigger aria-label={t("popupVisibility")} className="w-32 justify-start bg-muted/60 hover:bg-muted">
+              <SelectedVisibilityIcon aria-hidden="true" className="text-muted-foreground" />
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="PRIVATE">{VISIBILITY_LABELS.PRIVATE}</SelectItem>
-              <SelectItem value="PROTECTED">{VISIBILITY_LABELS.PROTECTED}</SelectItem>
-              <SelectItem value="PUBLIC">{VISIBILITY_LABELS.PUBLIC}</SelectItem>
+            <SelectContent side="top" sideOffset={4} align="start" alignItemWithTrigger={false} className="min-w-64 p-1">
+              {visibilityValues.map((visibility) => {
+                const option = visibilityOptions[visibility];
+                const VisibilityIcon = option.icon;
+                return (
+                  <SelectItem key={visibility} value={visibility} className="items-start py-1.5 pe-8 ps-2">
+                    <VisibilityIcon aria-hidden="true" className="size-4 text-muted-foreground" />
+                    <span className="flex min-w-0 flex-col items-start">
+                      <span className="text-[13px] font-medium leading-4 text-foreground">{option.label}</span>
+                      <span className="text-[11px] leading-4 text-muted-foreground">{option.description}</span>
+                    </span>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           <Button className="flex-1" disabled={c.busy || !!blocked || !c.content.trim()} onClick={onSave}>
-            {c.busy ? "Saving…" : "Save to Memos"}
+            {c.busy ? t("commonSaving") : t("popupSaveToMemos")}
           </Button>
         </div>
       </div>
@@ -291,16 +330,16 @@ export function App() {
       <Frame>
         <Header left={<AppBrand />} />
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-          <p className="text-sm text-muted-foreground">Choose how to connect the clipper to your Memos instance.</p>
+          <p className="text-sm text-muted-foreground">{t("popupChooseConnection")}</p>
           <Button className="mt-2 w-full" onClick={openOptions}>
-            Open settings
+            {t("commonOpenSettings")}
           </Button>
         </div>
       </Frame>
     );
   }
   if (state.status === "disconnected") {
-    return <GatePrompt body="Connect your Memos instance to start clipping." identity={state.identity} />;
+    return <GatePrompt body={t("popupConnectToStart")} identity={state.identity} />;
   }
   if (state.status === "unsupported") {
     // errors.ts owns the copy for this condition (the options page renders the same detail);
@@ -309,7 +348,11 @@ export function App() {
     return (
       <GatePrompt
         title={detail.title}
-        body={`${state.version ? `Your instance is running ${state.version}. ` : ""}${detail.why} ${detail.howToFix[0] ?? ""}`}
+        body={
+          state.version
+            ? t("popupUnsupportedWithVersion", [state.version, detail.why, detail.howToFix[0] ?? ""])
+            : t("popupUnsupportedWithoutVersion", [detail.why, detail.howToFix[0] ?? ""])
+        }
         learnMore={detail.learnMore}
         instanceUrl={state.instanceUrl}
         identity={state.identity}

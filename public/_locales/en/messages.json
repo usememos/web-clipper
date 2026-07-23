@@ -1,0 +1,290 @@
+{
+  "extensionName": { "message": "Memos Web Clipper", "description": "Extension name shown by the browser." },
+  "extensionDescription": {
+    "message": "Clip web pages to your Memos instance.",
+    "description": "Extension description shown by the browser."
+  },
+  "actionTitle": { "message": "Clip to Memos", "description": "Toolbar button tooltip." },
+  "popupDocumentTitle": { "message": "Clip to Memos" },
+  "optionsDocumentTitle": { "message": "Memos Web Clipper — Settings" },
+  "optionsLanguage": { "message": "Language" },
+  "localeBrowserDefault": { "message": "Browser language" },
+  "optionsLanguageSaveError": { "message": "The language preference couldn't be saved. Please try again." },
+
+  "commonLoading": { "message": "Loading" },
+  "commonOpen": { "message": "Open" },
+  "commonOpenSettings": { "message": "Open settings" },
+  "commonRetrying": { "message": "Retrying…" },
+  "commonTryAgain": { "message": "Try again" },
+  "commonSaving": { "message": "Saving…" },
+  "commonPrivate": { "message": "Private" },
+  "commonProtected": { "message": "Protected" },
+  "commonPublic": { "message": "Public" },
+  "commonRecommended": { "message": "Recommended" },
+  "commonCancel": { "message": "Cancel" },
+  "commonChecking": { "message": "Checking…" },
+  "commonConnected": { "message": "Connected" },
+  "commonDirect": { "message": "Direct" },
+
+  "popupOpenInstance": { "message": "Open your Memos instance" },
+  "popupExtensionSettings": { "message": "Extension settings" },
+  "popupMemoContent": { "message": "Memo content" },
+  "popupVisibility": { "message": "Visibility" },
+  "popupPrivateDescription": { "message": "Only visible to you" },
+  "popupProtectedDescription": { "message": "Visible to signed-in users" },
+  "popupPublicDescription": { "message": "Visible to everyone" },
+  "popupEmptyCapturePlaceholder": { "message": "Nothing could be captured from this page — write your memo here" },
+  "popupSaveToMemos": { "message": "Save to Memos" },
+  "popupSavedToMemos": { "message": "Saved to Memos" },
+  "popupFailedImages_one": {
+    "message": "$COUNT$ image couldn't be uploaded",
+    "description": "Shown after saving when exactly one image upload failed.",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "popupFailedImages_other": {
+    "message": "$COUNT$ images couldn't be uploaded",
+    "description": "Shown after saving when multiple image uploads failed.",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "popupSelectionImages_one": {
+    "message": "$COUNT$ image from your selection will be attached",
+    "description": "Explains that one selected image will be attached.",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "popupSelectionImages_other": {
+    "message": "$COUNT$ images from your selection will be attached",
+    "description": "Explains that multiple selected images will be attached.",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "popupSignedOut": { "message": "You’re signed out" },
+  "popupDisconnected": { "message": "Memos is disconnected" },
+  "popupNeedsUpgrade": { "message": "Memos needs an upgrade" },
+  "popupDraftPreserved": { "message": "Your draft is preserved, but it can’t be saved until the connection is ready." },
+  "popupCaptureRestricted": { "message": "Only the page link was captured — the browser blocks page access here." },
+  "popupCaptureTimedOut": { "message": "Only the page link was captured — page capture timed out." },
+  "popupCaptureNoDescriptionSelection": { "message": "The selection and page link were captured — no readable description was found." },
+  "popupCaptureNoDescription": { "message": "Only the page link was captured — no readable description was found." },
+  "popupCaptureContentUnavailable": { "message": "Only the page link was captured — page content was unavailable." },
+  "popupCaptureFailed": { "message": "This page could not be captured. You can write the memo manually." },
+  "popupChooseConnection": { "message": "Choose how to connect the clipper to your Memos instance." },
+  "popupConnectToStart": { "message": "Connect your Memos instance to start clipping." },
+  "popupUnsupportedWithVersion": {
+    "message": "Your instance is running $VERSION$. $WHY$ $FIX$",
+    "description": "Unsupported-version explanation when the installed Memos version is known.",
+    "placeholders": {
+      "version": { "content": "$1", "example": "0.25.0" },
+      "why": { "content": "$2", "example": "This clipper needs a newer version." },
+      "fix": { "content": "$3", "example": "Update your Memos instance." }
+    }
+  },
+  "popupUnsupportedWithoutVersion": {
+    "message": "$WHY$ $FIX$",
+    "description": "Unsupported-version explanation when the installed Memos version is unavailable.",
+    "placeholders": {
+      "why": { "content": "$1", "example": "This clipper needs a newer version." },
+      "fix": { "content": "$2", "example": "Update your Memos instance." }
+    }
+  },
+
+  "optionsClipTemplate": { "message": "Clip template" },
+  "optionsTemplateLocked": { "message": "Connect a supported Memos instance first; then you can configure how clips are formatted." },
+  "optionsTemplateDescription": {
+    "message": "Customize how every clip is formatted before it reaches Memos. This setting is saved only in this browser."
+  },
+  "optionsLoadingTemplate": { "message": "Loading your template…" },
+  "optionsSignInTitle": { "message": "Sign in with usememos.com" },
+  "optionsAccountConnectionDescription": {
+    "message": "Save your connection to your account and use it after signing in on other devices."
+  },
+  "optionsContinueUseMemos": { "message": "Continue with usememos.com" },
+  "optionsDirectConnection": { "message": "Direct connection" },
+  "optionsDirectDescription": {
+    "message": "Connect this browser with an instance URL and personal access token. No usememos.com account is required."
+  },
+  "optionsConnectDirectly": { "message": "Connect directly" },
+  "optionsBackToMethods": { "message": "Back to connection methods" },
+  "optionsDirectSetupDescription": { "message": "Enter the address of your Memos instance and a personal access token." },
+  "optionsInstanceUrl": { "message": "Instance URL" },
+  "optionsAccessToken": { "message": "Access token" },
+  "optionsCreateToken": { "message": "Create a token in Memos settings" },
+  "optionsEnterUrlForTokenSettings": { "message": "Enter the instance URL to open token settings" },
+  "optionsHideAccessToken": { "message": "Hide access token" },
+  "optionsShowAccessToken": { "message": "Show access token" },
+  "optionsTokenAdvice": { "message": "Use a dedicated token named “Web Clipper” and prefer an expiration date." },
+  "optionsInvalidUrlField": { "message": "Enter a complete http:// or https:// Memos address." },
+  "optionsMissingTokenField": { "message": "Enter a personal access token." },
+  "optionsUnencryptedTitle": { "message": "This connection is not encrypted" },
+  "optionsUnencryptedBody": {
+    "message": "Your access token and future clips will travel over HTTP. Use HTTPS unless this is a network you trust."
+  },
+  "optionsContinueHttp": { "message": "Continue with HTTP" },
+  "optionsTestingConnection": { "message": "Testing connection…" },
+  "optionsTestAndSave": { "message": "Test and save" },
+  "optionsTestingDirectConnection": { "message": "Testing the direct Memos connection" },
+  "optionsUseMemosSetupDescription": {
+    "message": "Your account keeps the connection information available when you sign in on another device."
+  },
+  "optionsCheckingAccount": { "message": "Checking your account…" },
+  "optionsSupported": { "message": "Supported" },
+  "optionsUseThisConnection": { "message": "Use this connection" },
+  "optionsFinishSetup": { "message": "Finish setup" },
+  "optionsSavedConnectionIncomplete": { "message": "The saved connection is incomplete. Repair it on usememos.com." },
+  "optionsNoConnectionFound": { "message": "No connection was found for this account. Make sure usememos.com uses the same account." },
+  "optionsRepairDestination": { "message": "Connect or repair your destination on usememos.com, then return here to check it." },
+  "optionsWaitingForConnection": { "message": "Waiting for connection" },
+  "optionsConnectOnUseMemos": { "message": "Connect on usememos.com" },
+  "optionsCheckAgain": { "message": "Check again" },
+  "optionsRefreshConnectionError": { "message": "Couldn't refresh your usememos.com connection. Check your connection and try again." },
+  "optionsSignInError": { "message": "Sign-in was cancelled or couldn't be completed. You can try again." },
+  "optionsCurrentConnectionActive": { "message": "Your current connection remains active until this one is verified." },
+  "optionsLastVerified": { "message": "Last verified" },
+  "optionsConnectedAs": {
+    "message": "Connected as $NAME$",
+    "description": "Connection status followed by the Memos display name.",
+    "placeholders": { "name": { "content": "$1", "example": "Alex" } }
+  },
+  "optionsTokenSaved": { "message": "Access token saved in this browser." },
+  "optionsCheckConnection": { "message": "Check connection" },
+  "optionsChangeConnection": { "message": "Change connection" },
+  "optionsDisconnect": { "message": "Disconnect" },
+  "optionsDisconnectConfirm": { "message": "Disconnect this browser from Memos? This does not revoke a direct token on the Memos server." },
+  "optionsConnectedToHost": {
+    "message": "Connected · clipping to $HOST$",
+    "description": "Connection status followed by the destination host name.",
+    "placeholders": { "host": { "content": "$1", "example": "memos.example.com" } }
+  },
+  "optionsSetupClipper": { "message": "Set up your clipper" },
+  "optionsMemosConnected": { "message": "Memos connected" },
+  "optionsChooseHowToConnect": { "message": "Choose how to connect" },
+  "optionsConnectToMemos": { "message": "Connect to Memos" },
+  "optionsConnectionSummary": { "message": "Choose one source for the instance URL and access token." },
+  "optionsCheckingConnection": { "message": "Checking your connection…" },
+
+  "templateAriaLabel": { "message": "Template" },
+  "templateEmptyPreview": { "message": "Nothing to preview — the template is empty." },
+  "templateSaveError": { "message": "The template wasn't saved. Your draft is still here—try again." },
+  "templateEditor": { "message": "Editor" },
+  "templateResetDefault": { "message": "Reset to default" },
+  "templateHelp": {
+    "message": "Every clip is composed through this template before it reaches the editor. Plain text—including #tags—is kept as written."
+  },
+  "templatePlaceholderReference": { "message": "Placeholder reference" },
+  "templateColumnPlaceholder": { "message": "Placeholder" },
+  "templateColumnAdds": { "message": "What it adds" },
+  "templateColumnSource": { "message": "Captured from" },
+  "templateExample": {
+    "message": "Example: $VALUE$",
+    "description": "Labels an example value for a clip-template placeholder.",
+    "placeholders": { "value": { "content": "$1", "example": "Example Article" } }
+  },
+  "templatePreviewContent": { "message": "> The quick brown fox jumps over the lazy dog." },
+  "templatePreviewTitle": { "message": "Example Article" },
+  "templatePreviewDescription": { "message": "A short summary of the page." },
+  "templateContentMeaning": { "message": "Selected text as quoted Markdown" },
+  "templateContentSource": { "message": "Your selection on the page" },
+  "templateContentExample": { "message": "> The quick brown fox…" },
+  "templateDescriptionMeaning": {
+    "message": "Page summary, up to $COUNT$ characters",
+    "description": "Explains the maximum length of the captured page summary.",
+    "placeholders": { "count": { "content": "$1", "example": "800" } }
+  },
+  "templateDescriptionSource": { "message": "Open Graph → meta description → first readable paragraph" },
+  "templateTitleMeaning": { "message": "Page title, or URL as fallback" },
+  "templateTitleSource": { "message": "Browser tab → document title" },
+  "templateUrlMeaning": { "message": "Exact page address" },
+  "templateUrlSource": { "message": "Current browser tab" },
+  "templatePreviewSection": { "message": "Preview — how it lands in Memos" },
+  "templateJustNow": { "message": "just now" },
+  "templateSave": { "message": "Save template" },
+  "templateSavedBrowser": { "message": "Saved in this browser" },
+  "templateUnsavedChanges": { "message": "Unsaved changes" },
+  "templateExternalUpdate": { "message": "A different settings page saved another template. Your unsaved draft is still here." },
+  "templateLoadSaved": { "message": "Load saved version" },
+  "templateReadError": { "message": "The saved template couldn't be read. The default is shown for now." },
+  "templateStorageError": { "message": "The template couldn't be saved to this browser. Please try again." },
+  "authRefreshError": { "message": "The extension couldn't refresh your usememos.com account." },
+  "authSignOutError": { "message": "The extension couldn't sign you out. Please try again." },
+
+  "contextMenuSaveSelection": { "message": "Save selection to Memos" },
+  "contextFailureWithFix": {
+    "message": "$TITLE$ — $FIX$",
+    "description": "Combines an error title and its first recovery step in a compact toast.",
+    "placeholders": {
+      "title": { "content": "$1", "example": "Access token rejected" },
+      "fix": { "content": "$2", "example": "Reconnect your account." }
+    }
+  },
+  "contextSavePartial_one": {
+    "message": "Saved to Memos — $COUNT$ image couldn't be uploaded",
+    "description": "Context-menu result when the memo saved but one image failed.",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "contextSavePartial_other": {
+    "message": "Saved to Memos — $COUNT$ images couldn't be uploaded",
+    "description": "Context-menu result when the memo saved but multiple images failed.",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+
+  "errorInvalidUrlTitle": { "message": "Invalid instance URL" },
+  "errorInvalidUrlWhy": {
+    "message": "The destination must be a complete http:// or https:// address without embedded credentials, a query, or a fragment."
+  },
+  "errorInvalidUrlFix": { "message": "Enter the address you use to open Memos, such as https://memos.example.com." },
+  "errorExtensionTitle": { "message": "The extension stopped responding" },
+  "errorExtensionWhy": { "message": "The popup couldn't reach its background service worker, so the save result is unknown." },
+  "errorExtensionFix": { "message": "Keep this popup open and try again; your draft is still here." },
+  "errorStorageTitle": { "message": "Couldn't save this connection" },
+  "errorStorageWhy": { "message": "The connection was verified, but the browser couldn't store it on this device." },
+  "errorStorageFix": { "message": "Check that extension storage is available, then try again." },
+  "errorAuthChangedTitle": { "message": "Your account changed" },
+  "errorAuthChangedWhy": { "message": "The signed-in account or Memos destination changed after this popup opened." },
+  "errorAuthChangedFix": { "message": "Review the current account, then try saving again." },
+  "errorAuthUnavailableTitle": { "message": "Your account couldn't be verified" },
+  "errorAuthUnavailableWhy": {
+    "message": "The extension couldn't reach usememos.com, so it did not use cached credentials for this write."
+  },
+  "errorAuthUnavailableFix": { "message": "Check your connection and try again." },
+  "errorNotConfiguredTitle": { "message": "No Memos instance connected" },
+  "errorNotConfiguredWhy": { "message": "You haven't connected a Memos instance to the clipper yet." },
+  "errorNotConfiguredFix": { "message": "Open the extension settings, choose a connection method, then connect your instance." },
+  "errorMixedContentTitle": { "message": "Your connection is not encrypted" },
+  "errorMixedContentWhy": {
+    "message": "The extension will send your Memos access token and clip content over http:// without TLS encryption."
+  },
+  "errorMixedContentFixHttps": { "message": "Serve your Memos instance over https." },
+  "errorMixedContentFixLocal": { "message": "Use http:// only for a local development instance such as localhost." },
+  "errorCorsTitle": { "message": "Your instance blocked the request (CORS)" },
+  "errorCorsWhy": { "message": "The server is reachable but didn't allow the extension to read the response." },
+  "errorCorsFixOnline": { "message": "Confirm the instance is online and reachable." },
+  "errorCorsFixUrl": { "message": "Check the instance URL and try the connection again." },
+  "errorUnreachableTitle": { "message": "Couldn't reach your instance" },
+  "errorUnreachableWhy": { "message": "The request never got a response from the server." },
+  "errorUnreachableFixOnline": { "message": "Check the instance is online." },
+  "errorUnreachableFixOpen": { "message": "Open the instance URL in a tab to confirm it loads." },
+  "errorUnauthorizedTitle": { "message": "Access token rejected" },
+  "errorUnauthorizedWhy": { "message": "The instance returned 401/403 — the token is invalid or expired." },
+  "errorUnauthorizedDirectFixReplace": { "message": "Replace the token in extension settings." },
+  "errorUnauthorizedDirectFixCreate": { "message": "If needed, create a new token in your Memos user settings." },
+  "errorUnauthorizedAccountFixReconnect": { "message": "Sign in to usememos.com and reconnect." },
+  "errorUnauthorizedAccountFixRegenerate": { "message": "If it persists, regenerate your access token in Memos settings." },
+  "errorTimeoutTitle": { "message": "Your instance timed out" },
+  "errorTimeoutWhy": { "message": "The server didn't respond in time." },
+  "errorTimeoutFixOnline": { "message": "Check the server is online and not overloaded." },
+  "errorTimeoutFixRetry": { "message": "Try again in a moment." },
+  "errorUnsupportedTitle": { "message": "Unsupported Memos version" },
+  "errorUnsupportedWhy": {
+    "message": "This clipper needs Memos $VERSION$ or a newer stable 0.x release to match the API it uses.",
+    "description": "Explains the minimum supported Memos version.",
+    "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
+  },
+  "errorUnsupportedFix": {
+    "message": "Update your Memos instance to $VERSION$ or a newer stable 0.x release, then reconnect.",
+    "description": "Recovery instruction containing the minimum supported Memos version.",
+    "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
+  },
+  "errorUpgradeGuide": { "message": "How to upgrade Memos" },
+  "errorBadResponseTitle": { "message": "Unexpected response" },
+  "errorBadResponseWhy": { "message": "The instance returned something that isn't a valid API response." },
+  "errorBadResponseFixApi": { "message": "Confirm the URL points at your Memos API." },
+  "errorBadResponseFixRedirect": { "message": "If your server redirects, use the final URL." }
+}

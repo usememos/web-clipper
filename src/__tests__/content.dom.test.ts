@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { browserMock } from "@/test/browser-mock";
+import { browserMock, setBrowserLocale } from "@/test/browser-mock";
+import frenchMessages from "../../public/_locales/fr/messages.json" with { type: "json" };
 
 // Content script registers its message listeners on the shared browser mock at import.
 beforeEach(async () => {
@@ -24,6 +25,21 @@ describe("content script — SHOW_SAVE_RESULT", () => {
     const link = shadow.querySelector("a")!;
     expect(link.href).toBe("https://memos.example.com/memos/7");
     expect(link.textContent).toBe("Open");
+  });
+
+  it("localizes the toast action without changing the host page", async () => {
+    setBrowserLocale("fr", frenchMessages);
+    document.documentElement.lang = "en";
+    await browserMock.runtime.onMessage.emitFirst({
+      type: "SHOW_SAVE_RESULT",
+      ok: true,
+      title: "Enregistré dans Memos",
+      webUrl: "https://memos.example.com/memos/8",
+    });
+
+    const host = document.querySelector("div[style*='2147483647']") as HTMLElement;
+    expect(host.shadowRoot?.querySelector("a")?.textContent).toBe("Ouvrir");
+    expect(document.documentElement.lang).toBe("en");
   });
 
   it("renders an error toast without a link and replaces a previous toast", async () => {

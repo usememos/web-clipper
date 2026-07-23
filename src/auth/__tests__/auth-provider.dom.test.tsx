@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 import { AuthProvider, useAuth } from "@/auth/auth-provider";
+import { applyLocalePreference } from "@/lib/i18n";
 import { browserMock } from "@/test/browser-mock";
 import { act, renderHook, waitFor } from "@/test/render";
 
@@ -31,5 +32,16 @@ describe("AuthProvider recovery", () => {
       await first;
     });
     expect(result.current.isLoaded).toBe(true);
+  });
+
+  it("retranslates a visible error after the locale changes", async () => {
+    browserMock.runtime.sendMessage.mockRejectedValueOnce(new Error("service worker unavailable"));
+    const { result, rerender } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => expect(result.current.error).toMatch(/couldn't refresh/i));
+    applyLocalePreference("es");
+    rerender();
+
+    expect(result.current.error).toBe("La extensión no ha podido actualizar tu cuenta usememos.com.");
   });
 });

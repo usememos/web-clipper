@@ -64,11 +64,24 @@ let toastHost: HTMLElement | null = null;
  * Rendered in a shadow root so page CSS can't restyle it and ours can't leak out; follows the
  * page's own light/dark preference. Warm theme to match the extension.
  */
-function showSaveToast({ ok, title, webUrl }: { ok: boolean; title: string; webUrl?: string }): void {
+function showSaveToast({
+  ok,
+  title,
+  webUrl,
+  openLabel,
+  direction,
+}: {
+  ok: boolean;
+  title: string;
+  webUrl?: string;
+  openLabel?: string;
+  direction?: "ltr" | "rtl";
+}): void {
   toastHost?.remove();
   const host = document.createElement("div");
   toastHost = host;
-  host.style.cssText = "position:fixed;bottom:20px;right:20px;z-index:2147483647;";
+  host.dir = direction ?? (browser.i18n.getMessage("@@bidi_dir") === "rtl" ? "rtl" : "ltr");
+  host.style.cssText = "position:fixed;bottom:20px;inset-inline-end:20px;z-index:2147483647;";
   const shadow = host.attachShadow({ mode: "open" });
   const style = document.createElement("style");
   style.textContent = `
@@ -80,7 +93,7 @@ function showSaveToast({ ok, title, webUrl }: { ok: boolean; title: string; webU
     .dot{display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;
       background:#c96442;color:#fff;font-size:11px;flex:none}
     .err .dot{background:#dc2626}
-    a{color:#c96442;font-weight:500;text-decoration:none;margin-left:2px}
+    a{color:#c96442;font-weight:500;text-decoration:none;margin-inline-start:2px}
     a:hover{text-decoration:underline}
     @media (prefers-color-scheme:dark){
       .toast{background:#30302e;color:#f5f4ef;border-color:rgba(245,244,239,.14);box-shadow:0 6px 24px rgba(0,0,0,.4)}
@@ -100,7 +113,7 @@ function showSaveToast({ ok, title, webUrl }: { ok: boolean; title: string; webU
     open.href = webUrl;
     open.target = "_blank";
     open.rel = "noreferrer";
-    open.textContent = "Open";
+    open.textContent = (openLabel ?? browser.i18n.getMessage("commonOpen")) || "Open";
     toast.append(open);
   }
   shadow.append(style, toast);

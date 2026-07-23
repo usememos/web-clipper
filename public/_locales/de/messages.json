@@ -1,0 +1,681 @@
+{
+  "extensionName": {
+    "message": "Memos Web Clipper"
+  },
+  "extensionDescription": {
+    "message": "Webseiten in Ihrer Memos-Instanz speichern."
+  },
+  "actionTitle": {
+    "message": "In Memos speichern"
+  },
+  "popupDocumentTitle": {
+    "message": "In Memos speichern"
+  },
+  "optionsDocumentTitle": {
+    "message": "Memos Web Clipper – Einstellungen"
+  },
+  "optionsLanguage": {
+    "message": "Sprache"
+  },
+  "localeBrowserDefault": {
+    "message": "Browsersprache"
+  },
+  "optionsLanguageSaveError": {
+    "message": "Die Spracheinstellung konnte nicht gespeichert werden. Versuchen Sie es erneut."
+  },
+  "commonLoading": {
+    "message": "Wird geladen"
+  },
+  "commonOpen": {
+    "message": "Öffnen"
+  },
+  "commonOpenSettings": {
+    "message": "Einstellungen öffnen"
+  },
+  "commonRetrying": {
+    "message": "Wiederholen…"
+  },
+  "commonTryAgain": {
+    "message": "Erneut versuchen"
+  },
+  "commonSaving": {
+    "message": "Speichern…"
+  },
+  "commonPrivate": {
+    "message": "Privat"
+  },
+  "commonProtected": {
+    "message": "Geschützt"
+  },
+  "commonPublic": {
+    "message": "Öffentlich"
+  },
+  "commonRecommended": {
+    "message": "Empfohlen"
+  },
+  "commonCancel": {
+    "message": "Abbrechen"
+  },
+  "commonChecking": {
+    "message": "Überprüfung…"
+  },
+  "commonConnected": {
+    "message": "Verbunden"
+  },
+  "commonDirect": {
+    "message": "Direkt"
+  },
+  "popupOpenInstance": {
+    "message": "Öffnen Sie Ihre Memos-Instanz"
+  },
+  "popupExtensionSettings": {
+    "message": "Erweiterungseinstellungen"
+  },
+  "popupMemoContent": {
+    "message": "Memo-Inhalt"
+  },
+  "popupVisibility": {
+    "message": "Sichtbarkeit"
+  },
+  "popupPrivateDescription": {
+    "message": "Nur für Sie sichtbar"
+  },
+  "popupProtectedDescription": {
+    "message": "Für angemeldete Benutzer sichtbar"
+  },
+  "popupPublicDescription": {
+    "message": "Für alle sichtbar"
+  },
+  "popupEmptyCapturePlaceholder": {
+    "message": "Von dieser Seite konnte nichts erfasst werden – schreiben Sie Ihr Memo hier"
+  },
+  "popupSaveToMemos": {
+    "message": "In Memos speichern"
+  },
+  "popupSavedToMemos": {
+    "message": "In Memos gespeichert"
+  },
+  "popupFailedImages_one": {
+    "message": "$COUNT$ Bild konnte nicht hochgeladen werden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupFailedImages_other": {
+    "message": "$COUNT$ Bilder konnten nicht hochgeladen werden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSelectionImages_one": {
+    "message": "$COUNT$ Bild aus Ihrer Auswahl wird angehängt",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupSelectionImages_other": {
+    "message": "$COUNT$ Bilder aus Ihrer Auswahl werden angehängt",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSignedOut": {
+    "message": "Sie sind abgemeldet."
+  },
+  "popupDisconnected": {
+    "message": "Memos ist nicht verbunden."
+  },
+  "popupNeedsUpgrade": {
+    "message": "Memos benötigt ein Upgrade."
+  },
+  "popupDraftPreserved": {
+    "message": "Ihr Entwurf ist erhalten, kann aber erst gespeichert werden, wenn die Verbindung wiederhergestellt ist."
+  },
+  "popupCaptureRestricted": {
+    "message": "Nur der Seitenlink wurde erfasst – der Browser blockiert den Seitenzugriff."
+  },
+  "popupCaptureTimedOut": {
+    "message": "Nur der Seitenlink wurde erfasst – Zeitüberschreitung beim Erfassen der Seite."
+  },
+  "popupCaptureNoDescriptionSelection": {
+    "message": "Auswahl und Seitenlink wurden erfasst – keine lesbare Beschreibung gefunden."
+  },
+  "popupCaptureNoDescription": {
+    "message": "Nur der Seitenlink wurde erfasst – keine lesbare Beschreibung gefunden."
+  },
+  "popupCaptureContentUnavailable": {
+    "message": "Nur der Seitenlink wurde erfasst – Seiteninhalt nicht verfügbar."
+  },
+  "popupCaptureFailed": {
+    "message": "Diese Seite konnte nicht erfasst werden. Sie können die Notiz manuell eingeben."
+  },
+  "popupChooseConnection": {
+    "message": "Wählen Sie, wie der Clipper mit Ihrer Memos-Instanz verbunden werden soll."
+  },
+  "popupConnectToStart": {
+    "message": "Verbinden Sie Ihre Memos-Instanz, um mit dem Clipping zu beginnen."
+  },
+  "popupUnsupportedWithVersion": {
+    "message": "Ihre Instanz läuft unter $VERSION$. $WHY$ $FIX$",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      },
+      "why": {
+        "content": "$2",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$3",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "popupUnsupportedWithoutVersion": {
+    "message": "$WHY$ $FIX$",
+    "placeholders": {
+      "why": {
+        "content": "$1",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "optionsClipTemplate": {
+    "message": "Clipvorlage"
+  },
+  "optionsTemplateLocked": {
+    "message": "Verbinden Sie zuerst eine unterstützte Memos-Instanz. Anschließend können Sie die Formatierung der Clips konfigurieren."
+  },
+  "optionsTemplateDescription": {
+    "message": "Passen Sie die Formatierung jedes Clips an, bevor er an Memos gesendet wird. Diese Einstellung wird nur in diesem Browser gespeichert."
+  },
+  "optionsLoadingTemplate": {
+    "message": "Ihre Vorlage wird geladen…"
+  },
+  "optionsSignInTitle": {
+    "message": "Mit usememos.com anmelden"
+  },
+  "optionsAccountConnectionDescription": {
+    "message": "Ihre Verbindung zu Ihrem Konto speichern und nach der Anmeldung auf anderen Geräten verwenden."
+  },
+  "optionsContinueUseMemos": {
+    "message": "Mit usememos.com fortfahren"
+  },
+  "optionsDirectConnection": {
+    "message": "Direkte Verbindung"
+  },
+  "optionsDirectDescription": {
+    "message": "Diesen Browser mit einer Instanz-URL und einem persönlichen Zugriffstoken verbinden. Kein usememos.com-Konto erforderlich."
+  },
+  "optionsConnectDirectly": {
+    "message": "Direkt verbinden"
+  },
+  "optionsBackToMethods": {
+    "message": "Zurück zu den Verbindungsmethoden"
+  },
+  "optionsDirectSetupDescription": {
+    "message": "Die Adresse Ihrer Memos-Instanz und ein persönliches Zugriffstoken eingeben."
+  },
+  "optionsInstanceUrl": {
+    "message": "Instanz-URL"
+  },
+  "optionsAccessToken": {
+    "message": "Zugriffstoken"
+  },
+  "optionsCreateToken": {
+    "message": "Token in den Memos-Einstellungen erstellen"
+  },
+  "optionsEnterUrlForTokenSettings": {
+    "message": "Instanz-URL eingeben, um die Token-Einstellungen zu öffnen"
+  },
+  "optionsHideAccessToken": {
+    "message": "Zugriffstoken ausblenden"
+  },
+  "optionsShowAccessToken": {
+    "message": "Zugriffstoken anzeigen"
+  },
+  "optionsTokenAdvice": {
+    "message": "Ein dediziertes Token mit dem Namen „Web Clipper“ verwenden und ein Ablaufdatum festlegen"
+  },
+  "optionsInvalidUrlField": {
+    "message": "Vollständige http://- oder https://-Adresse eingeben"
+  },
+  "optionsMissingTokenField": {
+    "message": "Persönliches Zugriffstoken eingeben"
+  },
+  "optionsUnencryptedTitle": {
+    "message": "Diese Verbindung ist nicht verschlüsselt."
+  },
+  "optionsUnencryptedBody": {
+    "message": "Ihr Zugriffstoken und zukünftige Clips werden über HTTP übertragen. Verwenden Sie HTTPS, es sei denn, Sie vertrauen diesem Netzwerk."
+  },
+  "optionsContinueHttp": {
+    "message": "Fahren Sie mit HTTP fort."
+  },
+  "optionsTestingConnection": {
+    "message": "Verbindung wird getestet…"
+  },
+  "optionsTestAndSave": {
+    "message": "Testen und speichern."
+  },
+  "optionsTestingDirectConnection": {
+    "message": "Direkte Verbindung Memos wird getestet."
+  },
+  "optionsUseMemosSetupDescription": {
+    "message": "Ihr Konto speichert die Verbindungsinformationen, wenn Sie sich auf einem anderen Gerät anmelden."
+  },
+  "optionsCheckingAccount": {
+    "message": "Konto wird geprüft…"
+  },
+  "optionsSupported": {
+    "message": "Unterstützt"
+  },
+  "optionsUseThisConnection": {
+    "message": "Diese Verbindung verwenden"
+  },
+  "optionsFinishSetup": {
+    "message": "Einrichtung abschließen"
+  },
+  "optionsSavedConnectionIncomplete": {
+    "message": "Die gespeicherte Verbindung ist unvollständig. Reparieren Sie sie auf usememos.com."
+  },
+  "optionsNoConnectionFound": {
+    "message": "Für dieses Konto wurde keine Verbindung gefunden. Stellen Sie sicher, dass usememos.com dasselbe Konto verwendet."
+  },
+  "optionsRepairDestination": {
+    "message": "Stellen Sie eine Verbindung zu Ihrem Ziel auf usememos.com her oder reparieren Sie es. Kehren Sie dann hierher zurück, um die Verbindung zu überprüfen."
+  },
+  "optionsWaitingForConnection": {
+    "message": "Warten auf Verbindung"
+  },
+  "optionsConnectOnUseMemos": {
+    "message": "Auf usememos.com verbinden"
+  },
+  "optionsCheckAgain": {
+    "message": "Bitte erneut prüfen"
+  },
+  "optionsRefreshConnectionError": {
+    "message": "Die Verbindung zu usememos.com konnte nicht aktualisiert werden. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+  },
+  "optionsSignInError": {
+    "message": "Die Anmeldung wurde abgebrochen oder konnte nicht abgeschlossen werden. Sie können es erneut versuchen."
+  },
+  "optionsCurrentConnectionActive": {
+    "message": "Ihre aktuelle Verbindung bleibt aktiv, bis diese Verbindung verifiziert ist."
+  },
+  "optionsLastVerified": {
+    "message": "Letzte Überprüfung"
+  },
+  "optionsConnectedAs": {
+    "message": "Verbunden als $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alex"
+      }
+    }
+  },
+  "optionsTokenSaved": {
+    "message": "Zugriffstoken in diesem Browser gespeichert."
+  },
+  "optionsCheckConnection": {
+    "message": "Verbindung prüfen"
+  },
+  "optionsChangeConnection": {
+    "message": "Verbindung ändern"
+  },
+  "optionsDisconnect": {
+    "message": "Verbindung trennen"
+  },
+  "optionsDisconnectConfirm": {
+    "message": "Browser von Memos trennen? Dies widerruft kein direktes Token auf dem Server Memos."
+  },
+  "optionsConnectedToHost": {
+    "message": "Verbunden · Clipping zu $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "memos.example.com"
+      }
+    }
+  },
+  "optionsSetupClipper": {
+    "message": "Clipper einrichten"
+  },
+  "optionsMemosConnected": {
+    "message": "Memos verbunden"
+  },
+  "optionsChooseHowToConnect": {
+    "message": "Verbindungsart auswählen"
+  },
+  "optionsConnectToMemos": {
+    "message": "Verbindung zu Memos herstellen"
+  },
+  "optionsConnectionSummary": {
+    "message": "Quelle für Instanz-URL und Zugriffstoken auswählen"
+  },
+  "optionsCheckingConnection": {
+    "message": "Verbindung wird geprüft…"
+  },
+  "templateAriaLabel": {
+    "message": "Vorlage"
+  },
+  "templateEmptyPreview": {
+    "message": "Keine Vorschau verfügbar – die Vorlage ist leer."
+  },
+  "templateSaveError": {
+    "message": "Die Vorlage wurde nicht gespeichert. Ihr Entwurf ist noch vorhanden – versuchen Sie es erneut."
+  },
+  "templateEditor": {
+    "message": "Editor"
+  },
+  "templateResetDefault": {
+    "message": "Auf Standard zurücksetzen"
+  },
+  "templateHelp": {
+    "message": "Jeder Clip wird vor dem Erreichen des Editors mithilfe dieser Vorlage erstellt. Klartext – einschließlich #tags – bleibt unverändert."
+  },
+  "templatePlaceholderReference": {
+    "message": "Platzhalterreferenz"
+  },
+  "templateColumnPlaceholder": {
+    "message": "Platzhalter"
+  },
+  "templateColumnAdds": {
+    "message": "Was es hinzufügt"
+  },
+  "templateColumnSource": {
+    "message": "Übernommen von"
+  },
+  "templateExample": {
+    "message": "Beispiel: $VALUE$",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Example Article"
+      }
+    }
+  },
+  "templatePreviewContent": {
+    "message": "> Der schnelle braune Fuchs springt über den faulen Hund."
+  },
+  "templatePreviewTitle": {
+    "message": "Beispielartikel"
+  },
+  "templatePreviewDescription": {
+    "message": "Eine kurze Zusammenfassung der Seite."
+  },
+  "templateContentMeaning": {
+    "message": "Ausgewählter Text (Markdown)"
+  },
+  "templateContentSource": {
+    "message": "Ihre Auswahl auf der Seite"
+  },
+  "templateContentExample": {
+    "message": "> Der schnelle braune Fuchs…"
+  },
+  "templateDescriptionMeaning": {
+    "message": "Seitenzusammenfassung (bis zu $COUNT$ Zeichen)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "templateDescriptionSource": {
+    "message": "Open Graph → Meta-Beschreibung → erster lesbarer Absatz"
+  },
+  "templateTitleMeaning": {
+    "message": "Seitentitel oder URL (als Fallback)"
+  },
+  "templateTitleSource": {
+    "message": "Browsertab → Dokumenttitel"
+  },
+  "templateUrlMeaning": {
+    "message": "Exakte Seitenadresse"
+  },
+  "templateUrlSource": {
+    "message": "Aktueller Browsertab"
+  },
+  "templatePreviewSection": {
+    "message": "Vorschau – wie die Seite angezeigt wird Memos"
+  },
+  "templateJustNow": {
+    "message": "Gerade eben"
+  },
+  "templateSave": {
+    "message": "Vorlage speichern"
+  },
+  "templateSavedBrowser": {
+    "message": "In diesem Browser gespeichert"
+  },
+  "templateUnsavedChanges": {
+    "message": "Nicht gespeicherte Änderungen"
+  },
+  "templateExternalUpdate": {
+    "message": "Auf einer anderen Einstellungsseite wurde eine andere Vorlage gespeichert. Ihr nicht gespeicherter Entwurf ist noch vorhanden."
+  },
+  "templateLoadSaved": {
+    "message": "Gespeicherte Version laden"
+  },
+  "templateReadError": {
+    "message": "Die gespeicherte Vorlage konnte nicht gelesen werden. Es wird vorerst die Standardvorlage angezeigt."
+  },
+  "templateStorageError": {
+    "message": "Die Vorlage konnte in diesem Browser nicht gespeichert werden. Bitte versuchen Sie es erneut."
+  },
+  "authRefreshError": {
+    "message": "Die Erweiterung konnte Ihr usememos.com-Konto nicht aktualisieren."
+  },
+  "authSignOutError": {
+    "message": "Die Erweiterung konnte Sie nicht abmelden. Bitte versuchen Sie es erneut."
+  },
+  "contextMenuSaveSelection": {
+    "message": "Auswahl in Memos speichern"
+  },
+  "contextFailureWithFix": {
+    "message": "$TITLE$ — $FIX$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Access token rejected"
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Reconnect your account."
+      }
+    }
+  },
+  "contextSavePartial_one": {
+    "message": "In Memos gespeichert — $COUNT$ Bild konnte nicht hochgeladen werden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "contextSavePartial_other": {
+    "message": "In Memos gespeichert — $COUNT$ Bilder konnten nicht hochgeladen werden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "errorInvalidUrlTitle": {
+    "message": "Ungültige Instanz-URL"
+  },
+  "errorInvalidUrlWhy": {
+    "message": "Das Ziel muss eine vollständige Adresse http:// oder https:// ohne eingebettete Anmeldeinformationen, Abfragen oder Fragmente sein."
+  },
+  "errorInvalidUrlFix": {
+    "message": "Geben Sie die Adresse ein, die Sie zum Öffnen von Memos verwenden, z. B. https://memos.example.com."
+  },
+  "errorExtensionTitle": {
+    "message": "Die Erweiterung reagiert nicht mehr."
+  },
+  "errorExtensionWhy": {
+    "message": "Das Popup konnte seinen Hintergrunddienst nicht erreichen, daher ist das Speicherergebnis unbekannt."
+  },
+  "errorExtensionFix": {
+    "message": "Lassen Sie dieses Popup geöffnet und versuchen Sie es erneut. Ihr Entwurf ist weiterhin vorhanden."
+  },
+  "errorStorageTitle": {
+    "message": "Diese Verbindung konnte nicht gespeichert werden."
+  },
+  "errorStorageWhy": {
+    "message": "Die Verbindung wurde überprüft, aber der Browser konnte sie nicht auf diesem Gerät speichern."
+  },
+  "errorStorageFix": {
+    "message": "Prüfen Sie, ob der Speicher für Erweiterungen verfügbar ist, und versuchen Sie es erneut."
+  },
+  "errorAuthChangedTitle": {
+    "message": "Ihr Konto wurde geändert."
+  },
+  "errorAuthChangedWhy": {
+    "message": "Das angemeldete Konto oder das Ziel Memos hat sich nach dem Öffnen dieses Popups geändert."
+  },
+  "errorAuthChangedFix": {
+    "message": "Überprüfen Sie das aktuelle Konto und versuchen Sie dann erneut zu speichern."
+  },
+  "errorAuthUnavailableTitle": {
+    "message": "Ihr Konto konnte nicht verifiziert werden."
+  },
+  "errorAuthUnavailableWhy": {
+    "message": "Die Erweiterung konnte usememos.com nicht erreichen und hat daher für diesen Schreibvorgang keine zwischengespeicherten Anmeldeinformationen verwendet."
+  },
+  "errorAuthUnavailableFix": {
+    "message": "Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+  },
+  "errorNotConfiguredTitle": {
+    "message": "Keine Memos-Instanz verbunden."
+  },
+  "errorNotConfiguredWhy": {
+    "message": "Sie haben noch keine Memos-Instanz mit dem Clipper verbunden."
+  },
+  "errorNotConfiguredFix": {
+    "message": "Öffnen Sie die Erweiterungseinstellungen, wählen Sie eine Verbindungsmethode und verbinden Sie Ihre Instanz."
+  },
+  "errorMixedContentTitle": {
+    "message": "Ihre Verbindung ist nicht verschlüsselt."
+  },
+  "errorMixedContentWhy": {
+    "message": "Die Erweiterung sendet Ihr Zugriffstoken Memos und Clipping-Inhalte unverschlüsselt über http:// (TLS)."
+  },
+  "errorMixedContentFixHttps": {
+    "message": "Stellen Sie Ihre Memos-Instanz über HTTPS bereit."
+  },
+  "errorMixedContentFixLocal": {
+    "message": "Verwenden Sie http:// nur für lokale Entwicklungsinstanzen wie localhost."
+  },
+  "errorCorsTitle": {
+    "message": "Ihre Instanz hat die Anfrage blockiert (CORS)."
+  },
+  "errorCorsWhy": {
+    "message": "Der Server ist erreichbar, hat der Erweiterung jedoch den Zugriff auf die Antwort verweigert."
+  },
+  "errorCorsFixOnline": {
+    "message": "Prüfen Sie, ob die Instanz online und erreichbar ist."
+  },
+  "errorCorsFixUrl": {
+    "message": "Überprüfen Sie die Instanz-URL und versuchen Sie die Verbindung erneut."
+  },
+  "errorUnreachableTitle": {
+    "message": "Ihre Instanz konnte nicht erreicht werden."
+  },
+  "errorUnreachableWhy": {
+    "message": "Die Anfrage wurde vom Server nicht beantwortet."
+  },
+  "errorUnreachableFixOnline": {
+    "message": "Prüfen Sie, ob die Instanz online ist."
+  },
+  "errorUnreachableFixOpen": {
+    "message": "Öffnen Sie die Instanz-URL in einem neuen Tab, um zu prüfen, ob sie geladen wird."
+  },
+  "errorUnauthorizedTitle": {
+    "message": "Zugriffstoken abgelehnt."
+  },
+  "errorUnauthorizedWhy": {
+    "message": "Die Instanz hat den Fehlercode 401/403 zurückgegeben – das Token ist ungültig oder abgelaufen."
+  },
+  "errorUnauthorizedDirectFixReplace": {
+    "message": "Ersetzen Sie das Token in den Erweiterungseinstellungen."
+  },
+  "errorUnauthorizedDirectFixCreate": {
+    "message": "Erstellen Sie bei Bedarf ein neues Token in Ihren Benutzereinstellungen für Memos."
+  },
+  "errorUnauthorizedAccountFixReconnect": {
+    "message": "Melden Sie sich bei usememos.com an und stellen Sie die Verbindung erneut her."
+  },
+  "errorUnauthorizedAccountFixRegenerate": {
+    "message": "Sollte das Problem weiterhin bestehen, generieren Sie Ihr Zugriffstoken in den Einstellungen von Memos neu."
+  },
+  "errorTimeoutTitle": {
+    "message": "Zeitüberschreitung bei Ihrer Instanz"
+  },
+  "errorTimeoutWhy": {
+    "message": "Der Server hat nicht rechtzeitig geantwortet."
+  },
+  "errorTimeoutFixOnline": {
+    "message": "Prüfen Sie, ob der Server online und nicht überlastet ist."
+  },
+  "errorTimeoutFixRetry": {
+    "message": "Versuchen Sie es in Kürze erneut."
+  },
+  "errorUnsupportedTitle": {
+    "message": "Nicht unterstützte Version Memos"
+  },
+  "errorUnsupportedWhy": {
+    "message": "Dieser Clipper benötigt Memos $VERSION$ oder eine neuere stabile 0.x-Version, um die verwendete API zu unterstützen.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUnsupportedFix": {
+    "message": "Aktualisieren Sie Ihre Memos-Instanz auf $VERSION$ oder eine neuere stabile 0.x-Version und stellen Sie die Verbindung erneut her.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUpgradeGuide": {
+    "message": "Anleitung zum Aktualisieren von Memos"
+  },
+  "errorBadResponseTitle": {
+    "message": "Unerwartete Antwort"
+  },
+  "errorBadResponseWhy": {
+    "message": "Die Instanz hat eine ungültige API-Antwort zurückgegeben."
+  },
+  "errorBadResponseFixApi": {
+    "message": "Stellen Sie sicher, dass die URL auf Ihre Memos-API verweist."
+  },
+  "errorBadResponseFixRedirect": {
+    "message": "Falls Ihr Server weiterleitet, verwenden Sie die endgültige URL."
+  }
+}

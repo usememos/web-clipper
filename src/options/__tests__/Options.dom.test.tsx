@@ -3,8 +3,9 @@ import type { ConnectionStateResult } from "@/lib/messages";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { Options } from "@/options/Options";
 import { oauthUserWithMemos, setMockOAuthUser } from "@/test/auth-mock";
-import { browserMock } from "@/test/browser-mock";
-import { renderWithUser, screen, waitFor } from "@/test/render";
+import { browserMock, setBrowserLocale } from "@/test/browser-mock";
+import { renderWithUser, screen, waitFor, within } from "@/test/render";
+import simplifiedChineseMessages from "../../../public/_locales/zh_CN/messages.json" with { type: "json" };
 
 vi.mock("@/auth/auth-provider", () => import("@/test/auth-mock"));
 
@@ -80,9 +81,43 @@ describe("Options connection methods", () => {
     expect(screen.getByText("Choose how to connect")).toBeInTheDocument();
     expect(screen.getByText("Recommended")).toBeInTheDocument();
     expect(screen.getByText(/use it after signing in on other devices/i)).toBeInTheDocument();
-    expect(screen.getByText(/connection information stays in this browser/i)).toBeInTheDocument();
+    expect(screen.getByText(/personal access token/i)).toBeInTheDocument();
+    expect(screen.queryByText(/connection information stays in this browser/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Instance URL")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Access token")).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("Browser language");
+    expect(screen.queryByRole("link", { name: /open memos/i })).not.toBeInTheDocument();
+  });
+
+  it("persists a language choice and applies it immediately", async () => {
+    const { user } = renderWithUser(<Options />);
+
+    await user.click(screen.getByRole("combobox", { name: "Language" }));
+    await user.click(await screen.findByRole("option", { name: "Español" }));
+
+    expect(await screen.findByText("Elige cómo conectarte")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Idioma" })).toHaveTextContent("Español");
+    expect(browserMock.storage.local.set).toHaveBeenCalledWith({ localePreferenceV1: "es" });
+  });
+
+  it("keeps the current language and reports a persistence failure", async () => {
+    browserMock.storage.local.set.mockRejectedValueOnce(new Error("storage unavailable"));
+    const { user } = renderWithUser(<Options />);
+
+    await user.click(screen.getByRole("combobox", { name: "Language" }));
+    await user.click(await screen.findByRole("option", { name: "Español" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("The language preference couldn't be saved");
+    expect(screen.getByText("Choose how to connect")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("Browser language");
+  });
+
+  it("renders the connection choices in Simplified Chinese", () => {
+    setBrowserLocale("zh-CN", simplifiedChineseMessages);
+    renderWithUser(<Options />);
+
+    expect(screen.getByText("选择连接方式")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "直接连接" })).toBeInTheDocument();
   });
 
   it("shows URL and PAT fields only after choosing direct connection", async () => {
@@ -202,9 +237,14 @@ describe("Options connection methods", () => {
     active = readyConn(source);
     renderWithUser(<Options />);
 
-    expect(screen.getByText(/memos\.example\.com · 0\.29\.1/)).toBeInTheDocument();
+    expect(screen.getByText("0.29.1")).toBeInTheDocument();
     expect(screen.getByText(source === "direct" ? "Direct" : "usememos.com")).toBeInTheDocument();
     expect(screen.queryByLabelText("Access token")).not.toBeInTheDocument();
+    const connectedSection = screen.getByText("Memos connected").parentElement!;
+    expect(within(connectedSection).getByRole("link", { name: "memos.example.com" })).toHaveAttribute("href", "https://memos.example.com");
+    expect(within(connectedSection).queryByRole("link", { name: /open memos/i })).not.toBeInTheDocument();
+    expect(within(connectedSection).queryByText("Connected")).not.toBeInTheDocument();
+    expect(within(connectedSection).queryByText("This browser")).not.toBeInTheDocument();
   });
 
   it("opens the same method choice when changing a ready connection", async () => {

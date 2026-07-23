@@ -11,6 +11,7 @@
     "skipLibCheck": true,
     "types": ["chrome", "vitest/globals", "node"],
     "allowArbitraryExtensions": true,
+    "resolveJsonModule": true,
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"] }

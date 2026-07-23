@@ -1,4 +1,5 @@
 import type { ConnectionSource } from "./connection-config";
+import { t } from "./i18n";
 import { MIN_SUPPORTED_VERSION_LABEL } from "./versions";
 
 /** Failure modes of an actual HTTP request to the user's Memos instance. */
@@ -63,109 +64,109 @@ export function describeSaveError(kind: SaveErrorKind, source?: ConnectionSource
       return {
         kind,
         primaryAction: "settings",
-        title: "Invalid instance URL",
-        why: "The destination must be a complete http:// or https:// address without embedded credentials, a query, or a fragment.",
-        howToFix: ["Enter the address you use to open Memos, such as https://memos.example.com."],
+        title: t("errorInvalidUrlTitle"),
+        why: t("errorInvalidUrlWhy"),
+        howToFix: [t("errorInvalidUrlFix")],
       };
     case "extension-error":
       return {
         kind,
         primaryAction: "retry",
-        title: "The extension stopped responding",
-        why: "The popup couldn't reach its background service worker, so the save result is unknown.",
-        howToFix: ["Keep this popup open and try again; your draft is still here."],
+        title: t("errorExtensionTitle"),
+        why: t("errorExtensionWhy"),
+        howToFix: [t("errorExtensionFix")],
       };
     case "storage-error":
       return {
         kind,
         primaryAction: "retry",
-        title: "Couldn't save this connection",
-        why: "The connection was verified, but the browser couldn't store it on this device.",
-        howToFix: ["Check that extension storage is available, then try again."],
+        title: t("errorStorageTitle"),
+        why: t("errorStorageWhy"),
+        howToFix: [t("errorStorageFix")],
       };
     case "auth-changed":
       return {
         kind,
         primaryAction: "retry",
-        title: "Your account changed",
-        why: "The signed-in account or Memos destination changed after this popup opened.",
-        howToFix: ["Review the current account, then try saving again."],
+        title: t("errorAuthChangedTitle"),
+        why: t("errorAuthChangedWhy"),
+        howToFix: [t("errorAuthChangedFix")],
       };
     case "auth-unavailable":
       return {
         kind,
         primaryAction: "retry",
-        title: "Your account couldn't be verified",
-        why: "The extension couldn't reach usememos.com, so it did not use cached credentials for this write.",
-        howToFix: ["Check your connection and try again."],
+        title: t("errorAuthUnavailableTitle"),
+        why: t("errorAuthUnavailableWhy"),
+        howToFix: [t("errorAuthUnavailableFix")],
       };
     case "not-configured":
       return {
         kind,
         primaryAction: "settings",
-        title: "No Memos instance connected",
-        why: "You haven't connected a Memos instance to the clipper yet.",
-        howToFix: ["Open the extension settings, choose a connection method, then connect your instance."],
+        title: t("errorNotConfiguredTitle"),
+        why: t("errorNotConfiguredWhy"),
+        howToFix: [t("errorNotConfiguredFix")],
       };
     case "mixed-content":
       return {
         kind,
         primaryAction: "settings",
-        title: "Your connection is not encrypted",
-        why: "The extension will send your Memos access token and clip content over http:// without TLS encryption.",
-        howToFix: ["Serve your Memos instance over https.", "Use http:// only for a local development instance such as localhost."],
+        title: t("errorMixedContentTitle"),
+        why: t("errorMixedContentWhy"),
+        howToFix: [t("errorMixedContentFixHttps"), t("errorMixedContentFixLocal")],
       };
     case "cors":
       return {
         kind,
         primaryAction: "settings",
-        title: "Your instance blocked the request (CORS)",
-        why: "The server is reachable but didn't allow the extension to read the response.",
-        howToFix: ["Confirm the instance is online and reachable.", "Check the instance URL and try the connection again."],
+        title: t("errorCorsTitle"),
+        why: t("errorCorsWhy"),
+        howToFix: [t("errorCorsFixOnline"), t("errorCorsFixUrl")],
       };
     case "unreachable":
       return {
         kind,
         primaryAction: "retry",
-        title: "Couldn't reach your instance",
-        why: "The request never got a response from the server.",
-        howToFix: ["Check the instance is online.", "Open the instance URL in a tab to confirm it loads."],
+        title: t("errorUnreachableTitle"),
+        why: t("errorUnreachableWhy"),
+        howToFix: [t("errorUnreachableFixOnline"), t("errorUnreachableFixOpen")],
       };
     case "unauthorized":
       return {
         kind,
         primaryAction: "settings",
-        title: "Access token rejected",
-        why: "The instance returned 401/403 — the token is invalid or expired.",
+        title: t("errorUnauthorizedTitle"),
+        why: t("errorUnauthorizedWhy"),
         howToFix:
           source === "direct"
-            ? ["Replace the token in extension settings.", "If needed, create a new token in your Memos user settings."]
-            : ["Sign in to usememos.com and reconnect.", "If it persists, regenerate your access token in Memos settings."],
+            ? [t("errorUnauthorizedDirectFixReplace"), t("errorUnauthorizedDirectFixCreate")]
+            : [t("errorUnauthorizedAccountFixReconnect"), t("errorUnauthorizedAccountFixRegenerate")],
       };
     case "timeout":
       return {
         kind,
         primaryAction: "retry",
-        title: "Your instance timed out",
-        why: "The server didn't respond in time.",
-        howToFix: ["Check the server is online and not overloaded.", "Try again in a moment."],
+        title: t("errorTimeoutTitle"),
+        why: t("errorTimeoutWhy"),
+        howToFix: [t("errorTimeoutFixOnline"), t("errorTimeoutFixRetry")],
       };
     case "unsupported-version":
       return {
         kind,
         primaryAction: "settings",
-        title: "Unsupported Memos version",
-        why: `This clipper needs Memos ${MIN_SUPPORTED_VERSION_LABEL} or a newer stable 0.x release to match the API it uses.`,
-        howToFix: [`Update your Memos instance to ${MIN_SUPPORTED_VERSION_LABEL} or a newer stable 0.x release, then reconnect.`],
-        learnMore: { label: "How to upgrade Memos", url: MEMOS_UPGRADE_DOCS_URL },
+        title: t("errorUnsupportedTitle"),
+        why: t("errorUnsupportedWhy", MIN_SUPPORTED_VERSION_LABEL),
+        howToFix: [t("errorUnsupportedFix", MIN_SUPPORTED_VERSION_LABEL)],
+        learnMore: { label: t("errorUpgradeGuide"), url: MEMOS_UPGRADE_DOCS_URL },
       };
     case "bad-response":
       return {
         kind: "bad-response",
         primaryAction: "settings",
-        title: "Unexpected response",
-        why: "The instance returned something that isn't a valid API response.",
-        howToFix: ["Confirm the URL points at your Memos API.", "If your server redirects, use the final URL."],
+        title: t("errorBadResponseTitle"),
+        why: t("errorBadResponseWhy"),
+        howToFix: [t("errorBadResponseFixApi"), t("errorBadResponseFixRedirect")],
       };
     default: {
       // Exhaustiveness guard: if a new InstanceErrorKind is added without a case, this fails to compile.

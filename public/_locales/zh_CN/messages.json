@@ -1,0 +1,684 @@
+{
+  "extensionName": {
+    "message": "Memos 网页剪藏器",
+    "description": "Extension name shown by the browser."
+  },
+  "extensionDescription": {
+    "message": "将网页剪藏到你的 Memos 实例。",
+    "description": "Extension description shown by the browser."
+  },
+  "actionTitle": {
+    "message": "剪藏到 Memos",
+    "description": "Toolbar button tooltip."
+  },
+  "popupDocumentTitle": {
+    "message": "剪藏到 Memos"
+  },
+  "optionsDocumentTitle": {
+    "message": "Memos 网页剪藏器 — 设置"
+  },
+  "optionsLanguage": {
+    "message": "语言"
+  },
+  "localeBrowserDefault": {
+    "message": "浏览器语言"
+  },
+  "optionsLanguageSaveError": {
+    "message": "无法保存语言偏好设置，请重试。"
+  },
+  "commonLoading": {
+    "message": "加载中"
+  },
+  "commonOpen": {
+    "message": "打开"
+  },
+  "commonOpenSettings": {
+    "message": "打开设置"
+  },
+  "commonRetrying": {
+    "message": "正在重试…"
+  },
+  "commonTryAgain": {
+    "message": "重试"
+  },
+  "commonSaving": {
+    "message": "正在保存…"
+  },
+  "commonPrivate": {
+    "message": "私密"
+  },
+  "commonProtected": {
+    "message": "受保护"
+  },
+  "commonPublic": {
+    "message": "公开"
+  },
+  "commonRecommended": {
+    "message": "推荐"
+  },
+  "commonCancel": {
+    "message": "取消"
+  },
+  "commonChecking": {
+    "message": "正在检查…"
+  },
+  "commonConnected": {
+    "message": "已连接"
+  },
+  "commonDirect": {
+    "message": "直接连接"
+  },
+  "popupOpenInstance": {
+    "message": "打开你的 Memos 实例"
+  },
+  "popupExtensionSettings": {
+    "message": "扩展设置"
+  },
+  "popupMemoContent": {
+    "message": "Memo 内容"
+  },
+  "popupVisibility": {
+    "message": "可见性"
+  },
+  "popupPrivateDescription": {
+    "message": "仅自己可见"
+  },
+  "popupProtectedDescription": {
+    "message": "对已登录用户可见"
+  },
+  "popupPublicDescription": {
+    "message": "所有人可见"
+  },
+  "popupEmptyCapturePlaceholder": {
+    "message": "无法从此页面获取内容 — 请在此输入 memo"
+  },
+  "popupSaveToMemos": {
+    "message": "保存到 Memos"
+  },
+  "popupSavedToMemos": {
+    "message": "已保存到 Memos"
+  },
+  "popupFailedImages_one": {
+    "message": "$COUNT$ 张图片无法上传",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupFailedImages_other": {
+    "message": "$COUNT$ 张图片无法上传",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSelectionImages_one": {
+    "message": "将附加所选内容中的 $COUNT$ 张图片",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupSelectionImages_other": {
+    "message": "将附加所选内容中的 $COUNT$ 张图片",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSignedOut": {
+    "message": "你已退出登录"
+  },
+  "popupDisconnected": {
+    "message": "Memos 未连接"
+  },
+  "popupNeedsUpgrade": {
+    "message": "Memos 需要升级"
+  },
+  "popupDraftPreserved": {
+    "message": "草稿已保留，但连接就绪前无法保存。"
+  },
+  "popupCaptureRestricted": {
+    "message": "浏览器阻止访问此页面，因此只捕获了页面链接。"
+  },
+  "popupCaptureTimedOut": {
+    "message": "页面捕获超时，因此只捕获了页面链接。"
+  },
+  "popupCaptureNoDescriptionSelection": {
+    "message": "已捕获所选内容和页面链接，但未找到可读的描述。"
+  },
+  "popupCaptureNoDescription": {
+    "message": "未找到可读的描述，因此只捕获了页面链接。"
+  },
+  "popupCaptureContentUnavailable": {
+    "message": "页面内容不可用，因此只捕获了页面链接。"
+  },
+  "popupCaptureFailed": {
+    "message": "无法捕获此页面。你可以手动编写备忘录。"
+  },
+  "popupChooseConnection": {
+    "message": "选择如何将剪藏器连接到你的 Memos 实例。"
+  },
+  "popupConnectToStart": {
+    "message": "连接 Memos 实例以开始剪藏。"
+  },
+  "popupUnsupportedWithVersion": {
+    "message": "你的实例正在运行 $VERSION$。$WHY$ $FIX$",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      },
+      "why": {
+        "content": "$2",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$3",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "popupUnsupportedWithoutVersion": {
+    "message": "$WHY$ $FIX$",
+    "placeholders": {
+      "why": {
+        "content": "$1",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "optionsClipTemplate": {
+    "message": "剪藏模板"
+  },
+  "optionsTemplateLocked": {
+    "message": "请先连接受支持的 Memos 实例，然后即可配置剪藏格式。"
+  },
+  "optionsTemplateDescription": {
+    "message": "自定义每条剪藏发送到 Memos 前的格式。此设置仅保存在当前浏览器中。"
+  },
+  "optionsLoadingTemplate": {
+    "message": "正在加载模板…"
+  },
+  "optionsSignInTitle": {
+    "message": "使用 usememos.com 登录"
+  },
+  "optionsAccountConnectionDescription": {
+    "message": "将连接保存到你的帐户，登录其他设备后也可使用。"
+  },
+  "optionsContinueUseMemos": {
+    "message": "使用 usememos.com 继续"
+  },
+  "optionsDirectConnection": {
+    "message": "直接连接"
+  },
+  "optionsDirectDescription": {
+    "message": "使用实例 URL 和个人访问令牌连接此浏览器，无需 usememos.com 帐户。"
+  },
+  "optionsConnectDirectly": {
+    "message": "直接连接"
+  },
+  "optionsBackToMethods": {
+    "message": "返回连接方式"
+  },
+  "optionsDirectSetupDescription": {
+    "message": "输入 Memos 实例地址和个人访问令牌。"
+  },
+  "optionsInstanceUrl": {
+    "message": "实例 URL"
+  },
+  "optionsAccessToken": {
+    "message": "访问令牌"
+  },
+  "optionsCreateToken": {
+    "message": "在 Memos 设置中创建令牌"
+  },
+  "optionsEnterUrlForTokenSettings": {
+    "message": "输入实例 URL 以打开令牌设置"
+  },
+  "optionsHideAccessToken": {
+    "message": "隐藏访问令牌"
+  },
+  "optionsShowAccessToken": {
+    "message": "显示访问令牌"
+  },
+  "optionsTokenAdvice": {
+    "message": "建议使用名为“Web Clipper”的专用令牌，并设置到期日期。"
+  },
+  "optionsInvalidUrlField": {
+    "message": "请输入完整的 http:// 或 https:// Memos 地址。"
+  },
+  "optionsMissingTokenField": {
+    "message": "请输入个人访问令牌。"
+  },
+  "optionsUnencryptedTitle": {
+    "message": "此连接未加密"
+  },
+  "optionsUnencryptedBody": {
+    "message": "你的访问令牌和后续剪藏将通过 HTTP 传输。除非这是你信任的网络，否则请使用 HTTPS。"
+  },
+  "optionsContinueHttp": {
+    "message": "使用 HTTP 继续"
+  },
+  "optionsTestingConnection": {
+    "message": "正在测试连接…"
+  },
+  "optionsTestAndSave": {
+    "message": "测试并保存"
+  },
+  "optionsTestingDirectConnection": {
+    "message": "正在测试与 Memos 的直接连接"
+  },
+  "optionsUseMemosSetupDescription": {
+    "message": "登录其他设备时，你的帐户会提供连接信息。"
+  },
+  "optionsCheckingAccount": {
+    "message": "正在检查你的帐户…"
+  },
+  "optionsSupported": {
+    "message": "受支持"
+  },
+  "optionsUseThisConnection": {
+    "message": "使用此连接"
+  },
+  "optionsFinishSetup": {
+    "message": "完成设置"
+  },
+  "optionsSavedConnectionIncomplete": {
+    "message": "保存的连接信息不完整。请在 usememos.com 上修复。"
+  },
+  "optionsNoConnectionFound": {
+    "message": "未找到此帐户的连接。请确保 usememos.com 使用的是同一帐户。"
+  },
+  "optionsRepairDestination": {
+    "message": "请在 usememos.com 上连接或修复目标，然后返回此处检查。"
+  },
+  "optionsWaitingForConnection": {
+    "message": "正在等待连接"
+  },
+  "optionsConnectOnUseMemos": {
+    "message": "在 usememos.com 上连接"
+  },
+  "optionsCheckAgain": {
+    "message": "再次检查"
+  },
+  "optionsRefreshConnectionError": {
+    "message": "无法刷新 usememos.com 连接。请检查网络连接后重试。"
+  },
+  "optionsSignInError": {
+    "message": "登录已取消或无法完成。你可以重试。"
+  },
+  "optionsCurrentConnectionActive": {
+    "message": "在验证此连接之前，当前连接将保持有效。"
+  },
+  "optionsLastVerified": {
+    "message": "上次验证"
+  },
+  "optionsConnectedAs": {
+    "message": "已以 $NAME$ 的身份连接",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alex"
+      }
+    }
+  },
+  "optionsTokenSaved": {
+    "message": "访问令牌已保存在此浏览器中。"
+  },
+  "optionsCheckConnection": {
+    "message": "检查连接"
+  },
+  "optionsChangeConnection": {
+    "message": "更改连接"
+  },
+  "optionsDisconnect": {
+    "message": "断开连接"
+  },
+  "optionsDisconnectConfirm": {
+    "message": "要断开此浏览器与 Memos 的连接吗？这不会撤销 Memos 服务器上的直连令牌。"
+  },
+  "optionsConnectedToHost": {
+    "message": "已连接 · 剪藏到 $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "memos.example.com"
+      }
+    }
+  },
+  "optionsSetupClipper": {
+    "message": "设置剪藏器"
+  },
+  "optionsMemosConnected": {
+    "message": "Memos 已连接"
+  },
+  "optionsChooseHowToConnect": {
+    "message": "选择连接方式"
+  },
+  "optionsConnectToMemos": {
+    "message": "连接到 Memos"
+  },
+  "optionsConnectionSummary": {
+    "message": "为实例 URL 和访问令牌选择一个来源。"
+  },
+  "optionsCheckingConnection": {
+    "message": "正在检查连接…"
+  },
+  "templateAriaLabel": {
+    "message": "模板"
+  },
+  "templateEmptyPreview": {
+    "message": "没有可预览的内容，模板为空。"
+  },
+  "templateSaveError": {
+    "message": "模板未能保存。草稿仍在此处，请重试。"
+  },
+  "templateEditor": {
+    "message": "编辑器"
+  },
+  "templateResetDefault": {
+    "message": "恢复默认"
+  },
+  "templateHelp": {
+    "message": "每条剪藏在进入编辑器前都会通过此模板组合。包括 #tags 在内的纯文本将原样保留。"
+  },
+  "templatePlaceholderReference": {
+    "message": "占位符参考"
+  },
+  "templateColumnPlaceholder": {
+    "message": "占位符"
+  },
+  "templateColumnAdds": {
+    "message": "添加的内容"
+  },
+  "templateColumnSource": {
+    "message": "获取来源"
+  },
+  "templateExample": {
+    "message": "示例：$VALUE$",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Example Article"
+      }
+    }
+  },
+  "templatePreviewContent": {
+    "message": "> 敏捷的棕色狐狸跳过了懒狗。"
+  },
+  "templatePreviewTitle": {
+    "message": "示例文章"
+  },
+  "templatePreviewDescription": {
+    "message": "页面的简短摘要。"
+  },
+  "templateContentMeaning": {
+    "message": "以 Markdown 引用格式显示的所选文本"
+  },
+  "templateContentSource": {
+    "message": "你在页面上的所选内容"
+  },
+  "templateContentExample": {
+    "message": "> 敏捷的棕色狐狸…"
+  },
+  "templateDescriptionMeaning": {
+    "message": "页面摘要，最多 $COUNT$ 个字符",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "templateDescriptionSource": {
+    "message": "Open Graph → 元描述 → 第一个可读段落"
+  },
+  "templateTitleMeaning": {
+    "message": "页面标题，无标题时使用 URL"
+  },
+  "templateTitleSource": {
+    "message": "浏览器标签页 → 文档标题"
+  },
+  "templateUrlMeaning": {
+    "message": "准确的页面地址"
+  },
+  "templateUrlSource": {
+    "message": "当前浏览器标签页"
+  },
+  "templatePreviewSection": {
+    "message": "预览 — 在 Memos 中的效果"
+  },
+  "templateJustNow": {
+    "message": "刚刚"
+  },
+  "templateSave": {
+    "message": "保存模板"
+  },
+  "templateSavedBrowser": {
+    "message": "已保存在此浏览器中"
+  },
+  "templateUnsavedChanges": {
+    "message": "未保存的更改"
+  },
+  "templateExternalUpdate": {
+    "message": "另一个设置页面保存了其他模板。你未保存的草稿仍在此处。"
+  },
+  "templateLoadSaved": {
+    "message": "加载已保存版本"
+  },
+  "templateReadError": {
+    "message": "无法读取已保存的模板，目前显示默认模板。"
+  },
+  "templateStorageError": {
+    "message": "无法将模板保存到此浏览器，请重试。"
+  },
+  "authRefreshError": {
+    "message": "扩展程序无法刷新你的 usememos.com 帐户。"
+  },
+  "authSignOutError": {
+    "message": "扩展程序无法将你退出登录，请重试。"
+  },
+  "contextMenuSaveSelection": {
+    "message": "将所选内容保存到 Memos"
+  },
+  "contextFailureWithFix": {
+    "message": "$TITLE$ — $FIX$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Access token rejected"
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Reconnect your account."
+      }
+    }
+  },
+  "contextSavePartial_one": {
+    "message": "已保存到 Memos — $COUNT$ 张图片无法上传",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "contextSavePartial_other": {
+    "message": "已保存到 Memos — $COUNT$ 张图片无法上传",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "errorInvalidUrlTitle": {
+    "message": "实例 URL 无效"
+  },
+  "errorInvalidUrlWhy": {
+    "message": "目标必须是完整的 http:// 或 https:// 地址，且不得包含嵌入式凭据、查询参数或片段。"
+  },
+  "errorInvalidUrlFix": {
+    "message": "请输入你用于打开 Memos 的地址，例如 https://memos.example.com。"
+  },
+  "errorExtensionTitle": {
+    "message": "扩展已停止响应"
+  },
+  "errorExtensionWhy": {
+    "message": "弹出窗口无法连接后台 Service Worker，因此保存结果未知。"
+  },
+  "errorExtensionFix": {
+    "message": "请保持此弹出窗口打开并重试；草稿仍在此处。"
+  },
+  "errorStorageTitle": {
+    "message": "无法保存此连接"
+  },
+  "errorStorageWhy": {
+    "message": "连接已验证，但浏览器无法将其存储在此设备上。"
+  },
+  "errorStorageFix": {
+    "message": "请检查扩展程序存储是否可用，然后重试。"
+  },
+  "errorAuthChangedTitle": {
+    "message": "你的帐户已更改"
+  },
+  "errorAuthChangedWhy": {
+    "message": "打开此弹出窗口后，登录帐户或 Memos 目标发生了变化。"
+  },
+  "errorAuthChangedFix": {
+    "message": "请检查当前帐户，然后再次尝试保存。"
+  },
+  "errorAuthUnavailableTitle": {
+    "message": "无法验证你的帐户"
+  },
+  "errorAuthUnavailableWhy": {
+    "message": "扩展程序无法访问 usememos.com，因此此次写入未使用缓存的凭据。"
+  },
+  "errorAuthUnavailableFix": {
+    "message": "请检查网络连接后重试。"
+  },
+  "errorNotConfiguredTitle": {
+    "message": "未连接 Memos 实例"
+  },
+  "errorNotConfiguredWhy": {
+    "message": "你尚未将 Memos 实例连接到剪藏工具。"
+  },
+  "errorNotConfiguredFix": {
+    "message": "打开扩展程序设置，选择连接方式，然后连接你的实例。"
+  },
+  "errorMixedContentTitle": {
+    "message": "你的连接未加密"
+  },
+  "errorMixedContentWhy": {
+    "message": "扩展程序将通过未采用 TLS 加密的 http:// 发送 Memos 访问令牌和剪藏内容。"
+  },
+  "errorMixedContentFixHttps": {
+    "message": "请通过 https 提供你的 Memos 实例。"
+  },
+  "errorMixedContentFixLocal": {
+    "message": "仅对 localhost 等本地开发实例使用 http://。"
+  },
+  "errorCorsTitle": {
+    "message": "你的实例阻止了请求（CORS）"
+  },
+  "errorCorsWhy": {
+    "message": "服务器可以访问，但不允许扩展程序读取响应。"
+  },
+  "errorCorsFixOnline": {
+    "message": "请确认实例在线且可以访问。"
+  },
+  "errorCorsFixUrl": {
+    "message": "请检查实例 URL，然后重新尝试连接。"
+  },
+  "errorUnreachableTitle": {
+    "message": "无法访问你的实例"
+  },
+  "errorUnreachableWhy": {
+    "message": "请求未收到服务器响应。"
+  },
+  "errorUnreachableFixOnline": {
+    "message": "请检查实例是否在线。"
+  },
+  "errorUnreachableFixOpen": {
+    "message": "请在标签页中打开实例 URL，确认它能够加载。"
+  },
+  "errorUnauthorizedTitle": {
+    "message": "访问令牌被拒绝"
+  },
+  "errorUnauthorizedWhy": {
+    "message": "实例返回了 401/403，令牌无效或已过期。"
+  },
+  "errorUnauthorizedDirectFixReplace": {
+    "message": "请在扩展程序设置中更换令牌。"
+  },
+  "errorUnauthorizedDirectFixCreate": {
+    "message": "如有需要，请在 Memos 用户设置中创建新令牌。"
+  },
+  "errorUnauthorizedAccountFixReconnect": {
+    "message": "请登录 usememos.com 并重新连接。"
+  },
+  "errorUnauthorizedAccountFixRegenerate": {
+    "message": "如果问题仍然存在，请在 Memos 设置中重新生成访问令牌。"
+  },
+  "errorTimeoutTitle": {
+    "message": "实例响应超时"
+  },
+  "errorTimeoutWhy": {
+    "message": "服务器未及时响应。"
+  },
+  "errorTimeoutFixOnline": {
+    "message": "请检查服务器是否在线且未过载。"
+  },
+  "errorTimeoutFixRetry": {
+    "message": "请稍后重试。"
+  },
+  "errorUnsupportedTitle": {
+    "message": "不受支持的 Memos 版本"
+  },
+  "errorUnsupportedWhy": {
+    "message": "此剪藏工具需要 Memos $VERSION$ 或更新的 0.x 稳定版本，才能与其使用的 API 匹配。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUnsupportedFix": {
+    "message": "请将 Memos 实例更新到 $VERSION$ 或更新的 0.x 稳定版本，然后重新连接。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUpgradeGuide": {
+    "message": "如何升级 Memos"
+  },
+  "errorBadResponseTitle": {
+    "message": "意外响应"
+  },
+  "errorBadResponseWhy": {
+    "message": "实例返回的内容不是有效的 API 响应。"
+  },
+  "errorBadResponseFixApi": {
+    "message": "请确认 URL 指向你的 Memos API。"
+  },
+  "errorBadResponseFixRedirect": {
+    "message": "如果服务器会重定向，请使用最终 URL。"
+  }
+}

@@ -64,7 +64,7 @@ export function ErrorNotice({ kind, source, className }: { kind: SaveErrorKind; 
       <AlertTitle>{detail.title}</AlertTitle>
       <AlertDescription>
         <p>{detail.why}</p>
-        <ul className="list-disc pl-4">
+        <ul className="list-disc ps-4">
           {detail.howToFix.map((step) => (
             <li key={step}>{step}</li>
           ))}

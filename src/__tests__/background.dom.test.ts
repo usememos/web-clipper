@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SAVE_ATTEMPTS_KEY } from "@/background/memo-save";
 import { CONNECTION_CONFIG_KEY } from "@/lib/connection-config";
+import { LOCALE_PREFERENCE_KEY } from "@/lib/i18n";
 import { VERSION_CACHE_KEY } from "@/lib/instance-version";
 import { POPUP_STATE_KEY } from "@/lib/popup-state";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
-import { browserMock, seedStorage } from "@/test/browser-mock";
+import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { jsonResponse, testCreds } from "@/test/fixtures";
+import germanMessages from "../../public/_locales/de/messages.json" with { type: "json" };
 
 /** Seed the per-device version cache so the gate reads it without a live fetch. */
 const seedVersion = (version: string) => seedStorage({ [VERSION_CACHE_KEY]: { instanceUrl: testCreds.instanceUrl, version } });
@@ -678,6 +680,21 @@ describe("background — onInstalled", () => {
     );
     expect(browserMock.contextMenus.create).not.toHaveBeenCalledWith(expect.objectContaining({ id: "save-image" }));
   });
+
+  it("registers the context menu in German", async () => {
+    setBrowserLocale("de", germanMessages);
+    await browserMock.runtime.onInstalled.emit();
+
+    expect(browserMock.contextMenus.create).toHaveBeenCalledWith(expect.objectContaining({ title: "Auswahl in Memos speichern" }));
+    expect(browserMock.action.setTitle).toHaveBeenCalledWith({ title: "In Memos speichern" });
+  });
+
+  it("updates browser UI after a manual locale change", async () => {
+    await browserMock.storage.onChanged.emit({ [LOCALE_PREFERENCE_KEY]: { newValue: "de" } }, "local");
+
+    expect(browserMock.contextMenus.create).toHaveBeenCalledWith(expect.objectContaining({ title: "Auswahl in Memos speichern" }));
+    expect(browserMock.action.setTitle).toHaveBeenCalledWith({ title: "In Memos speichern" });
+  });
 });
 
 describe("background — context menu quick save", () => {
@@ -707,6 +724,8 @@ describe("background — context menu quick save", () => {
       ok: true,
       title: "Saved to Memos",
       webUrl: "https://memos.example.com/memos/xy",
+      openLabel: "Open",
+      direction: "ltr",
     });
     vi.unstubAllGlobals();
   });

@@ -12,6 +12,7 @@ import {
 import { clearMemoSaveAttempts, savePopupMemo, saveSelectionClip } from "@/background/memo-save";
 import { isTrustedBackgroundRequest, parseBackgroundRequest, type RuntimeSender } from "@/lib/background-protocol";
 import { describeSaveError, type SaveErrorKind, toSaveErrorKind } from "@/lib/errors";
+import { applyLocalePreference, getTextDirection, initializeLocalePreference, LOCALE_PREFERENCE_KEY, t, tp } from "@/lib/i18n";
 import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
 import { memosUserDisplayName } from "@/lib/memos-client";
 import type { ConnectionStateResult, Request, SaveResult, SelectionClip } from "@/lib/messages";
@@ -22,6 +23,8 @@ import { isSupportedVersion } from "@/lib/versions";
 type RestrictableStorageArea = typeof browser.storage.local & {
   setAccessLevel?: (options: { accessLevel: "TRUSTED_CONTEXTS" }) => Promise<void>;
 };
+
+const localeReady = initializeLocalePreference();
 
 // storage.local is exposed to content scripts by default. No content script in this
 // extension needs storage, so keep OAuth and Memos credentials in trusted contexts only.
@@ -140,12 +143,22 @@ async function flashBadge(text: string, color: string): Promise<void> {
 // One contextual item, shown on both a text selection and an image (never on a blank right-click).
 // removeAll-then-create makes registration idempotent so it can run both on install and on every
 // service-worker startup (menus can be lost when the SW is replaced, e.g. during development).
-async function registerContextMenus(): Promise<void> {
-  await browser.contextMenus.removeAll();
-  browser.contextMenus.create({ id: "save-selection", title: "Save selection to Memos", contexts: ["selection", "image"] });
+async function localizeBrowserUi(): Promise<void> {
+  await localeReady;
+  await Promise.all([
+    browser.action.setTitle({ title: t("actionTitle") }),
+    browser.contextMenus.removeAll().then(() => {
+      browser.contextMenus.create({ id: "save-selection", title: t("contextMenuSaveSelection"), contexts: ["selection", "image"] });
+    }),
+  ]);
 }
-browser.runtime.onInstalled.addListener(() => registerContextMenus());
-void registerContextMenus();
+browser.runtime.onInstalled.addListener(() => localizeBrowserUi());
+void localizeBrowserUi();
+browser.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "local" || !changes[LOCALE_PREFERENCE_KEY]) return;
+  applyLocalePreference(changes[LOCALE_PREFERENCE_KEY].newValue);
+  void localizeBrowserUi();
+});
 
 /** After a save, drop the page's selection/focus (best-effort; no-op on pages without the content script). */
 async function clearTabSelection(tabId: number | undefined): Promise<void> {
@@ -156,21 +169,34 @@ async function clearTabSelection(tabId: number | undefined): Promise<void> {
 
 /** Success copy that never hides a partial failure: a dropped image is named, not swallowed. */
 function saveSuccessTitle(failedImages?: number): string {
-  if (!failedImages) return "Saved to Memos";
-  return `Saved to Memos — ${failedImages} image${failedImages > 1 ? "s" : ""} couldn't be uploaded`;
+  if (!failedImages) return t("popupSavedToMemos");
+  return tp("contextSavePartial", failedImages);
 }
 
 /** In-page toast with the save outcome (best-effort; the toolbar badge is the fallback on pages without the content script). */
 async function showSaveResultInTab(tabId: number | undefined, result: SaveResult, source?: "direct" | "usememos"): Promise<void> {
   if (tabId === undefined) return;
+  await localeReady;
   // The in-page toast has no buttons, so the fix rides along in the text ("… — Sign in and reconnect.").
   const failureTitle = (kind: SaveErrorKind): string => {
     const detail = describeSaveError(kind, source);
-    return detail.howToFix[0] ? `${detail.title} — ${detail.howToFix[0]}` : detail.title;
+    return detail.howToFix[0] ? t("contextFailureWithFix", [detail.title, detail.howToFix[0]]) : detail.title;
   };
   const msg: Request = result.ok
-    ? { type: "SHOW_SAVE_RESULT", ok: true, title: saveSuccessTitle(result.failedImages), webUrl: result.webUrl }
-    : { type: "SHOW_SAVE_RESULT", ok: false, title: failureTitle(result.errorKind) };
+    ? {
+        type: "SHOW_SAVE_RESULT",
+        ok: true,
+        title: saveSuccessTitle(result.failedImages),
+        webUrl: result.webUrl,
+        openLabel: t("commonOpen"),
+        direction: getTextDirection(),
+      }
+    : {
+        type: "SHOW_SAVE_RESULT",
+        ok: false,
+        title: failureTitle(result.errorKind),
+        direction: getTextDirection(),
+      };
   await browser.tabs.sendMessage(tabId, msg).catch(() => {});
 }
 

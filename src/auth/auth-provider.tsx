@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import browser from "webextension-polyfill";
+import { t } from "@/lib/i18n";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import type { OAuthIdentity } from "./oauth-session";
 
@@ -12,12 +13,15 @@ type AuthContextValue = {
   signOut: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+type AuthErrorKey = "authRefreshError" | "authSignOutError";
+type AuthContextState = Omit<AuthContextValue, "error"> & { errorKey: AuthErrorKey | null };
+
+const AuthContext = createContext<AuthContextState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<OAuthIdentity | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<AuthErrorKey | null>(null);
   const reloadPromise = useRef<Promise<OAuthIdentity | null> | null>(null);
 
   const reload = useCallback(() => {
@@ -25,12 +29,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const task = sendBackgroundRequest({ type: "GET_AUTH_USER" })
       .then((next) => {
         setUser(next);
-        setError(null);
+        setErrorKey(null);
         return next;
       })
       .catch((cause) => {
         setUser(null);
-        setError("The extension couldn't refresh your usememos.com account.");
+        setErrorKey("authRefreshError");
         throw cause;
       })
       .finally(() => {
@@ -51,25 +55,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => browser.runtime.onMessage.removeListener(listener);
   }, [reload]);
 
-  const value = useMemo<AuthContextValue>(
+  const value = useMemo<AuthContextState>(
     () => ({
       isLoaded,
       isSignedIn: user !== null,
       user,
-      error,
+      errorKey,
       reload,
       signOut: async () => {
         try {
           await sendBackgroundRequest({ type: "SIGN_OUT" });
           setUser(null);
-          setError(null);
+          setErrorKey(null);
         } catch (cause) {
-          setError("The extension couldn't sign you out. Please try again.");
+          setErrorKey("authSignOutError");
           throw cause;
         }
       },
     }),
-    [error, isLoaded, reload, user],
+    [errorKey, isLoaded, reload, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -78,5 +82,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth(): AuthContextValue {
   const value = useContext(AuthContext);
   if (!value) throw new Error("useAuth must be used inside AuthProvider");
-  return value;
+  const { errorKey, ...context } = value;
+  return { ...context, error: errorKey ? t(errorKey) : null };
 }

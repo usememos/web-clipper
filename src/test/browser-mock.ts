@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+import englishMessages from "../../public/_locales/en/messages.json" with { type: "json" };
 
 /**
  * In-memory fake of the `webextension-polyfill` `browser` object.
@@ -47,6 +48,28 @@ function fakeEvent(): FakeEvent {
 
 /** Backing store for storage.local; module-scoped so reset can clear it. */
 const store = new Map<string, unknown>();
+let uiLocale = "en";
+let textDirection: "ltr" | "rtl" = "ltr";
+
+type TestCatalog = Record<string, { message: string; placeholders?: Record<string, { content: string }> }>;
+let messageCatalog: TestCatalog = englishMessages;
+
+function resolveMessage(messageName: string, substitutions?: string | string[]): string {
+  if (messageName === "@@ui_locale") return uiLocale.replaceAll("-", "_");
+  if (messageName === "@@bidi_dir") return textDirection;
+  const entry = (messageCatalog[messageName] ?? englishMessages[messageName as keyof typeof englishMessages]) as
+    | { message: string; placeholders?: Record<string, { content: string }> }
+    | undefined;
+  if (!entry) return "";
+  const values = substitutions === undefined ? [] : Array.isArray(substitutions) ? substitutions : [substitutions];
+  return entry.message
+    .replace(/\$([a-zA-Z0-9_]+)\$/g, (token, name: string) => {
+      const placeholder = entry.placeholders?.[name.toLowerCase()];
+      const match = placeholder && /^\$(\d+)$/.exec(placeholder.content);
+      return match ? (values[Number(match[1]) - 1] ?? "") : token;
+    })
+    .replace(/\$\$/g, "$");
+}
 
 function makeStorageArea() {
   return {
@@ -84,6 +107,10 @@ function build() {
       getRedirectURL: vi.fn((path = "") => `https://test-id.chromiumapp.org/${path}`),
       launchWebAuthFlow: vi.fn(async (_details: unknown) => undefined as string | undefined),
     },
+    i18n: {
+      getMessage: vi.fn(resolveMessage),
+      getUILanguage: vi.fn(() => uiLocale),
+    },
     tabs: {
       onUpdated: fakeEvent(),
       onRemoved: fakeEvent(),
@@ -107,6 +134,7 @@ function build() {
     action: {
       setBadgeText: vi.fn(async (_d: unknown) => undefined),
       setBadgeBackgroundColor: vi.fn(async (_d: unknown) => undefined),
+      setTitle: vi.fn(async (_d: unknown) => undefined),
     },
   };
 }
@@ -143,7 +171,19 @@ function walk(target: any, source: any): void {
 /** Reset storage + call history between tests; keeps registered listeners. */
 export function resetBrowserMock(): void {
   store.clear();
+  uiLocale = "en";
+  textDirection = "ltr";
+  messageCatalog = englishMessages;
   applyDefaults();
+}
+
+/** Switch the browser UI locale and message catalog for localization tests. */
+export function setBrowserLocale(locale: string, catalog: TestCatalog, direction: "ltr" | "rtl" = "ltr"): void {
+  uiLocale = locale;
+  textDirection = direction;
+  messageCatalog = catalog;
+  browserMock.i18n.getMessage.mockImplementation(resolveMessage);
+  browserMock.i18n.getUILanguage.mockImplementation(() => uiLocale);
 }
 
 /** Seed storage.local directly (bypasses the set() spy). */

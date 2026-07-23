@@ -10,10 +10,11 @@ const CRX_KEY =
 export default defineManifest({
   manifest_version: 3,
   key: CRX_KEY,
-  name: "Memos Web Clipper",
+  default_locale: "en",
+  name: "__MSG_extensionName__",
   // package.json is the release version's single source of truth.
   version: packageJson.version,
-  description: "Clip web pages to your Memos instance.",
+  description: "__MSG_extensionDescription__",
   icons: {
     16: "icons/icon-16.png",
     32: "icons/icon-32.png",
@@ -26,7 +27,7 @@ export default defineManifest({
       32: "icons/action-32.png",
     },
     default_popup: "src/popup/index.html",
-    default_title: "Clip to Memos",
+    default_title: "__MSG_actionTitle__",
   },
   options_ui: { page: "src/options/index.html", open_in_tab: true },
   background: { service_worker: "src/background.ts", type: "module" },

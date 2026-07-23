@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, beforeEach, vi } from "vitest";
-import { resetBrowserMock } from "./browser-mock";
+import { applyLocalePreference } from "@/lib/i18n";
+import { browserMock, resetBrowserMock } from "./browser-mock";
 
 // Every module under test imports `browser` from webextension-polyfill; route it
 // to the shared in-memory mock. The async factory resolves to the same module
@@ -14,6 +15,7 @@ vi.mock("webextension-polyfill", async () => {
 // jsdom is missing a handful of browser APIs that base-ui / next-themes / sonner
 // touch on render. Stub them so component trees mount cleanly.
 beforeEach(() => {
+  vi.stubGlobal("browser", browserMock);
   if (!window.matchMedia) {
     window.matchMedia = vi.fn().mockImplementation((query: string) => ({
       matches: false,
@@ -44,5 +46,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   resetBrowserMock();
+  applyLocalePreference("browser");
+  vi.unstubAllGlobals();
   vi.clearAllMocks();
 });

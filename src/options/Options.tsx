@@ -5,6 +5,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   KeyRoundIcon,
+  LanguagesIcon,
   LogInIcon,
   RefreshCwIcon,
   ServerIcon,
@@ -18,12 +19,22 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { UserBadge } from "@/components/user-badge";
 import { WEB_APP_URL } from "@/config/env";
 import { useClipTemplate } from "@/hooks/use-clip-template";
 import { useMemosConnection } from "@/hooks/use-memos-connection";
 import type { SaveErrorKind } from "@/lib/errors";
+import {
+  getLocalePreference,
+  LOCALE_AUTONYMS,
+  type LocalePreference,
+  localizeDocument,
+  SUPPORTED_LOCALES,
+  t,
+  updateLocalePreference,
+} from "@/lib/i18n";
 import { isValidInstanceUrl, normalizeInstanceUrl, requiresInsecureHttpConfirmation } from "@/lib/memos-client";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
@@ -70,16 +81,33 @@ function writePendingSetup(started: boolean): void {
   }
 }
 
-function OptionsHeader({ sub, instanceUrl }: { sub: string; instanceUrl?: string | null }) {
+function OptionsHeader({
+  sub,
+  locale,
+  onLocaleChange,
+}: {
+  sub: string;
+  locale: LocalePreference;
+  onLocaleChange: (locale: LocalePreference) => void;
+}) {
+  const localeLabel = locale === "browser" ? t("localeBrowserDefault") : LOCALE_AUTONYMS[locale];
   return (
     <div className="mb-8 flex items-center justify-between gap-4">
       <AppBrand size="md" sub={sub} />
-      {instanceUrl ? (
-        <a className={buttonVariants({ variant: "ghost", size: "sm" })} href={instanceUrl} target="_blank" rel="noreferrer">
-          Open Memos
-          <ExternalLinkIcon />
-        </a>
-      ) : null}
+      <Select value={locale} onValueChange={(value) => onLocaleChange(value as LocalePreference)}>
+        <SelectTrigger aria-label={t("optionsLanguage")} className="max-w-48" size="sm">
+          <LanguagesIcon />
+          <span className="truncate">{localeLabel}</span>
+        </SelectTrigger>
+        <SelectContent align="end" className="min-w-48">
+          <SelectItem value="browser">{t("localeBrowserDefault")}</SelectItem>
+          {SUPPORTED_LOCALES.map((supportedLocale) => (
+            <SelectItem key={supportedLocale} value={supportedLocale}>
+              {LOCALE_AUTONYMS[supportedLocale]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
@@ -87,22 +115,12 @@ function OptionsHeader({ sub, instanceUrl }: { sub: string; instanceUrl?: string
 function LocalTemplateStep({ enabled }: { enabled: boolean }) {
   const clipTemplate = useClipTemplate();
   return (
-    <StepRow
-      n={2}
-      state={enabled ? "active" : "locked"}
-      title="Clip template"
-      last
-      summary={enabled ? <Badge variant="outline">This browser</Badge> : undefined}
-    >
+    <StepRow n={2} state={enabled ? "active" : "locked"} title={t("optionsClipTemplate")} last>
       {!enabled ? (
-        <p className="text-sm text-muted-foreground">
-          Connect a supported Memos instance first; then you can configure how clips are formatted.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("optionsTemplateLocked")}</p>
       ) : clipTemplate.isLoaded ? (
         <div className="space-y-5">
-          <p className="text-sm text-muted-foreground">
-            Customize how every clip is formatted before it reaches Memos. This setting is saved only in this browser.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("optionsTemplateDescription")}</p>
           <TemplateEditor
             initial={clipTemplate.template ?? DEFAULT_TEMPLATE}
             onSave={clipTemplate.saveTemplate}
@@ -112,7 +130,7 @@ function LocalTemplateStep({ enabled }: { enabled: boolean }) {
       ) : (
         <div className="flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
           <Spinner />
-          Loading your template…
+          {t("optionsLoadingTemplate")}
         </div>
       )}
     </StepRow>
@@ -122,7 +140,6 @@ function LocalTemplateStep({ enabled }: { enabled: boolean }) {
 function MethodChoice({ busy, onUseMemos, onDirect }: { busy: boolean; onUseMemos: () => void; onDirect: () => void }) {
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">Choose where the clipper should get your connection information.</p>
       <Card size="sm" className="ring-highlight/55">
         <CardContent className="space-y-3">
           <div className="flex items-start gap-3">
@@ -131,17 +148,15 @@ function MethodChoice({ busy, onUseMemos, onDirect }: { busy: boolean; onUseMemo
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="font-medium">Sign in with usememos.com</p>
-                <Badge>Recommended</Badge>
+                <p className="font-medium">{t("optionsSignInTitle")}</p>
+                <Badge>{t("commonRecommended")}</Badge>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Save your connection to your account and use it after signing in on other devices.
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("optionsAccountConnectionDescription")}</p>
             </div>
           </div>
           <Button disabled={busy} onClick={onUseMemos}>
             {busy ? <Spinner /> : null}
-            Continue with usememos.com
+            {t("optionsContinueUseMemos")}
           </Button>
         </CardContent>
       </Card>
@@ -152,15 +167,12 @@ function MethodChoice({ busy, onUseMemos, onDirect }: { busy: boolean; onUseMemo
               <ServerIcon className="size-4" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="font-medium">Direct connection</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Connect this browser with an instance URL and personal access token. No usememos.com account is required.
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">Connection information stays in this browser.</p>
+              <p className="font-medium">{t("optionsDirectConnection")}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("optionsDirectDescription")}</p>
             </div>
           </div>
           <Button variant="outline" disabled={busy} onClick={onDirect}>
-            Connect directly
+            {t("optionsConnectDirectly")}
           </Button>
         </CardContent>
       </Card>
@@ -174,7 +186,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
   const [showToken, setShowToken] = useState(false);
   const [busy, setBusy] = useState(false);
   const [errorKind, setErrorKind] = useState<SaveErrorKind | null>(null);
-  const [fieldError, setFieldError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<"url" | "token" | null>(null);
   const [confirmHttp, setConfirmHttp] = useState(false);
 
   const normalizedUrl = normalizeInstanceUrl(instanceUrl.trim());
@@ -185,11 +197,11 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
     setFieldError(null);
     setErrorKind(null);
     if (!validUrl) {
-      setFieldError("Enter a complete http:// or https:// Memos address.");
+      setFieldError("url");
       return;
     }
     if (!accessToken.trim()) {
-      setFieldError("Enter a personal access token.");
+      setFieldError("token");
       return;
     }
     if (requiresInsecureHttpConfirmation(normalizedUrl) && !allowInsecureHttp) {
@@ -218,15 +230,15 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
     <div className="space-y-5">
       <Button variant="ghost" size="sm" disabled={busy} onClick={onBack}>
         <ArrowLeftIcon />
-        Back to connection methods
+        {t("optionsBackToMethods")}
       </Button>
       <div>
-        <p className="font-medium">Connect directly</p>
-        <p className="mt-1 text-sm text-muted-foreground">Enter the address of your Memos instance and a personal access token.</p>
+        <p className="font-medium">{t("optionsConnectDirectly")}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("optionsDirectSetupDescription")}</p>
       </div>
       <div className="space-y-1.5">
         <label htmlFor="instance-url" className="text-sm font-medium">
-          Instance URL
+          {t("optionsInstanceUrl")}
         </label>
         <input
           id="instance-url"
@@ -241,14 +253,14 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
           }}
           placeholder="https://memos.example.com"
           className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          aria-invalid={fieldError?.startsWith("Enter a complete") || undefined}
+          aria-invalid={fieldError === "url" || undefined}
           readOnly={busy}
         />
       </div>
       <div className="space-y-1.5">
         <div className="flex items-center justify-between gap-3">
           <label htmlFor="access-token" className="text-sm font-medium">
-            Access token
+            {t("optionsAccessToken")}
           </label>
           {tokenSettingsUrl ? (
             <a
@@ -257,11 +269,11 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline"
             >
-              Create a token in Memos settings
+              {t("optionsCreateToken")}
               <ExternalLinkIcon className="size-3" />
             </a>
           ) : (
-            <span className="text-xs text-muted-foreground">Enter the instance URL to open token settings</span>
+            <span className="text-xs text-muted-foreground">{t("optionsEnterUrlForTokenSettings")}</span>
           )}
         </div>
         <div className="relative">
@@ -276,40 +288,40 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
               setFieldError(null);
               setErrorKind(null);
             }}
-            className="h-9 w-full rounded-lg border border-input bg-background px-3 pr-10 font-mono text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            aria-invalid={fieldError?.startsWith("Enter a personal") || undefined}
+            className="h-9 w-full rounded-lg border border-input bg-background px-3 pe-10 font-mono text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            aria-invalid={fieldError === "token" || undefined}
             readOnly={busy}
           />
           <button
             type="button"
-            className="absolute inset-y-0 right-0 flex w-9 items-center justify-center text-muted-foreground hover:text-foreground"
+            className="absolute inset-y-0 end-0 flex w-9 items-center justify-center text-muted-foreground hover:text-foreground"
             onClick={() => setShowToken((value) => !value)}
             disabled={busy}
-            aria-label={showToken ? "Hide access token" : "Show access token"}
+            aria-label={showToken ? t("optionsHideAccessToken") : t("optionsShowAccessToken")}
             aria-pressed={showToken}
           >
             {showToken ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
           </button>
         </div>
-        <p className="text-xs text-muted-foreground">Use a dedicated token named “Web Clipper” and prefer an expiration date.</p>
+        <p className="text-xs text-muted-foreground">{t("optionsTokenAdvice")}</p>
       </div>
       {fieldError ? (
         <p role="alert" className="text-sm text-destructive">
-          {fieldError}
+          {t(fieldError === "url" ? "optionsInvalidUrlField" : "optionsMissingTokenField")}
         </p>
       ) : null}
       {confirmHttp ? (
         <Alert>
           <TriangleAlertIcon />
-          <AlertTitle>This connection is not encrypted</AlertTitle>
+          <AlertTitle>{t("optionsUnencryptedTitle")}</AlertTitle>
           <AlertDescription>
-            Your access token and future clips will travel over HTTP. Use HTTPS unless this is a network you trust.
+            {t("optionsUnencryptedBody")}
             <div className="mt-3 flex gap-2">
               <Button size="sm" variant="outline" onClick={() => setConfirmHttp(false)}>
-                Cancel
+                {t("commonCancel")}
               </Button>
               <Button size="sm" onClick={() => void connect(true)}>
-                Continue with HTTP
+                {t("optionsContinueHttp")}
               </Button>
             </div>
           </AlertDescription>
@@ -318,10 +330,10 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
       {errorKind ? <ErrorNotice kind={errorKind} source="direct" /> : null}
       <Button disabled={busy} onClick={() => void connect(false)}>
         {busy ? <Spinner /> : <KeyRoundIcon />}
-        {busy ? "Testing connection…" : "Test and save"}
+        {busy ? t("optionsTestingConnection") : t("optionsTestAndSave")}
       </Button>
       <span className="sr-only" aria-live="polite">
-        {busy ? "Testing the direct Memos connection" : ""}
+        {busy ? t("optionsTestingDirectConnection") : ""}
       </span>
     </div>
   );
@@ -330,7 +342,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
 function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean; onBack: () => void; onConnected: () => void }) {
   const { error: authError, isLoaded, isSignedIn, reload, user } = useAuth();
   const candidate = useMemosConnection("usememos");
-  const [signInError, setSignInError] = useState<string | null>(null);
+  const [signInErrorKey, setSignInErrorKey] = useState<"optionsRefreshConnectionError" | "optionsSignInError" | null>(null);
   const [activationError, setActivationError] = useState<SaveErrorKind | null>(null);
   const [busy, setBusy] = useState(false);
   const [pendingSetup, setPendingSetup] = useState(readPendingSetup);
@@ -373,7 +385,7 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
           setSetupReturnedWithoutConnection(true);
         }
       } catch {
-        setSignInError("Couldn't refresh your usememos.com connection. Check your connection and try again.");
+        setSignInErrorKey("optionsRefreshConnectionError");
       } finally {
         setBusy(false);
       }
@@ -394,12 +406,12 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
   }, [isSignedIn, pendingSetup, refresh]);
 
   const signIn = async () => {
-    setSignInError(null);
+    setSignInErrorKey(null);
     try {
       await openSignIn();
       await refresh(false);
     } catch {
-      setSignInError("Sign-in was cancelled or couldn't be completed. You can try again.");
+      setSignInErrorKey("optionsSignInError");
     }
   };
 
@@ -407,26 +419,24 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
     <div className="space-y-5">
       <Button variant="ghost" size="sm" onClick={onBack}>
         <ArrowLeftIcon />
-        Back to connection methods
+        {t("optionsBackToMethods")}
       </Button>
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium">Sign in with usememos.com</p>
-          <Badge>Recommended</Badge>
+          <p className="font-medium">{t("optionsSignInTitle")}</p>
+          <Badge>{t("commonRecommended")}</Badge>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your account keeps the connection information available when you sign in on another device.
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("optionsUseMemosSetupDescription")}</p>
       </div>
       {!isLoaded ? (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Spinner />
-          Checking your account…
+          {t("optionsCheckingAccount")}
         </div>
       ) : !isSignedIn ? (
         <Button disabled={busy} onClick={() => void signIn()}>
           {busy ? <Spinner /> : <LogInIcon />}
-          Sign in with usememos.com
+          {t("optionsSignInTitle")}
         </Button>
       ) : (
         <div className="space-y-3">
@@ -439,19 +449,19 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
                 </span>
                 <Badge variant="success">
                   <CheckIcon className="size-3" />
-                  Supported
+                  {t("optionsSupported")}
                 </Badge>
               </div>
               <Button disabled={busy} onClick={() => void activate()}>
                 {busy ? <Spinner /> : null}
-                {replacing ? "Use this connection" : "Finish setup"}
+                {replacing ? t("optionsUseThisConnection") : t("optionsFinishSetup")}
               </Button>
             </div>
           ) : (
             <div className="space-y-3">
               {candidate.status === "invalid" ? (
                 <p role="alert" className="text-sm text-destructive">
-                  The saved connection is incomplete. Repair it on usememos.com.
+                  {t("optionsSavedConnectionIncomplete")}
                 </p>
               ) : null}
               {candidate.status === "unsupported" ? <ErrorNotice kind="unsupported-version" source="usememos" /> : null}
@@ -460,12 +470,10 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
               ) : null}
               {setupReturnedWithoutConnection ? (
                 <p role="alert" className="text-sm text-destructive">
-                  No connection was found for this account. Make sure usememos.com uses the same account.
+                  {t("optionsNoConnectionFound")}
                 </p>
               ) : null}
-              <p className="text-sm text-muted-foreground">
-                Connect or repair your destination on usememos.com, then return here to check it.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("optionsRepairDestination")}</p>
               <div className="flex flex-wrap gap-2">
                 <a
                   className={buttonVariants({ variant: "default" })}
@@ -477,27 +485,25 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
                     setPendingSetup(true);
                   }}
                 >
-                  {pendingSetup ? "Waiting for connection" : "Connect on usememos.com"}
+                  {pendingSetup ? t("optionsWaitingForConnection") : t("optionsConnectOnUseMemos")}
                   <ExternalLinkIcon />
                 </a>
                 <Button variant="ghost" disabled={busy || candidate.isChecking} onClick={() => void refresh(false)}>
                   {busy || candidate.isChecking ? <Spinner /> : <RefreshCwIcon />}
-                  {busy || candidate.isChecking ? "Checking…" : "Check again"}
+                  {busy || candidate.isChecking ? t("commonChecking") : t("optionsCheckAgain")}
                 </Button>
               </div>
             </div>
           )}
         </div>
       )}
-      {authError || signInError ? (
+      {authError || signInErrorKey ? (
         <p role="alert" className="text-sm text-destructive">
-          {signInError ?? authError}
+          {signInErrorKey ? t(signInErrorKey) : authError}
         </p>
       ) : null}
       {activationError ? <ErrorNotice kind={activationError} source="usememos" /> : null}
-      {user && replacing ? (
-        <p className="text-xs text-muted-foreground">Your current connection remains active until this one is verified.</p>
-      ) : null}
+      {user && replacing ? <p className="text-xs text-muted-foreground">{t("optionsCurrentConnectionActive")}</p> : null}
     </div>
   );
 }
@@ -519,27 +525,32 @@ function ConnectedSummary({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <span className="text-fact text-foreground">
-          {host} · {connection.version}
+        <span className="inline-flex items-center gap-1.5 text-fact text-foreground">
+          {connection.instanceUrl ? (
+            <a
+              className="group inline-flex items-center gap-1 rounded-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              href={connection.instanceUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {host}
+              <ExternalLinkIcon aria-hidden="true" className="size-3 text-muted-foreground transition-colors group-hover:text-foreground" />
+            </a>
+          ) : (
+            <span>{host}</span>
+          )}
+          <span aria-hidden="true">·</span>
+          <span>{connection.version}</span>
         </span>
-        {connection.verificationError ? (
-          <Badge variant="outline">Last verified</Badge>
-        ) : (
-          <Badge variant="success">
-            <CheckIcon className="size-3" />
-            Connected
-          </Badge>
-        )}
-        <Badge variant="outline">{connection.source === "direct" ? "Direct" : "usememos.com"}</Badge>
+        {connection.verificationError ? <Badge variant="outline">{t("optionsLastVerified")}</Badge> : null}
+        <Badge variant="outline">{connection.source === "direct" ? t("commonDirect") : "usememos.com"}</Badge>
       </div>
       {connection.source === "usememos" && isSignedIn ? (
         <UserBadge compact />
       ) : connection.displayName ? (
-        <p className="text-sm text-muted-foreground">
-          Connected as <span className="font-medium text-foreground">{connection.displayName}</span>
-        </p>
+        <p className="text-sm text-muted-foreground">{t("optionsConnectedAs", connection.displayName)}</p>
       ) : null}
-      {connection.source === "direct" ? <p className="text-sm text-muted-foreground">Access token saved in this browser.</p> : null}
+      {connection.source === "direct" ? <p className="text-sm text-muted-foreground">{t("optionsTokenSaved")}</p> : null}
       {insecureHttp ? <ErrorNotice kind="mixed-content" source={connection.source} /> : null}
       {connection.verificationError && connection.verificationError !== "mixed-content" ? (
         <ErrorNotice kind={connection.verificationError} source={connection.source} />
@@ -547,13 +558,13 @@ function ConnectedSummary({
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" disabled={connection.isChecking} onClick={() => void connection.reverify()}>
           {connection.isChecking ? <Spinner /> : <RefreshCwIcon />}
-          {connection.isChecking ? "Checking…" : "Check connection"}
+          {connection.isChecking ? t("commonChecking") : t("optionsCheckConnection")}
         </Button>
         <Button variant="ghost" onClick={onChange}>
-          Change connection
+          {t("optionsChangeConnection")}
         </Button>
         <Button variant="destructive" onClick={onDisconnect}>
-          Disconnect
+          {t("optionsDisconnect")}
         </Button>
       </div>
     </div>
@@ -565,6 +576,8 @@ export function Options() {
   const { reload } = useAuth();
   const [view, setView] = useState<SetupView | null>(null);
   const [choosingBusy, setChoosingBusy] = useState(false);
+  const [localePreference, setLocalePreference] = useState<LocalePreference>(getLocalePreference);
+  const [localeError, setLocaleError] = useState(false);
   const ready = active.status === "ready";
   const host = safeHost(active.instanceUrl);
 
@@ -587,7 +600,7 @@ export function Options() {
   };
 
   const disconnect = async () => {
-    if (!window.confirm("Disconnect this browser from Memos? This does not revoke a direct token on the Memos server.")) return;
+    if (!window.confirm(t("optionsDisconnectConfirm"))) return;
     await sendBackgroundRequest({ type: "DISCONNECT_CONNECTION" });
     writePendingSetup(false);
     await reload().catch(() => null);
@@ -595,24 +608,44 @@ export function Options() {
     setView("choice");
   };
 
-  const sub = ready && host ? `Connected · clipping to ${host}` : "Set up your clipper";
+  const changeLocale = async (nextLocale: LocalePreference) => {
+    setLocaleError(false);
+    try {
+      await updateLocalePreference(nextLocale);
+      setLocalePreference(nextLocale);
+      localizeDocument("optionsDocumentTitle");
+    } catch {
+      setLocaleError(true);
+    }
+  };
+
+  const sub = ready && host ? t("optionsConnectedToHost", host) : t("optionsSetupClipper");
   const connectionTitle =
-    ready && !effectiveView ? "Memos connected" : effectiveView === "choice" ? "Choose how to connect" : "Connect to Memos";
+    ready && !effectiveView
+      ? t("optionsMemosConnected")
+      : effectiveView === "choice"
+        ? t("optionsChooseHowToConnect")
+        : t("optionsConnectToMemos");
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 px-6 py-10">
       <div>
-        <OptionsHeader sub={sub} instanceUrl={ready ? active.instanceUrl : null} />
+        <OptionsHeader sub={sub} locale={localePreference} onLocaleChange={changeLocale} />
+        {localeError ? (
+          <p role="alert" className="-mt-5 mb-5 text-sm text-destructive">
+            {t("optionsLanguageSaveError")}
+          </p>
+        ) : null}
         <StepRow
           n={1}
           state={ready && !effectiveView ? "done" : "active"}
           title={connectionTitle}
-          summary={ready && !effectiveView ? undefined : <span>Choose one source for the instance URL and access token.</span>}
+          summary={ready && !effectiveView ? undefined : <span>{t("optionsConnectionSummary")}</span>}
         >
           {active.isChecking && active.source === null && view === null ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Spinner />
-              Checking your connection…
+              {t("optionsCheckingConnection")}
             </div>
           ) : ready && !effectiveView ? (
             <ConnectedSummary connection={active} onChange={() => setView("choice")} onDisconnect={() => void disconnect()} />

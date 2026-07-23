@@ -1,0 +1,681 @@
+{
+  "extensionName": {
+    "message": "Memos Web Clipper"
+  },
+  "extensionDescription": {
+    "message": "Enregistrez des pages web dans votre instance Memos."
+  },
+  "actionTitle": {
+    "message": "Enregistrer dans Memos"
+  },
+  "popupDocumentTitle": {
+    "message": "Enregistrer dans Memos"
+  },
+  "optionsDocumentTitle": {
+    "message": "Memos Web Clipper — Paramètres"
+  },
+  "optionsLanguage": {
+    "message": "Langue"
+  },
+  "localeBrowserDefault": {
+    "message": "Langue du navigateur"
+  },
+  "optionsLanguageSaveError": {
+    "message": "La préférence de langue n’a pas pu être enregistrée. Réessayez."
+  },
+  "commonLoading": {
+    "message": "Chargement"
+  },
+  "commonOpen": {
+    "message": "Ouvrir"
+  },
+  "commonOpenSettings": {
+    "message": "Ouvrir les paramètres"
+  },
+  "commonRetrying": {
+    "message": "Nouvelle tentative…"
+  },
+  "commonTryAgain": {
+    "message": "Réessayer"
+  },
+  "commonSaving": {
+    "message": "Enregistrement…"
+  },
+  "commonPrivate": {
+    "message": "Privé"
+  },
+  "commonProtected": {
+    "message": "Protégé"
+  },
+  "commonPublic": {
+    "message": "Public"
+  },
+  "commonRecommended": {
+    "message": "Recommandé"
+  },
+  "commonCancel": {
+    "message": "Annuler"
+  },
+  "commonChecking": {
+    "message": "Vérification en cours…"
+  },
+  "commonConnected": {
+    "message": "Connecté"
+  },
+  "commonDirect": {
+    "message": "Direct"
+  },
+  "popupOpenInstance": {
+    "message": "Ouvrez votre instance Memos"
+  },
+  "popupExtensionSettings": {
+    "message": "Paramètres de l’extension"
+  },
+  "popupMemoContent": {
+    "message": "Contenu du mémo"
+  },
+  "popupVisibility": {
+    "message": "Visibilité"
+  },
+  "popupPrivateDescription": {
+    "message": "Visible uniquement par vous"
+  },
+  "popupProtectedDescription": {
+    "message": "Visible par les utilisateurs connectés"
+  },
+  "popupPublicDescription": {
+    "message": "Visible par tout le monde"
+  },
+  "popupEmptyCapturePlaceholder": {
+    "message": "Aucun contenu n’a pu être capturé depuis cette page — rédigez votre mémo ici"
+  },
+  "popupSaveToMemos": {
+    "message": "Enregistrer dans Memos"
+  },
+  "popupSavedToMemos": {
+    "message": "Enregistré dans Memos"
+  },
+  "popupFailedImages_one": {
+    "message": "Impossible d’importer $COUNT$ image",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupFailedImages_other": {
+    "message": "Impossible d’importer $COUNT$ images",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSelectionImages_one": {
+    "message": "$COUNT$ image de votre sélection sera jointe",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "popupSelectionImages_other": {
+    "message": "$COUNT$ images de votre sélection seront jointes",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popupSignedOut": {
+    "message": "Vous êtes déconnecté."
+  },
+  "popupDisconnected": {
+    "message": "Memos est déconnecté."
+  },
+  "popupNeedsUpgrade": {
+    "message": "Memos nécessite une mise à jour."
+  },
+  "popupDraftPreserved": {
+    "message": "Votre brouillon est conservé, mais il ne peut être enregistré tant que la connexion n’est pas établie."
+  },
+  "popupCaptureRestricted": {
+    "message": "Seul le lien de la page a été capturé ; le navigateur bloque l’accès à cette page."
+  },
+  "popupCaptureTimedOut": {
+    "message": "Seul le lien de la page a été capturé ; la capture de la page a expiré."
+  },
+  "popupCaptureNoDescriptionSelection": {
+    "message": "La sélection et le lien de la page ont été capturés ; aucune description lisible n’a été trouvée."
+  },
+  "popupCaptureNoDescription": {
+    "message": "Seul le lien de la page a été capturé ; aucune description lisible n’a été trouvée."
+  },
+  "popupCaptureContentUnavailable": {
+    "message": "Seul le lien de la page a été capturé ; le contenu de la page était indisponible."
+  },
+  "popupCaptureFailed": {
+    "message": "Impossible de capturer cette page. Vous pouvez rédiger le mémo manuellement."
+  },
+  "popupChooseConnection": {
+    "message": "Choisissez le mode de connexion du clipper à votre instance Memos."
+  },
+  "popupConnectToStart": {
+    "message": "Connectez votre instance Memos pour démarrer la capture."
+  },
+  "popupUnsupportedWithVersion": {
+    "message": "Votre instance exécute $VERSION$. $WHY$ $FIX$",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      },
+      "why": {
+        "content": "$2",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$3",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "popupUnsupportedWithoutVersion": {
+    "message": "$WHY$ $FIX$",
+    "placeholders": {
+      "why": {
+        "content": "$1",
+        "example": "This clipper needs a newer version."
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Update your Memos instance."
+      }
+    }
+  },
+  "optionsClipTemplate": {
+    "message": "Modèle de clip"
+  },
+  "optionsTemplateLocked": {
+    "message": "Connectez-vous d’abord à une instance Memos compatible ; vous pourrez ensuite configurer le formatage des clips."
+  },
+  "optionsTemplateDescription": {
+    "message": "Personnalisez le formatage de chaque clip avant qu’il n’atteigne Memos. Ce paramètre est enregistré uniquement dans ce navigateur."
+  },
+  "optionsLoadingTemplate": {
+    "message": "Chargement de votre modèle…"
+  },
+  "optionsSignInTitle": {
+    "message": "Se connecter avec usememos.com"
+  },
+  "optionsAccountConnectionDescription": {
+    "message": "Enregistrer votre connexion sur votre compte et l'utiliser après vous être connecté sur d'autres appareils."
+  },
+  "optionsContinueUseMemos": {
+    "message": "Continuer avec usememos.com"
+  },
+  "optionsDirectConnection": {
+    "message": "Connexion directe"
+  },
+  "optionsDirectDescription": {
+    "message": "Connecter ce navigateur avec une URL d'instance et un jeton d'accès personnel. Aucun compte usememos.com n'est requis."
+  },
+  "optionsConnectDirectly": {
+    "message": "Se connecter directement"
+  },
+  "optionsBackToMethods": {
+    "message": "Retour aux méthodes de connexion"
+  },
+  "optionsDirectSetupDescription": {
+    "message": "Saisir l'adresse de votre instance Memos et un jeton d'accès personnel."
+  },
+  "optionsInstanceUrl": {
+    "message": "URL de l'instance"
+  },
+  "optionsAccessToken": {
+    "message": "Jeton d'accès"
+  },
+  "optionsCreateToken": {
+    "message": "Créer un jeton dans les paramètres Memos"
+  },
+  "optionsEnterUrlForTokenSettings": {
+    "message": "Saisir l'URL de l'instance pour ouvrir les paramètres du jeton"
+  },
+  "optionsHideAccessToken": {
+    "message": "Masquer le jeton d'accès"
+  },
+  "optionsShowAccessToken": {
+    "message": "Afficher le jeton d'accès"
+  },
+  "optionsTokenAdvice": {
+    "message": "Utiliser un jeton dédié nommé « Web Clipper » et définir une date d'expiration."
+  },
+  "optionsInvalidUrlField": {
+    "message": "Saisir une adresse http:// ou https:// complète."
+  },
+  "optionsMissingTokenField": {
+    "message": "Saisir un jeton d'accès personnel."
+  },
+  "optionsUnencryptedTitle": {
+    "message": "Cette connexion n'est pas chiffrée."
+  },
+  "optionsUnencryptedBody": {
+    "message": "Votre jeton d'accès et vos futurs clips transiteront par HTTP. Utilisez HTTPS sauf si vous faites confiance à ce réseau."
+  },
+  "optionsContinueHttp": {
+    "message": "Continuer avec HTTP."
+  },
+  "optionsTestingConnection": {
+    "message": "Test de la connexion…"
+  },
+  "optionsTestAndSave": {
+    "message": "Tester et enregistrer."
+  },
+  "optionsTestingDirectConnection": {
+    "message": "Test de la connexion directe Memos."
+  },
+  "optionsUseMemosSetupDescription": {
+    "message": "Votre compte conserve les informations de connexion lorsque vous vous connectez depuis un autre appareil."
+  },
+  "optionsCheckingAccount": {
+    "message": "Vérification de votre compte…"
+  },
+  "optionsSupported": {
+    "message": "Prise en charge"
+  },
+  "optionsUseThisConnection": {
+    "message": "Utiliser cette connexion"
+  },
+  "optionsFinishSetup": {
+    "message": "Terminer la configuration"
+  },
+  "optionsSavedConnectionIncomplete": {
+    "message": "La connexion enregistrée est incomplète. Veuillez la réparer sur usememos.com."
+  },
+  "optionsNoConnectionFound": {
+    "message": "Aucune connexion n'a été trouvée pour ce compte. Assurez-vous que usememos.com utilise le même compte."
+  },
+  "optionsRepairDestination": {
+    "message": "Connectez-vous ou réparez votre destination sur usememos.com, puis revenez ici pour la vérifier."
+  },
+  "optionsWaitingForConnection": {
+    "message": "En attente de connexion"
+  },
+  "optionsConnectOnUseMemos": {
+    "message": "Se connecter sur usememos.com"
+  },
+  "optionsCheckAgain": {
+    "message": "Veuillez réessayer."
+  },
+  "optionsRefreshConnectionError": {
+    "message": "Impossible d'actualiser votre connexion usememos.com. Vérifiez votre connexion et réessayez."
+  },
+  "optionsSignInError": {
+    "message": "La connexion a été annulée ou n'a pas pu être effectuée. Vous pouvez réessayer."
+  },
+  "optionsCurrentConnectionActive": {
+    "message": "Votre connexion actuelle reste active jusqu'à ce que celle-ci soit vérifiée."
+  },
+  "optionsLastVerified": {
+    "message": "Dernière vérification."
+  },
+  "optionsConnectedAs": {
+    "message": "Connecté en tant que $NAME$.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Alex"
+      }
+    }
+  },
+  "optionsTokenSaved": {
+    "message": "Jeton d'accès enregistré dans ce navigateur."
+  },
+  "optionsCheckConnection": {
+    "message": "Vérifier la connexion"
+  },
+  "optionsChangeConnection": {
+    "message": "Modifier la connexion"
+  },
+  "optionsDisconnect": {
+    "message": "Se déconnecter"
+  },
+  "optionsDisconnectConfirm": {
+    "message": "Déconnecter ce navigateur de Memos ? Cette action ne révoque pas le jeton d'accès direct sur le serveur Memos."
+  },
+  "optionsConnectedToHost": {
+    "message": "Connecté · enregistrement dans $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1",
+        "example": "memos.example.com"
+      }
+    }
+  },
+  "optionsSetupClipper": {
+    "message": "Configurer le clipper"
+  },
+  "optionsMemosConnected": {
+    "message": "Memos connecté"
+  },
+  "optionsChooseHowToConnect": {
+    "message": "Choisir le mode de connexion"
+  },
+  "optionsConnectToMemos": {
+    "message": "Se connecter à Memos"
+  },
+  "optionsConnectionSummary": {
+    "message": "Choisir une source pour l'URL de l'instance et le jeton d'accès."
+  },
+  "optionsCheckingConnection": {
+    "message": "Vérification de votre connexion…"
+  },
+  "templateAriaLabel": {
+    "message": "Modèle"
+  },
+  "templateEmptyPreview": {
+    "message": "Aucun aperçu disponible — le modèle est vide."
+  },
+  "templateSaveError": {
+    "message": "Le modèle n’a pas été enregistré. Votre brouillon est toujours disponible — veuillez réessayer."
+  },
+  "templateEditor": {
+    "message": "Éditeur"
+  },
+  "templateResetDefault": {
+    "message": "Réinitialisation par défaut"
+  },
+  "templateHelp": {
+    "message": "Chaque clip est composé à partir de ce modèle avant d’être affiché dans l’éditeur. Le texte brut, y compris #tags, est conservé tel quel."
+  },
+  "templatePlaceholderReference": {
+    "message": "Référence d'espace réservé"
+  },
+  "templateColumnPlaceholder": {
+    "message": "Espace réservé"
+  },
+  "templateColumnAdds": {
+    "message": "Contenu"
+  },
+  "templateColumnSource": {
+    "message": "Capture d'écran"
+  },
+  "templateExample": {
+    "message": "Exemple : $VALUE$",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Example Article"
+      }
+    }
+  },
+  "templatePreviewContent": {
+    "message": "> Le rapide renard brun saute par-dessus le chien paresseux."
+  },
+  "templatePreviewTitle": {
+    "message": "Exemple d'article"
+  },
+  "templatePreviewDescription": {
+    "message": "Bref résumé de la page."
+  },
+  "templateContentMeaning": {
+    "message": "Texte sélectionné tel que cité Markdown"
+  },
+  "templateContentSource": {
+    "message": "Votre sélection sur la page"
+  },
+  "templateContentExample": {
+    "message": "> Le rapide renard brun…"
+  },
+  "templateDescriptionMeaning": {
+    "message": "Résumé de la page (jusqu’à $COUNT$ caractères)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "800"
+      }
+    }
+  },
+  "templateDescriptionSource": {
+    "message": "Open Graph → méta-description → premier paragraphe lisible"
+  },
+  "templateTitleMeaning": {
+    "message": "Titre de la page (ou URL par défaut)"
+  },
+  "templateTitleSource": {
+    "message": "Onglet du navigateur → titre du document"
+  },
+  "templateUrlMeaning": {
+    "message": "Adresse exacte de la page"
+  },
+  "templateUrlSource": {
+    "message": "Onglet actuel du navigateur"
+  },
+  "templatePreviewSection": {
+    "message": "Aperçu (affichage dans Memos)"
+  },
+  "templateJustNow": {
+    "message": "maintenant"
+  },
+  "templateSave": {
+    "message": "Enregistrer le modèle"
+  },
+  "templateSavedBrowser": {
+    "message": "Enregistré dans ce navigateur"
+  },
+  "templateUnsavedChanges": {
+    "message": "Modifications non enregistrées"
+  },
+  "templateExternalUpdate": {
+    "message": "Une autre page de paramètres a enregistré un autre modèle. Votre brouillon non enregistré est toujours disponible."
+  },
+  "templateLoadSaved": {
+    "message": "Charger la version enregistrée"
+  },
+  "templateReadError": {
+    "message": "Impossible de lire le modèle enregistré. Le modèle par défaut est affiché pour le moment."
+  },
+  "templateStorageError": {
+    "message": "Impossible d'enregistrer le modèle dans ce navigateur. Veuillez réessayer."
+  },
+  "authRefreshError": {
+    "message": "L'extension n'a pas pu actualiser votre compte usememos.com."
+  },
+  "authSignOutError": {
+    "message": "Impossible de vous déconnecter. Veuillez réessayer."
+  },
+  "contextMenuSaveSelection": {
+    "message": "Enregistrer la sélection dans Memos"
+  },
+  "contextFailureWithFix": {
+    "message": "$TITLE$ — $FIX$",
+    "placeholders": {
+      "title": {
+        "content": "$1",
+        "example": "Access token rejected"
+      },
+      "fix": {
+        "content": "$2",
+        "example": "Reconnect your account."
+      }
+    }
+  },
+  "contextSavePartial_one": {
+    "message": "Enregistré dans Memos — impossible d’importer $COUNT$ image",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "contextSavePartial_other": {
+    "message": "Enregistré dans Memos — impossible d’importer $COUNT$ images",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "errorInvalidUrlTitle": {
+    "message": "URL d'instance invalide"
+  },
+  "errorInvalidUrlWhy": {
+    "message": "La destination doit être une adresse http:// ou https:// complète, sans informations d'identification intégrées, requête ni fragment."
+  },
+  "errorInvalidUrlFix": {
+    "message": "Veuillez saisir l'adresse utilisée pour ouvrir Memos, par exemple https://memos.example.com."
+  },
+  "errorExtensionTitle": {
+    "message": "L'extension a cessé de répondre."
+  },
+  "errorExtensionWhy": {
+    "message": "La fenêtre contextuelle n'a pas pu joindre son service en arrière-plan ; le résultat de l'enregistrement est donc inconnu."
+  },
+  "errorExtensionFix": {
+    "message": "Laissez cette fenêtre contextuelle ouverte et réessayez ; votre brouillon est toujours disponible."
+  },
+  "errorStorageTitle": {
+    "message": "Impossible d'enregistrer cette connexion."
+  },
+  "errorStorageWhy": {
+    "message": "La connexion a été vérifiée, mais le navigateur n'a pas pu l'enregistrer sur cet appareil."
+  },
+  "errorStorageFix": {
+    "message": "Vérifiez que l'espace de stockage de l'extension est disponible, puis réessayez."
+  },
+  "errorAuthChangedTitle": {
+    "message": "Votre compte a changé."
+  },
+  "errorAuthChangedWhy": {
+    "message": "Le compte connecté ou la destination Memos a changé après l'ouverture de cette fenêtre contextuelle."
+  },
+  "errorAuthChangedFix": {
+    "message": "Vérifiez le compte actuel, puis réessayez d'enregistrer."
+  },
+  "errorAuthUnavailableTitle": {
+    "message": "Votre compte n'a pas pu être vérifié."
+  },
+  "errorAuthUnavailableWhy": {
+    "message": "L'extension n'a pas pu joindre usememos.com et n'a donc pas utilisé les informations d'identification mises en cache pour cette écriture."
+  },
+  "errorAuthUnavailableFix": {
+    "message": "Vérifiez votre connexion et réessayez."
+  },
+  "errorNotConfiguredTitle": {
+    "message": "Aucune instance Memos n'est connectée."
+  },
+  "errorNotConfiguredWhy": {
+    "message": "Vous n'avez pas encore connecté d'instance Memos au clipper."
+  },
+  "errorNotConfiguredFix": {
+    "message": "Ouvrez les paramètres de l'extension, choisissez une méthode de connexion, puis connectez votre instance."
+  },
+  "errorMixedContentTitle": {
+    "message": "Votre connexion n'est pas chiffrée."
+  },
+  "errorMixedContentWhy": {
+    "message": "L'extension enverra votre jeton d'accès Memos et le contenu de l'extrait via http:// sans chiffrement TLS."
+  },
+  "errorMixedContentFixHttps": {
+    "message": "Servez votre instance Memos via HTTPS."
+  },
+  "errorMixedContentFixLocal": {
+    "message": "Utilisez http:// uniquement pour une instance de développement locale, comme localhost."
+  },
+  "errorCorsTitle": {
+    "message": "Votre instance a bloqué la requête (CORS)."
+  },
+  "errorCorsWhy": {
+    "message": "Le serveur est accessible, mais n'a pas autorisé l'extension à lire la réponse."
+  },
+  "errorCorsFixOnline": {
+    "message": "Vérifiez que l'instance est en ligne et accessible."
+  },
+  "errorCorsFixUrl": {
+    "message": "Vérifiez l'URL de l'instance et réessayez la connexion."
+  },
+  "errorUnreachableTitle": {
+    "message": "Impossible de joindre votre instance."
+  },
+  "errorUnreachableWhy": {
+    "message": "La requête n'a reçu aucune réponse du serveur."
+  },
+  "errorUnreachableFixOnline": {
+    "message": "Vérifiez que l'instance est en ligne."
+  },
+  "errorUnreachableFixOpen": {
+    "message": "Ouvrez l'URL de l'instance dans un nouvel onglet pour vérifier qu'elle se charge."
+  },
+  "errorUnauthorizedTitle": {
+    "message": "Jeton d'accès refusé."
+  },
+  "errorUnauthorizedWhy": {
+    "message": "L'instance a renvoyé une erreur 401/403 : le jeton est invalide ou a expiré."
+  },
+  "errorUnauthorizedDirectFixReplace": {
+    "message": "Remplacez le jeton dans les paramètres de l'extension."
+  },
+  "errorUnauthorizedDirectFixCreate": {
+    "message": "Si nécessaire, créez un nouveau jeton dans vos paramètres utilisateur Memos."
+  },
+  "errorUnauthorizedAccountFixReconnect": {
+    "message": "Connectez-vous à usememos.com et reconnectez-vous."
+  },
+  "errorUnauthorizedAccountFixRegenerate": {
+    "message": "Si le problème persiste, régénérez votre jeton d'accès dans les paramètres de Memos."
+  },
+  "errorTimeoutTitle": {
+    "message": "Votre instance a dépassé le délai d’attente"
+  },
+  "errorTimeoutWhy": {
+    "message": "Le serveur n'a pas répondu à temps."
+  },
+  "errorTimeoutFixOnline": {
+    "message": "Vérifiez que le serveur est en ligne et non surchargé."
+  },
+  "errorTimeoutFixRetry": {
+    "message": "Veuillez réessayer ultérieurement."
+  },
+  "errorUnsupportedTitle": {
+    "message": "Version Memos non prise en charge."
+  },
+  "errorUnsupportedWhy": {
+    "message": "Ce clipper nécessite Memos, $VERSION$ ou une version stable 0.x plus récente pour être compatible avec l'API utilisée.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUnsupportedFix": {
+    "message": "Mettez à jour votre instance Memos vers $VERSION$ ou une version stable 0.x plus récente, puis reconnectez-vous.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.26.0"
+      }
+    }
+  },
+  "errorUpgradeGuide": {
+    "message": "Comment mettre à niveau Memos"
+  },
+  "errorBadResponseTitle": {
+    "message": "Réponse inattendue."
+  },
+  "errorBadResponseWhy": {
+    "message": "L’instance a renvoyé une réponse non valide pour l’API."
+  },
+  "errorBadResponseFixApi": {
+    "message": "Vérifiez que l’URL pointe bien vers votre API Memos."
+  },
+  "errorBadResponseFixRedirect": {
+    "message": "Si votre serveur redirige, utilisez l’URL finale."
+  }
+}

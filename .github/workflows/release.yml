@@ -1,30 +1,42 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  pull_request:
+    branches: [main]
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref containing the released package version
+        required: true
+        default: main
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.merge_commit_sha || inputs.ref }}
+  cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
   release:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       startsWith(github.event.pull_request.head.ref, 'release-please--'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: write
     env:
       VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID }}
       VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER }}
       VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL }}
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Checkout release tag
+      - name: Checkout released source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.event.pull_request.merge_commit_sha }}
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
       - name: Setup Node.js
@@ -41,17 +53,21 @@ jobs:
             VITE_WEB_APP_URL
           do
             if [ -z "${!name}" ]; then
-              echo "Required release variable or secret is missing: $name" >&2
+              echo "Required release variable is missing: $name" >&2
               exit 1
             fi
           done
 
           package_version="$(node -p "require('./package.json').version")"
-          if [ "$GITHUB_REF_NAME" != "v${package_version}" ]; then
-            echo "Tag $GITHUB_REF_NAME does not match package.json version ${package_version}." >&2
+          manifest_version="$(node -p "require('./.release-please-manifest.json')['.']")"
+          if [ "$package_version" != "$manifest_version" ]; then
+            echo "package.json version ${package_version} does not match Release Please version ${manifest_version}." >&2
             exit 1
           fi
+
           echo "VERSION=${package_version}" >> "$GITHUB_ENV"
+          echo "TAG=v${package_version}" >> "$GITHUB_ENV"
+          echo "RELEASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "version=${package_version}" >> "$GITHUB_OUTPUT"
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -60,71 +76,135 @@ jobs:
           pnpm lint
           pnpm test
       - name: Build release packages
-        run: pnpm package:release
-      - name: Download signed Firefox package
-        run: |
-          metadata="$(mktemp)"
-          trap 'rm -f "$metadata"' EXIT
-          curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' \
-            https://addons.mozilla.org/api/v5/addons/addon/memos-web-clipper/ \
-            --output "$metadata"
-
-          amo_version="$(jq -r '.current_version.version // empty' "$metadata")"
-          download_url="$(jq -r '.current_version.file.url // empty' "$metadata")"
-          if [ "$amo_version" != "$VERSION" ] || [ -z "$download_url" ]; then
-            echo "Firefox Add-ons publishes ${amo_version:-no version}; expected ${VERSION}. Publish the release candidate there before merging the Release Please PR." >&2
-            exit 1
-          fi
-
-          curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' \
-            "$download_url" \
-            --output "artifacts/memos-web-clipper-firefox-v${VERSION}.xpi"
+        run: pnpm package
       - name: Verify release packages
         run: |
+          for package in \
+            "artifacts/memos-web-clipper-chromium-v${VERSION}.zip" \
+            "artifacts/memos-web-clipper-chrome-v${VERSION}.zip" \
+            "artifacts/memos-web-clipper-edge-v${VERSION}.zip" \
+            "artifacts/memos-web-clipper-firefox-v${VERSION}.zip"
+          do
+            unzip -tq "$package"
+          done
+
+          cmp \
+            "artifacts/memos-web-clipper-chrome-v${VERSION}.zip" \
+            "artifacts/memos-web-clipper-edge-v${VERSION}.zip"
+
           verify_stage="$(mktemp -d)"
           trap 'rm -rf "$verify_stage"' EXIT
-          mkdir "$verify_stage/unsigned-firefox" "$verify_stage/signed-firefox"
           unzip -p "artifacts/memos-web-clipper-chromium-v${VERSION}.zip" manifest.json > "$verify_stage/chromium.json"
-          unzip -p "artifacts/memos-web-clipper-firefox-v${VERSION}.xpi" manifest.json > "$verify_stage/firefox.json"
-          unzip -q "artifacts/memos-web-clipper-firefox-v${VERSION}.zip" -d "$verify_stage/unsigned-firefox"
-          unzip -q "artifacts/memos-web-clipper-firefox-v${VERSION}.xpi" -d "$verify_stage/signed-firefox"
-
-          # AMO may normalize insignificant JSON whitespace while signing. Compare the
-          # manifests semantically, then require every other payload file to match exactly.
-          jq --sort-keys . "$verify_stage/unsigned-firefox/manifest.json" > "$verify_stage/unsigned-manifest.json"
-          jq --sort-keys . "$verify_stage/signed-firefox/manifest.json" > "$verify_stage/signed-manifest.json"
-          diff -u "$verify_stage/unsigned-manifest.json" "$verify_stage/signed-manifest.json"
-          diff -qr \
-            --exclude=META-INF \
-            --exclude=manifest.json \
-            "$verify_stage/unsigned-firefox" \
-            "$verify_stage/signed-firefox"
+          unzip -p "artifacts/memos-web-clipper-chrome-v${VERSION}.zip" manifest.json > "$verify_stage/chrome.json"
+          unzip -p "artifacts/memos-web-clipper-edge-v${VERSION}.zip" manifest.json > "$verify_stage/edge.json"
+          unzip -p "artifacts/memos-web-clipper-firefox-v${VERSION}.zip" manifest.json > "$verify_stage/firefox.json"
 
           node --input-type=module - "$verify_stage" "$VERSION" <<'NODE'
           import { readFileSync } from "node:fs";
           import { join } from "node:path";
 
           const [stage, version] = process.argv.slice(2);
-          const chromium = JSON.parse(readFileSync(join(stage, "chromium.json"), "utf8"));
-          const firefox = JSON.parse(readFileSync(join(stage, "firefox.json"), "utf8"));
-          if (chromium.version !== version || !chromium.key) throw new Error("Chromium release manifest has the wrong version or identity key.");
-          if (firefox.version !== version) throw new Error("Firefox release manifest has the wrong version.");
-          if (firefox.browser_specific_settings?.gecko?.id !== "web-clipper@usememos.com") {
-            throw new Error("Firefox release manifest has the wrong add-on ID.");
+          const readManifest = (name) => JSON.parse(readFileSync(join(stage, `${name}.json`), "utf8"));
+          const chromium = readManifest("chromium");
+          const chrome = readManifest("chrome");
+          const edge = readManifest("edge");
+          const firefox = readManifest("firefox");
+
+          if (chromium.version !== version || !chromium.key || chromium.update_url) {
+            throw new Error("The manual Chromium package has the wrong version, identity key, or update URL.");
+          }
+          for (const [name, manifest] of [["Chrome", chrome], ["Edge", edge]]) {
+            if (manifest.version !== version || manifest.key || manifest.update_url) {
+              throw new Error(`${name} store package has the wrong version or store-owned identity fields.`);
+            }
+          }
+          if (
+            firefox.version !== version ||
+            firefox.key ||
+            firefox.update_url ||
+            firefox.browser_specific_settings?.gecko?.id !== "web-clipper@usememos.com" ||
+            !firefox.background?.scripts?.length ||
+            firefox.background?.service_worker
+          ) {
+            throw new Error("The Firefox store package has invalid release metadata.");
           }
           NODE
-      - name: Generate checksums
-        working-directory: artifacts
+      - name: Generate checksums and release notes
         run: |
-          sha256sum \
-            "memos-web-clipper-chromium-v${VERSION}.zip" \
-            "memos-web-clipper-firefox-v${VERSION}.xpi" \
-            > SHA256SUMS
-      - name: Publish release assets
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: |
-            artifacts/memos-web-clipper-chromium-v${{ steps.version.outputs.version }}.zip
-            artifacts/memos-web-clipper-firefox-v${{ steps.version.outputs.version }}.xpi
-            artifacts/SHA256SUMS
+          (
+            cd artifacts
+            sha256sum \
+              "memos-web-clipper-chromium-v${VERSION}.zip" \
+              "memos-web-clipper-chrome-v${VERSION}.zip" \
+              "memos-web-clipper-edge-v${VERSION}.zip" \
+              "memos-web-clipper-firefox-v${VERSION}.zip" \
+              > SHA256SUMS
+          )
+
+          awk '
+            /^## \[/ {
+              if (found) exit
+              found = 1
+            }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "Release ${VERSION}" > release-notes.md
+          fi
+      - name: Publish immutable release with complete assets
+        run: |
+          assets=(
+            "artifacts/memos-web-clipper-chromium-v${VERSION}.zip"
+            "artifacts/memos-web-clipper-chrome-v${VERSION}.zip"
+            "artifacts/memos-web-clipper-edge-v${VERSION}.zip"
+            "artifacts/memos-web-clipper-firefox-v${VERSION}.zip"
+            "artifacts/SHA256SUMS"
+          )
+
+          release_state="$(gh release view "$TAG" --json isDraft --jq '.isDraft' 2>/dev/null || true)"
+          if [ "$release_state" = "false" ]; then
+            published_sha="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${TAG}" --jq '.sha')"
+            if [ "$published_sha" != "$RELEASE_SHA" ]; then
+              echo "Published release $TAG points to $published_sha instead of $RELEASE_SHA." >&2
+              exit 1
+            fi
+            if ! diff -u \
+              <(printf '%s\n' "${assets[@]##*/}" | sort) \
+              <(gh release view "$TAG" --json assets --jq '.assets[].name' | sort)
+            then
+              echo "Published release $TAG does not contain the expected immutable assets." >&2
+              exit 1
+            fi
+            echo "Release $TAG is already published with the expected commit and assets."
+            exit 0
+          fi
+
+          if [ "$release_state" = "true" ]; then
+            gh release edit "$TAG" --title "$TAG" --notes-file release-notes.md
+            gh release upload "$TAG" "${assets[@]}" --clobber
+          else
+            gh release create "$TAG" \
+              --draft \
+              --target "$RELEASE_SHA" \
+              --title "$TAG" \
+              --notes-file release-notes.md
+            gh release upload "$TAG" "${assets[@]}"
+          fi
+
+          gh release edit "$TAG" --draft=false --latest
+      - name: Mark release pull request complete
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          labels="$(gh pr view "$PR_NUMBER" --json labels --jq '.labels[].name')"
+          edit_args=()
+          if printf '%s\n' "$labels" | grep -Fxq "autorelease: pending"; then
+            edit_args+=(--remove-label "autorelease: pending")
+          fi
+          if ! printf '%s\n' "$labels" | grep -Fxq "autorelease: tagged"; then
+            edit_args+=(--add-label "autorelease: tagged")
+          fi
+          if [ "${#edit_args[@]}" -gt 0 ]; then
+            gh pr edit "$PR_NUMBER" "${edit_args[@]}"
+          fi

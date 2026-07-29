@@ -17,7 +17,11 @@ For Chromium-based browsers:
 2. Open the browser's extensions page, such as `chrome://extensions` or `edge://extensions`.
 3. Enable **Developer mode**, choose **Load unpacked**, and select the extracted directory.
 
-For Firefox, download `memos-web-clipper-firefox-v<version>.xpi` and open it with Firefox. GitHub release XPIs are the same Mozilla-signed packages published on Firefox Add-ons.
+Firefox stable releases require Mozilla-signed extensions, so install from Firefox Add-ons for permanent use. To test a GitHub release temporarily:
+
+1. Download and extract `memos-web-clipper-firefox-v<version>.zip`.
+2. Open `about:debugging#/runtime/this-firefox`.
+3. Choose **Load Temporary Add-on** and select the extracted `manifest.json`.
 
 To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in the directory containing the downloaded package. Do not rely on manually installed packages receiving browser-store-managed updates; check GitHub Releases for new versions.
 

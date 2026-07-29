@@ -1,10 +1,10 @@
 # Releasing
 
-Release Please maintains the release pull request, `CHANGELOG.md`, `package.json` version, Git tag, and GitHub Release. A separate tag workflow verifies the source, builds the extension packages, mirrors the matching Mozilla-signed XPI, generates checksums, and attaches the user-facing assets.
+Release Please maintains the release pull request, `CHANGELOG.md`, and package version. The release workflow builds and verifies every archive, creates a draft GitHub Release, attaches all assets, and only then publishes it. This order supports GitHub release immutability without depending on browser-store review.
 
 ## Repository configuration
 
-Add a fine-grained personal access token as the `RELEASE_PLEASE_TOKEN` Actions secret. It needs read/write access to repository contents, issues, and pull requests. A separate token is required because tags created with the default `GITHUB_TOKEN` do not trigger the tag-based release workflow.
+Add a fine-grained personal access token as the `RELEASE_PLEASE_TOKEN` Actions secret. It needs read/write access to repository contents, issues, and pull requests so Release Please can create and update release pull requests and their checks.
 
 Add these public build values as Actions repository variables:
 
@@ -12,30 +12,29 @@ Add these public build values as Actions repository variables:
 - `VITE_CLERK_OAUTH_ISSUER`
 - `VITE_WEB_APP_URL`
 
-The release workflow rejects missing values and verifies that the tag exactly matches the version in `package.json`.
-
-Keep GitHub release immutability disabled for this workflow. Release Please publishes the GitHub
-Release before the tag workflow attaches its verified assets, and an immutable published release
-cannot accept those assets afterward.
+GitHub release immutability can remain enabled. The release is kept as a draft until every asset has been uploaded.
 
 ## Release process
 
 1. Merge conventional commits into `main`. Release Please creates or updates a release pull request.
-2. Check out the release pull request branch, configure the production `VITE_*` values in `.env`, and run `pnpm package` from a clean worktree.
-3. Test the generated packages and submit the Firefox ZIP plus its matching source archive to Firefox Add-ons. Submit the Chromium store packages as appropriate.
-4. Wait until Firefox Add-ons publishes the exact version proposed by the release pull request.
-5. Merge the release pull request.
-6. Release Please creates the `v<version>` tag and GitHub Release. The tag workflow builds the same Firefox payload, downloads the signed XPI from Firefox Add-ons, compares every non-signature file, and publishes the release assets only when they match.
-
-If Firefox Add-ons does not yet expose the expected version, the release workflow fails without publishing mismatched artifacts. Publish the store version and rerun the failed workflow.
+2. Review and merge the release pull request.
+3. The merged-pull-request workflow checks out that exact commit, verifies the version and source, and runs `pnpm package`.
+4. The workflow validates every archive, generates `SHA256SUMS`, uploads all assets to a draft GitHub Release, publishes the complete release, and marks the Release Please pull request as tagged.
+5. Upload the Chrome, Edge, and Firefox ZIPs from the GitHub Release to their respective stores. Store review and approval happen independently of the GitHub Release.
 
 The public release contains:
 
-- `memos-web-clipper-chromium-v<version>.zip`, which retains the public manifest key needed for a stable OAuth extension ID.
-- `memos-web-clipper-firefox-v<version>.xpi`, mirrored from Firefox Add-ons after payload verification.
-- `SHA256SUMS` for both packages.
+- `memos-web-clipper-chromium-v<version>.zip`: manual Chromium installation with the public manifest key needed for a stable OAuth extension ID.
+- `memos-web-clipper-chrome-v<version>.zip`: Chrome Web Store upload.
+- `memos-web-clipper-edge-v<version>.zip`: Edge Add-ons upload.
+- `memos-web-clipper-firefox-v<version>.zip`: Firefox store upload or temporary Firefox testing.
+- `SHA256SUMS`: checksums for all four archives.
 
-Store upload archives remain separate. `pnpm package` produces those archives, while `pnpm package:release` produces the Chromium sideload archive and an unsigned Firefox archive used only to verify the signed store package.
+Firefox stable requires Mozilla-signed extensions for permanent installation. The unsigned Firefox ZIP can be loaded temporarily from `about:debugging`, while permanent users should install the approved store version.
+
+## Manual recovery
+
+The Release workflow can be dispatched manually with a Git ref. It resumes an existing draft for that version or creates a new draft. It refuses to modify an already-published immutable release.
 
 ## Bootstrap
 

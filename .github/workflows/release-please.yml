@@ -24,7 +24,7 @@ jobs:
           RELEASE_PLEASE_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
         run: |
           if [ -z "$RELEASE_PLEASE_TOKEN" ]; then
-            echo "RELEASE_PLEASE_TOKEN must be set so generated tags can trigger release.yml." >&2
+            echo "RELEASE_PLEASE_TOKEN must be set so Release Please can manage release pull requests." >&2
             exit 1
           fi
       - name: Run release-please
@@ -33,3 +33,6 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # The release workflow builds and attaches every asset before publishing.
+          # This is required when GitHub release immutability is enabled.
+          skip-github-release: true

@@ -11,7 +11,6 @@
     "validate:locales": "node scripts/validate-locales.mjs",
     "build": "pnpm validate:locales && tsc --noEmit && vite build",
     "package": "pnpm build && node scripts/package.mjs all",
-    "package:release": "pnpm build && node scripts/package.mjs release",
     "package:chrome": "pnpm build && node scripts/package.mjs chrome",
     "package:edge": "pnpm build && node scripts/package.mjs edge",
     "package:firefox": "pnpm build && node scripts/package.mjs firefox",

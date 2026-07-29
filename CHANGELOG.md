@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/usememos/web-clipper/compare/v0.2.0...v0.3.0) (2026-07-29)
+
+
+### Features
+
+* **clips:** add local history and duplicate-save warning ([c27f1fe](https://github.com/usememos/web-clipper/commit/c27f1fecf44185d059dd819fed8fe16aa70d0d14))
+
+
+### Bug Fixes
+
+* publish verified Firefox downloads reliably ([84af3cc](https://github.com/usememos/web-clipper/commit/84af3ccbaf39bb1f0b2a4295b5b824f2257bfa96))
+* **release:** publish complete assets before store submission ([e087d08](https://github.com/usememos/web-clipper/commit/e087d08410ec38b8dd0c687f8f324aea868bc33f))
+
 ## [0.2.0](https://github.com/usememos/web-clipper/compare/v0.1.0...v0.2.0) (2026-07-23)
 
 ### What's new

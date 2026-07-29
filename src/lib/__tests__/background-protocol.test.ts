@@ -18,6 +18,41 @@ describe("background protocol", () => {
       refresh: true,
     });
     expect(parseBackgroundRequest(save)).toEqual(save);
+    expect(
+      parseBackgroundRequest({
+        ...save,
+        clip: {
+          sourceUrl: "https://example.com/post",
+          sourceTitle: "Post",
+          selectionMarkdown: "Selected text",
+          imageCount: 2,
+        },
+      }),
+    ).toEqual({
+      ...save,
+      clip: {
+        sourceUrl: "https://example.com/post",
+        sourceTitle: "Post",
+        selectionMarkdown: "Selected text",
+        imageCount: 2,
+      },
+    });
+    expect(
+      parseBackgroundRequest({
+        type: "GET_CLIP_STATUS",
+        sourceUrl: "https://example.com/post",
+        expectedSource: "direct",
+        expectedConnectionId: "direct_123",
+        expectedInstanceUrl: "https://memos.example.com",
+      }),
+    ).toEqual({
+      type: "GET_CLIP_STATUS",
+      sourceUrl: "https://example.com/post",
+      expectedSource: "direct",
+      expectedConnectionId: "direct_123",
+      expectedInstanceUrl: "https://memos.example.com",
+    });
+    expect(parseBackgroundRequest({ type: "LIST_CLIP_RECORDS" })).toEqual({ type: "LIST_CLIP_RECORDS" });
   });
 
   it.each([
@@ -37,7 +72,17 @@ describe("background protocol", () => {
     { ...save, images: [`https://cdn.example.com/${"x".repeat(8_193)}`] },
     { ...save, saveRequestId: "bad id" },
     { ...save, saveStartedAt: Number.NaN },
+    { ...save, clip: null },
+    { ...save, clip: { sourceUrl: "https://example.com", sourceTitle: "Post", imageCount: -1 } },
+    { ...save, clip: { sourceUrl: 1, sourceTitle: "Post", imageCount: 0 } },
     { type: "GET_CONNECTION_STATE", refresh: "yes" },
+    {
+      type: "GET_CLIP_STATUS",
+      sourceUrl: "https://example.com",
+      expectedSource: "direct",
+      expectedConnectionId: "",
+      expectedInstanceUrl: "https://memos.example.com",
+    },
     { type: "UNKNOWN" },
   ])("rejects malformed input %#", (input) => {
     expect(parseBackgroundRequest(input)).toBeNull();
@@ -62,6 +107,24 @@ describe("background protocol", () => {
     const request = parseBackgroundRequest({ type: "GET_CONNECTION_STATE", refresh: true })!;
     expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/options/index.html" }, "ext")).toBe(true);
     expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/popup/index.html" }, "ext")).toBe(false);
+  });
+
+  it("allows one-record lookup from popup and full history only from options", () => {
+    const lookup = parseBackgroundRequest({
+      type: "GET_CLIP_STATUS",
+      sourceUrl: "https://example.com/post",
+      expectedSource: "direct",
+      expectedConnectionId: "direct_123",
+      expectedInstanceUrl: "https://memos.example.com",
+    })!;
+    const list = parseBackgroundRequest({ type: "LIST_CLIP_RECORDS" })!;
+    const popup = { id: "ext", url: "chrome-extension://ext/src/popup/index.html" };
+    const options = { id: "ext", url: "chrome-extension://ext/src/options/index.html" };
+
+    expect(isTrustedBackgroundRequest(lookup, popup, "ext")).toBe(true);
+    expect(isTrustedBackgroundRequest(lookup, options, "ext")).toBe(false);
+    expect(isTrustedBackgroundRequest(list, options, "ext")).toBe(true);
+    expect(isTrustedBackgroundRequest(list, popup, "ext")).toBe(false);
   });
 
   it("accepts direct credentials only from options and enforces input limits", () => {

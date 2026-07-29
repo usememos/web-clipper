@@ -1,12 +1,15 @@
 import {
+  CheckCircle2Icon,
   EarthIcon,
   ExternalLinkIcon,
   GlobeIcon,
+  HistoryIcon,
   LockIcon,
   PaperclipIcon,
   SettingsIcon,
   TriangleAlertIcon,
   UsersRoundIcon,
+  XIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -27,8 +30,19 @@ import { usePageCapture } from "./page-capture";
 import { useClipper } from "./use-clipper";
 import { usePopupState } from "./use-popup-state";
 
+const SAVED_AT_FORMAT = new Intl.DateTimeFormat(undefined, {
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
 function openOptions() {
   void browser.runtime.openOptionsPage();
+}
+
+function openHistory() {
+  void browser.tabs.create({ url: browser.runtime.getURL("src/options/index.html?view=history") });
 }
 
 /**
@@ -51,6 +65,9 @@ function Header({ left, instanceUrl }: { left: React.ReactNode; instanceUrl?: st
             <GlobeIcon />
           </a>
         ) : null}
+        <Button variant="ghost" size="icon-sm" onClick={() => openHistory()} aria-label={t("popupOpenHistory")}>
+          <HistoryIcon />
+        </Button>
         <Button variant="ghost" size="icon-sm" onClick={openOptions} aria-label={t("popupExtensionSettings")}>
           <SettingsIcon />
         </Button>
@@ -236,6 +253,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
       setError(describeSaveError(result.errorKind, state.source));
     }
   };
+  const savedAt = c.savedClip ? SAVED_AT_FORMAT.format(c.savedClip.savedAt) : "";
 
   return (
     <Frame>
@@ -258,6 +276,28 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
         <CaptureNotice reason={c.captureFallbackReason} hasSelection={c.hasSelection} hasSource={c.hasSource} />
         {blocked ? <ReconciliationBar state={blocked} /> : null}
         {error && <ErrorBar error={error} busy={c.busy} onRetry={onSave} />}
+        {c.savedClip && !c.savedClipNoticeDismissed ? (
+          <div role="status" className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            <CheckCircle2Icon aria-hidden="true" className="size-3.5 shrink-0 text-success" />
+            <span className="min-w-0 truncate">{t("popupSavedBefore", savedAt)}</span>
+            <a
+              href={c.savedClip.memoUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"
+            >
+              {t("popupOpenMemo")}
+            </a>
+            <button
+              type="button"
+              className="ms-auto flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+              onClick={c.dismissSavedClipNotice}
+              aria-label={t("popupDismissSavedNotice")}
+            >
+              <XIcon className="size-3" />
+            </button>
+          </div>
+        ) : null}
         {c.imageCount > 0 && (
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <PaperclipIcon className="h-3 w-3" />
@@ -287,7 +327,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
             </SelectContent>
           </Select>
           <Button className="flex-1" disabled={c.busy || !!blocked || !c.content.trim()} onClick={onSave}>
-            {c.busy ? t("commonSaving") : t("popupSaveToMemos")}
+            {c.busy ? t("commonSaving") : c.savedClip ? t("popupSaveAgain") : t("popupSaveToMemos")}
           </Button>
         </div>
       </div>

@@ -200,6 +200,53 @@
       }
     }
   },
+  "historyDocumentTitle": { "message": "Memos 网页剪藏器 — 保存历史" },
+  "popupOpenHistory": { "message": "打开保存历史" },
+  "popupSaveAgain": { "message": "再次保存" },
+  "popupSavedBefore": {
+    "message": "保存过 · $DATE$",
+    "placeholders": { "date": { "content": "$1", "example": "7月29日 14:32" } }
+  },
+  "popupOpenMemo": { "message": "打开 Memo" },
+  "popupDismissSavedNotice": { "message": "忽略保存提示" },
+  "historyTitle": { "message": "保存历史" },
+  "historyStoredLocally": { "message": "保存在这个浏览器中" },
+  "historySettings": { "message": "设置" },
+  "historyCount_one": {
+    "message": "$COUNT$ 条保存记录",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historyCount_other": {
+    "message": "$COUNT$ 条保存记录",
+    "placeholders": { "count": { "content": "$1", "example": "38" } }
+  },
+  "historySearch": { "message": "搜索标题、网址或内容" },
+  "historyDestinationFilter": { "message": "Memos 保存目标" },
+  "historyAllDestinations": { "message": "所有目标" },
+  "historyOpenSource": { "message": "打开原网页" },
+  "historyOpenMemo": { "message": "打开 Memo" },
+  "historySelection": { "message": "你选择的内容" },
+  "historySelectedImages_one": {
+    "message": "$COUNT$ 张选中图片",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historySelectedImages_other": {
+    "message": "$COUNT$ 张选中图片",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "historyImageOnlySelection": { "message": "仅选择了图片" },
+  "historyMemoContent": { "message": "保存到 Memos 的内容" },
+  "historyDetails": { "message": "详细信息" },
+  "historySourceUrl": { "message": "来源网址" },
+  "historyDestination": { "message": "保存目标" },
+  "historySavedAt": { "message": "保存时间" },
+  "historyTechnicalDetails": { "message": "技术信息" },
+  "historyRecordId": { "message": "记录 ID" },
+  "historyDedupeKey": { "message": "去重键" },
+  "historyMemoName": { "message": "Memo 名称" },
+  "historyEmptyTitle": { "message": "还没有保存记录" },
+  "historyEmptyDescription": { "message": "用扩展保存一个网页后，它会出现在这里。" },
+  "historyNoResults": { "message": "没有符合搜索条件的保存记录。" },
   "optionsClipTemplate": {
     "message": "剪藏模板"
   },

@@ -11,6 +11,7 @@ import {
 } from "@/background/connection-source";
 import { clearMemoSaveAttempts, savePopupMemo, saveSelectionClip } from "@/background/memo-save";
 import { isTrustedBackgroundRequest, parseBackgroundRequest, type RuntimeSender } from "@/lib/background-protocol";
+import { findLatestClipStatus, listClipRecords } from "@/lib/clip-records";
 import { describeSaveError, type SaveErrorKind, toSaveErrorKind } from "@/lib/errors";
 import { applyLocalePreference, getTextDirection, initializeLocalePreference, LOCALE_PREFERENCE_KEY, t, tp } from "@/lib/i18n";
 import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
@@ -89,15 +90,35 @@ async function activateConnection(verify: () => Promise<VerifiedConnection>) {
 browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) => {
   const req = parseBackgroundRequest(message);
   if (!req || !isTrustedBackgroundRequest(req, sender, browser.runtime.id)) return undefined;
-  if (req?.type === "GET_POPUP_STATE") return reconcilePopupState();
-  if (req?.type === "GET_AUTH_USER") return getAuthIdentity();
-  if (req?.type === "GET_CONNECTION_STATE") return getOptionsConnectionState(req.refresh ?? true, req.source ?? "active");
-  if (req?.type === "SELECT_USEMEMOS_SOURCE") {
+  if (req.type === "GET_POPUP_STATE") return reconcilePopupState();
+  if (req.type === "LIST_CLIP_RECORDS") return listClipRecords();
+  if (req.type === "GET_CLIP_STATUS") {
+    return (async () => {
+      try {
+        const connection = await resolveActiveConnection();
+        if (
+          !connection ||
+          connection.source !== req.expectedSource ||
+          connection.connectionId !== req.expectedConnectionId ||
+          connection.credentials.instanceUrl !== req.expectedInstanceUrl
+        ) {
+          return null;
+        }
+        return await findLatestClipStatus(connection, req.sourceUrl);
+      } catch {
+        // History lookup is an enhancement; a failed lookup must not block clipping.
+        return null;
+      }
+    })();
+  }
+  if (req.type === "GET_AUTH_USER") return getAuthIdentity();
+  if (req.type === "GET_CONNECTION_STATE") return getOptionsConnectionState(req.refresh ?? true, req.source ?? "active");
+  if (req.type === "SELECT_USEMEMOS_SOURCE") {
     return selectUseMemosSource().then(broadcastAuthChanged);
   }
-  if (req?.type === "CONNECT_DIRECT") return activateConnection(() => verifyAndActivateDirectConnection(req));
-  if (req?.type === "ACTIVATE_USEMEMOS_CONNECTION") return activateConnection(verifyAndActivateUseMemosConnection);
-  if (req?.type === "DISCONNECT_CONNECTION") {
+  if (req.type === "CONNECT_DIRECT") return activateConnection(() => verifyAndActivateDirectConnection(req));
+  if (req.type === "ACTIVATE_USEMEMOS_CONNECTION") return activateConnection(verifyAndActivateUseMemosConnection);
+  if (req.type === "DISCONNECT_CONNECTION") {
     return (async () => {
       const source = await clearActiveConnectionConfig();
       if (source !== "direct") await clearOAuthSession();
@@ -105,7 +126,8 @@ browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) 
       await broadcastAuthChanged();
     })();
   }
-  if (req?.type === "SAVE_MEMO") {
+  if (req.type === "SAVE_MEMO") {
+    const requestId = req.saveRequestId ?? `legacy_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     return savePopupMemo(
       req.content,
       req.visibility,
@@ -116,14 +138,15 @@ browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) 
         instanceUrl: req.expectedInstanceUrl,
       },
       {
-        requestId: req.saveRequestId ?? `legacy_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        requestId,
         startedAt: req.saveStartedAt ?? Date.now(),
-        ...(req.saveRequestId ? { serverMemoId: req.saveRequestId } : {}),
+        ...(req.saveRequestId || req.clip ? { serverMemoId: requestId } : {}),
       },
+      req.clip,
     );
   }
-  if (req?.type === "OPEN_SIGN_IN") return openSignInFlow();
-  if (req?.type === "SIGN_OUT") {
+  if (req.type === "OPEN_SIGN_IN") return openSignInFlow();
+  if (req.type === "SIGN_OUT") {
     return (async () => {
       const source = await clearActiveConnectionConfig({ preserveDirect: true });
       await clearOAuthSession();

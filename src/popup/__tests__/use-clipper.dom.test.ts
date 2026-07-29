@@ -106,7 +106,9 @@ describe("useClipper", () => {
     await act(async () => void (await result.current.save()));
     await act(async () => void (await result.current.save()));
 
-    const saves = browserMock.runtime.sendMessage.mock.calls.map(([message]) => message as { saveRequestId?: string });
+    const saves = browserMock.runtime.sendMessage.mock.calls
+      .map(([message]) => message as { type?: string; saveRequestId?: string })
+      .filter((message) => message.type === "SAVE_MEMO");
     expect(saves[0]?.saveRequestId).toBe(saves[1]?.saveRequestId);
   });
 

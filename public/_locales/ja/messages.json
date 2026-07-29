@@ -200,6 +200,53 @@
       }
     }
   },
+  "historyDocumentTitle": { "message": "Memos Web Clipper — 保存履歴" },
+  "popupOpenHistory": { "message": "保存履歴を開く" },
+  "popupSaveAgain": { "message": "もう一度保存" },
+  "popupSavedBefore": {
+    "message": "保存済み · $DATE$",
+    "placeholders": { "date": { "content": "$1", "example": "7月29日 14:32" } }
+  },
+  "popupOpenMemo": { "message": "Memoを開く" },
+  "popupDismissSavedNotice": { "message": "保存済みの通知を閉じる" },
+  "historyTitle": { "message": "保存履歴" },
+  "historyStoredLocally": { "message": "このブラウザーに保存されています" },
+  "historySettings": { "message": "設定" },
+  "historyCount_one": {
+    "message": "$COUNT$ 件の保存",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historyCount_other": {
+    "message": "$COUNT$ 件の保存",
+    "placeholders": { "count": { "content": "$1", "example": "38" } }
+  },
+  "historySearch": { "message": "タイトル、URL、内容を検索" },
+  "historyDestinationFilter": { "message": "Memosの保存先" },
+  "historyAllDestinations": { "message": "すべての保存先" },
+  "historyOpenSource": { "message": "元ページを開く" },
+  "historyOpenMemo": { "message": "Memoを開く" },
+  "historySelection": { "message": "選択した内容" },
+  "historySelectedImages_one": {
+    "message": "選択した画像 $COUNT$ 件",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historySelectedImages_other": {
+    "message": "選択した画像 $COUNT$ 件",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "historyImageOnlySelection": { "message": "画像のみの選択" },
+  "historyMemoContent": { "message": "Memosに保存した内容" },
+  "historyDetails": { "message": "詳細" },
+  "historySourceUrl": { "message": "元のURL" },
+  "historyDestination": { "message": "保存先" },
+  "historySavedAt": { "message": "保存日時" },
+  "historyTechnicalDetails": { "message": "技術情報" },
+  "historyRecordId": { "message": "レコードID" },
+  "historyDedupeKey": { "message": "重複排除キー" },
+  "historyMemoName": { "message": "Memo名" },
+  "historyEmptyTitle": { "message": "保存履歴はまだありません" },
+  "historyEmptyDescription": { "message": "Webページをクリッパーで保存すると、ここに表示されます。" },
+  "historyNoResults": { "message": "検索に一致する保存履歴はありません。" },
   "optionsClipTemplate": {
     "message": "クリップテンプレート"
   },

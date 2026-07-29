@@ -4,6 +4,7 @@ import {
   ExternalLinkIcon,
   EyeIcon,
   EyeOffIcon,
+  HistoryIcon,
   KeyRoundIcon,
   LanguagesIcon,
   LogInIcon,
@@ -12,6 +13,7 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import browser from "webextension-polyfill";
 import { openSignIn } from "@/auth/actions";
 import { useAuth } from "@/auth/auth-provider";
 import { AppBrand } from "@/components/app-brand";
@@ -94,20 +96,29 @@ function OptionsHeader({
   return (
     <div className="mb-8 flex items-center justify-between gap-4">
       <AppBrand size="md" sub={sub} />
-      <Select value={locale} onValueChange={(value) => onLocaleChange(value as LocalePreference)}>
-        <SelectTrigger aria-label={t("optionsLanguage")} className="max-w-48" size="sm">
-          <LanguagesIcon />
-          <span className="truncate">{localeLabel}</span>
-        </SelectTrigger>
-        <SelectContent align="end" className="min-w-48">
-          <SelectItem value="browser">{t("localeBrowserDefault")}</SelectItem>
-          {SUPPORTED_LOCALES.map((supportedLocale) => (
-            <SelectItem key={supportedLocale} value={supportedLocale}>
-              {LOCALE_AUTONYMS[supportedLocale]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex items-center gap-1">
+        <a
+          href={browser.runtime.getURL("src/options/index.html?view=history")}
+          className={buttonVariants({ variant: "ghost", size: "sm" })}
+        >
+          <HistoryIcon />
+          {t("historyTitle")}
+        </a>
+        <Select value={locale} onValueChange={(value) => onLocaleChange(value as LocalePreference)}>
+          <SelectTrigger aria-label={t("optionsLanguage")} className="max-w-48" size="sm">
+            <LanguagesIcon />
+            <span className="truncate">{localeLabel}</span>
+          </SelectTrigger>
+          <SelectContent align="end" className="min-w-48">
+            <SelectItem value="browser">{t("localeBrowserDefault")}</SelectItem>
+            {SUPPORTED_LOCALES.map((supportedLocale) => (
+              <SelectItem key={supportedLocale} value={supportedLocale}>
+                {LOCALE_AUTONYMS[supportedLocale]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

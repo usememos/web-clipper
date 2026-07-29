@@ -7,6 +7,7 @@
   "actionTitle": { "message": "Clip to Memos", "description": "Toolbar button tooltip." },
   "popupDocumentTitle": { "message": "Clip to Memos" },
   "optionsDocumentTitle": { "message": "Memos Web Clipper — Settings" },
+  "historyDocumentTitle": { "message": "Memos Web Clipper — Saved clips" },
   "optionsLanguage": { "message": "Language" },
   "localeBrowserDefault": { "message": "Browser language" },
   "optionsLanguageSaveError": { "message": "The language preference couldn't be saved. Please try again." },
@@ -27,6 +28,7 @@
   "commonDirect": { "message": "Direct" },
 
   "popupOpenInstance": { "message": "Open your Memos instance" },
+  "popupOpenHistory": { "message": "Open saved clips" },
   "popupExtensionSettings": { "message": "Extension settings" },
   "popupMemoContent": { "message": "Memo content" },
   "popupVisibility": { "message": "Visibility" },
@@ -35,7 +37,14 @@
   "popupPublicDescription": { "message": "Visible to everyone" },
   "popupEmptyCapturePlaceholder": { "message": "Nothing could be captured from this page — write your memo here" },
   "popupSaveToMemos": { "message": "Save to Memos" },
+  "popupSaveAgain": { "message": "Save again" },
   "popupSavedToMemos": { "message": "Saved to Memos" },
+  "popupSavedBefore": {
+    "message": "Saved before · $DATE$",
+    "placeholders": { "date": { "content": "$1", "example": "Jul 29, 14:32" } }
+  },
+  "popupOpenMemo": { "message": "Open memo" },
+  "popupDismissSavedNotice": { "message": "Dismiss saved notice" },
   "popupFailedImages_one": {
     "message": "$COUNT$ image couldn't be uploaded",
     "description": "Shown after saving when exactly one image upload failed.",
@@ -85,6 +94,45 @@
       "fix": { "content": "$2", "example": "Update your Memos instance." }
     }
   },
+
+  "historyTitle": { "message": "Saved clips" },
+  "historyStoredLocally": { "message": "Saved in this browser" },
+  "historySettings": { "message": "Settings" },
+  "historyCount_one": {
+    "message": "$COUNT$ saved clip",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historyCount_other": {
+    "message": "$COUNT$ saved clips",
+    "placeholders": { "count": { "content": "$1", "example": "38" } }
+  },
+  "historySearch": { "message": "Search title, URL, or content" },
+  "historyDestinationFilter": { "message": "Memos destination" },
+  "historyAllDestinations": { "message": "All destinations" },
+  "historyOpenSource": { "message": "Open source" },
+  "historyOpenMemo": { "message": "Open memo" },
+  "historySelection": { "message": "Your selection" },
+  "historySelectedImages_one": {
+    "message": "$COUNT$ selected image",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historySelectedImages_other": {
+    "message": "$COUNT$ selected images",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "historyImageOnlySelection": { "message": "Image-only selection" },
+  "historyMemoContent": { "message": "Content saved to Memos" },
+  "historyDetails": { "message": "Details" },
+  "historySourceUrl": { "message": "Source URL" },
+  "historyDestination": { "message": "Destination" },
+  "historySavedAt": { "message": "Saved at" },
+  "historyTechnicalDetails": { "message": "Technical details" },
+  "historyRecordId": { "message": "Record ID" },
+  "historyDedupeKey": { "message": "Dedupe key" },
+  "historyMemoName": { "message": "Memo name" },
+  "historyEmptyTitle": { "message": "No saved clips yet" },
+  "historyEmptyDescription": { "message": "Save a web page with the clipper and it will appear here." },
+  "historyNoResults": { "message": "No saved clips match your search." },
 
   "optionsClipTemplate": { "message": "Clip template" },
   "optionsTemplateLocked": { "message": "Connect a supported Memos instance first; then you can configure how clips are formatted." },

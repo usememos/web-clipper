@@ -200,6 +200,53 @@
       }
     }
   },
+  "historyDocumentTitle": { "message": "Memos 網頁剪藏器 — 儲存記錄" },
+  "popupOpenHistory": { "message": "開啟儲存記錄" },
+  "popupSaveAgain": { "message": "再次儲存" },
+  "popupSavedBefore": {
+    "message": "曾儲存 · $DATE$",
+    "placeholders": { "date": { "content": "$1", "example": "7月29日 14:32" } }
+  },
+  "popupOpenMemo": { "message": "開啟 Memo" },
+  "popupDismissSavedNotice": { "message": "忽略儲存提示" },
+  "historyTitle": { "message": "儲存記錄" },
+  "historyStoredLocally": { "message": "儲存在這個瀏覽器中" },
+  "historySettings": { "message": "設定" },
+  "historyCount_one": {
+    "message": "$COUNT$ 筆儲存記錄",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historyCount_other": {
+    "message": "$COUNT$ 筆儲存記錄",
+    "placeholders": { "count": { "content": "$1", "example": "38" } }
+  },
+  "historySearch": { "message": "搜尋標題、網址或內容" },
+  "historyDestinationFilter": { "message": "Memos 儲存目標" },
+  "historyAllDestinations": { "message": "所有目標" },
+  "historyOpenSource": { "message": "開啟原始網頁" },
+  "historyOpenMemo": { "message": "開啟 Memo" },
+  "historySelection": { "message": "您選取的內容" },
+  "historySelectedImages_one": {
+    "message": "$COUNT$ 張選取圖片",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historySelectedImages_other": {
+    "message": "$COUNT$ 張選取圖片",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "historyImageOnlySelection": { "message": "僅選取了圖片" },
+  "historyMemoContent": { "message": "儲存到 Memos 的內容" },
+  "historyDetails": { "message": "詳細資訊" },
+  "historySourceUrl": { "message": "來源網址" },
+  "historyDestination": { "message": "儲存目標" },
+  "historySavedAt": { "message": "儲存時間" },
+  "historyTechnicalDetails": { "message": "技術資訊" },
+  "historyRecordId": { "message": "記錄 ID" },
+  "historyDedupeKey": { "message": "去重鍵" },
+  "historyMemoName": { "message": "Memo 名稱" },
+  "historyEmptyTitle": { "message": "尚無儲存記錄" },
+  "historyEmptyDescription": { "message": "使用擴充功能儲存網頁後，它會顯示在這裡。" },
+  "historyNoResults": { "message": "沒有符合搜尋條件的儲存記錄。" },
   "optionsClipTemplate": {
     "message": "剪藏範本"
   },

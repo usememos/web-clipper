@@ -197,6 +197,53 @@
       }
     }
   },
+  "historyDocumentTitle": { "message": "Memos Web Clipper – Gespeicherte Clips" },
+  "popupOpenHistory": { "message": "Gespeicherte Clips öffnen" },
+  "popupSaveAgain": { "message": "Erneut speichern" },
+  "popupSavedBefore": {
+    "message": "Bereits gespeichert · $DATE$",
+    "placeholders": { "date": { "content": "$1", "example": "29. Juli, 14:32" } }
+  },
+  "popupOpenMemo": { "message": "Memo öffnen" },
+  "popupDismissSavedNotice": { "message": "Hinweis schließen" },
+  "historyTitle": { "message": "Gespeicherte Clips" },
+  "historyStoredLocally": { "message": "In diesem Browser gespeichert" },
+  "historySettings": { "message": "Einstellungen" },
+  "historyCount_one": {
+    "message": "$COUNT$ gespeicherter Clip",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historyCount_other": {
+    "message": "$COUNT$ gespeicherte Clips",
+    "placeholders": { "count": { "content": "$1", "example": "38" } }
+  },
+  "historySearch": { "message": "Titel, URL oder Inhalt durchsuchen" },
+  "historyDestinationFilter": { "message": "Memos-Ziel" },
+  "historyAllDestinations": { "message": "Alle Ziele" },
+  "historyOpenSource": { "message": "Quellseite öffnen" },
+  "historyOpenMemo": { "message": "Memo öffnen" },
+  "historySelection": { "message": "Ihre Auswahl" },
+  "historySelectedImages_one": {
+    "message": "$COUNT$ ausgewähltes Bild",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historySelectedImages_other": {
+    "message": "$COUNT$ ausgewählte Bilder",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "historyImageOnlySelection": { "message": "Nur Bilder ausgewählt" },
+  "historyMemoContent": { "message": "In Memos gespeicherter Inhalt" },
+  "historyDetails": { "message": "Details" },
+  "historySourceUrl": { "message": "Quell-URL" },
+  "historyDestination": { "message": "Ziel" },
+  "historySavedAt": { "message": "Gespeichert am" },
+  "historyTechnicalDetails": { "message": "Technische Details" },
+  "historyRecordId": { "message": "Datensatz-ID" },
+  "historyDedupeKey": { "message": "Deduplizierungsschlüssel" },
+  "historyMemoName": { "message": "Memo-Name" },
+  "historyEmptyTitle": { "message": "Noch keine gespeicherten Clips" },
+  "historyEmptyDescription": { "message": "Speichern Sie eine Webseite mit dem Clipper. Sie erscheint dann hier." },
+  "historyNoResults": { "message": "Keine gespeicherten Clips entsprechen Ihrer Suche." },
   "optionsClipTemplate": {
     "message": "Clipvorlage"
   },

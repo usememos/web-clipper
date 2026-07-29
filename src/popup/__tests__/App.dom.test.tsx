@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import type { ClipSaveStatus } from "@/lib/clip-records";
 import { POPUP_STATE_KEY, type PopupState } from "@/lib/popup-state";
 import { App } from "@/popup/App";
 import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
@@ -21,10 +22,15 @@ const readyState: PopupState = {
   updatedAt: 1,
 };
 
-function wireSaveResult(result: unknown = { ok: true, webUrl: "https://memos.example.com/memos/1" }, popupState: PopupState = readyState) {
+function wireSaveResult(
+  result: unknown = { ok: true, webUrl: "https://memos.example.com/memos/1" },
+  popupState: PopupState = readyState,
+  savedClip: ClipSaveStatus | null = null,
+) {
   browserMock.runtime.sendMessage.mockImplementation(async (msg: unknown) => {
     const type = (msg as { type: string }).type;
     if (type === "GET_POPUP_STATE") return popupState;
+    if (type === "GET_CLIP_STATUS") return savedClip;
     if (type === "SAVE_MEMO") return result;
     return undefined;
   });
@@ -103,6 +109,22 @@ describe("App — signed-in, connected", () => {
     expect(screen.getByRole("button", { name: /save to memos/i })).toBeEnabled();
   });
 
+  it("shows a quiet dismissible saved-before hint and still allows saving again", async () => {
+    wireSaveResult({ ok: true, webUrl: "https://memos.example.com/memos/1" }, readyState, {
+      memoUrl: "https://memos.example.com/memos/1",
+      savedAt: Date.now(),
+    });
+    const { user } = renderWithUser(<App />);
+
+    expect(await screen.findByText(/saved before/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /open memo/i })).toHaveAttribute("href", "https://memos.example.com/memos/1");
+    expect(screen.getByRole("button", { name: /save again/i })).toBeEnabled();
+
+    await user.click(screen.getByRole("button", { name: /dismiss saved notice/i }));
+    expect(screen.queryByText(/saved before/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /save again/i })).toBeEnabled();
+  });
+
   it("renders popup controls in Japanese", async () => {
     setBrowserLocale("ja", japaneseMessages);
     renderWithUser(<App />);
@@ -123,6 +145,9 @@ describe("App — signed-in, connected", () => {
 
   it("shows an icon and audience description for every visibility option", async () => {
     const { user } = renderWithUser(<App />);
+    await waitFor(() =>
+      expect(screen.getByRole<HTMLTextAreaElement>("textbox", { name: /memo content/i }).value).toContain("Captured body"),
+    );
     await user.click(await screen.findByRole("combobox", { name: "Visibility" }));
 
     for (const [label, description] of [
@@ -207,13 +232,13 @@ describe("App — signed-in, connected", () => {
   });
 
   it("saves and shows a success toast with an Open link", async () => {
-    renderWithUser(<App />);
+    const { user } = renderWithUser(<App />);
     const saveBtn = await screen.findByRole("button", { name: /save to memos/i });
     await waitFor(() => expect(saveBtn).toBeEnabled());
     const editor = screen.getByRole<HTMLTextAreaElement>("textbox", { name: /memo content/i });
     await waitFor(() => expect(editor.value).toContain("> Captured body"));
 
-    saveBtn.click();
+    await user.click(saveBtn);
 
     await waitFor(() =>
       expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "SAVE_MEMO", visibility: "PRIVATE" })),
@@ -227,7 +252,7 @@ describe("App — signed-in, connected", () => {
     const { user } = renderWithUser(<App />);
     const saveBtn = await screen.findByRole("button", { name: /save to memos/i });
     await waitFor(() => expect(saveBtn).toBeEnabled());
-    saveBtn.click();
+    await user.click(saveBtn);
 
     // Title + why + fix, as an alert that stays put (not an auto-dismissing toast).
     const alert = await screen.findByRole("alert");
@@ -245,7 +270,7 @@ describe("App — signed-in, connected", () => {
     const { user } = renderWithUser(<App />);
     const saveBtn = await screen.findByRole("button", { name: /save to memos/i });
     await waitFor(() => expect(saveBtn).toBeEnabled());
-    saveBtn.click();
+    await user.click(saveBtn);
 
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Your instance timed out");
@@ -262,7 +287,7 @@ describe("App — signed-in, connected", () => {
     const { user } = renderWithUser(<App />);
     const saveBtn = await screen.findByRole("button", { name: /save to memos/i });
     await waitFor(() => expect(saveBtn).toBeEnabled());
-    saveBtn.click();
+    await user.click(saveBtn);
     await screen.findByRole("alert");
 
     await user.type(screen.getByRole("textbox", { name: /memo content/i }), " edited");

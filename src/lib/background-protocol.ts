@@ -1,3 +1,5 @@
+import type { ClipCaptureInput } from "./clip-records";
+import type { ConnectionSource } from "./connection-config";
 import type { Visibility } from "./memos-client";
 import type { Request } from "./messages";
 
@@ -14,6 +16,8 @@ export type BackgroundRequest = Extract<
       | "DISCONNECT_CONNECTION"
       | "GET_AUTH_USER"
       | "GET_CONNECTION_STATE"
+      | "GET_CLIP_STATUS"
+      | "LIST_CLIP_RECORDS"
       | "SAVE_MEMO";
   }
 >;
@@ -23,6 +27,46 @@ const VISIBILITIES = new Set<Visibility>(["PRIVATE", "PROTECTED", "PUBLIC"]);
 const MAX_REMOTE_IMAGE_URL_CHARS = 8_192;
 const MAX_DATA_IMAGE_URL_CHARS = 14 * 1024 * 1024;
 const MAX_TOTAL_IMAGE_SOURCE_CHARS = 16 * 1024 * 1024;
+const MAX_CLIP_SOURCE_URL_CHARS = 8_192;
+const MAX_CLIP_TITLE_CHARS = 4_096;
+const MAX_CLIP_SELECTION_CHARS = 2 * 1024 * 1024;
+
+type ExpectedConnection = {
+  expectedSource: ConnectionSource;
+  expectedConnectionId: string;
+  expectedInstanceUrl: string;
+};
+
+function parseExpectedConnection(request: Record<string, unknown>): ExpectedConnection | null {
+  if (request.expectedSource !== "direct" && request.expectedSource !== "usememos") return null;
+  if (typeof request.expectedConnectionId !== "string" || !request.expectedConnectionId) return null;
+  if (typeof request.expectedInstanceUrl !== "string" || !request.expectedInstanceUrl) return null;
+  return {
+    expectedSource: request.expectedSource,
+    expectedConnectionId: request.expectedConnectionId,
+    expectedInstanceUrl: request.expectedInstanceUrl,
+  };
+}
+
+function parseClipCapture(value: unknown): ClipCaptureInput | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const clip = value as Record<string, unknown>;
+  const selectionMarkdown = clip.selectionMarkdown;
+  if (typeof clip.sourceUrl !== "string" || clip.sourceUrl.length > MAX_CLIP_SOURCE_URL_CHARS) return null;
+  if (typeof clip.sourceTitle !== "string" || clip.sourceTitle.length > MAX_CLIP_TITLE_CHARS) return null;
+  if (selectionMarkdown !== undefined && (typeof selectionMarkdown !== "string" || selectionMarkdown.length > MAX_CLIP_SELECTION_CHARS)) {
+    return null;
+  }
+  if (typeof clip.imageCount !== "number" || !Number.isInteger(clip.imageCount) || clip.imageCount < 0 || clip.imageCount > 100) {
+    return null;
+  }
+  return {
+    sourceUrl: clip.sourceUrl,
+    sourceTitle: clip.sourceTitle,
+    ...(selectionMarkdown !== undefined ? { selectionMarkdown } : {}),
+    imageCount: clip.imageCount,
+  };
+}
 
 /** Parse the untrusted JSON boundary before the service worker dispatches privileged work. */
 export function parseBackgroundRequest(value: unknown): BackgroundRequest | null {
@@ -33,6 +77,7 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
     request.type === "OPEN_SIGN_IN" ||
     request.type === "SIGN_OUT" ||
     request.type === "GET_AUTH_USER" ||
+    request.type === "LIST_CLIP_RECORDS" ||
     request.type === "SELECT_USEMEMOS_SOURCE" ||
     request.type === "ACTIVATE_USEMEMOS_CONNECTION" ||
     request.type === "DISCONNECT_CONNECTION"
@@ -59,12 +104,21 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
       ...(request.source !== undefined ? { source: request.source } : {}),
     };
   }
+  if (request.type === "GET_CLIP_STATUS") {
+    if (typeof request.sourceUrl !== "string" || request.sourceUrl.length > MAX_CLIP_SOURCE_URL_CHARS) return null;
+    const expected = parseExpectedConnection(request);
+    if (!expected) return null;
+    return {
+      type: "GET_CLIP_STATUS",
+      sourceUrl: request.sourceUrl,
+      ...expected,
+    };
+  }
   if (request.type !== "SAVE_MEMO") return null;
 
   if (typeof request.content !== "string" || !VISIBILITIES.has(request.visibility as Visibility)) return null;
-  if (request.expectedSource !== "direct" && request.expectedSource !== "usememos") return null;
-  if (typeof request.expectedConnectionId !== "string" || !request.expectedConnectionId) return null;
-  if (typeof request.expectedInstanceUrl !== "string" || !request.expectedInstanceUrl) return null;
+  const expected = parseExpectedConnection(request);
+  if (!expected) return null;
   if (
     request.saveRequestId !== undefined &&
     (typeof request.saveRequestId !== "string" || !/^[a-zA-Z0-9_-]{8,128}$/.test(request.saveRequestId))
@@ -89,14 +143,15 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
       return null;
     }
   }
+  const clip = request.clip === undefined ? undefined : parseClipCapture(request.clip);
+  if (request.clip !== undefined && !clip) return null;
 
   return {
     type: "SAVE_MEMO",
     content: request.content,
     visibility: request.visibility as Visibility,
-    expectedSource: request.expectedSource,
-    expectedConnectionId: request.expectedConnectionId,
-    expectedInstanceUrl: request.expectedInstanceUrl,
+    ...expected,
+    ...(clip ? { clip } : {}),
     ...(request.images ? { images: request.images as string[] } : {}),
     ...(request.saveRequestId ? { saveRequestId: request.saveRequestId } : {}),
     ...(request.saveStartedAt ? { saveStartedAt: request.saveStartedAt } : {}),
@@ -124,7 +179,8 @@ export function isTrustedBackgroundRequest(request: BackgroundRequest, sender: R
     request.type === "SELECT_USEMEMOS_SOURCE" ||
     request.type === "ACTIVATE_USEMEMOS_CONNECTION" ||
     request.type === "CONNECT_DIRECT" ||
-    request.type === "DISCONNECT_CONNECTION"
+    request.type === "DISCONNECT_CONNECTION" ||
+    request.type === "LIST_CLIP_RECORDS"
   ) {
     return path === "/src/options/index.html";
   }

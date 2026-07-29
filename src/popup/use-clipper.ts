@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ClipSaveStatus } from "@/lib/clip-records";
 import type { ConnectionSource } from "@/lib/connection-config";
 import { composeMemoContent } from "@/lib/format";
 import type { Visibility } from "@/lib/memos-client";
@@ -29,6 +30,8 @@ export function useClipper(
   const [content, setContent] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("PRIVATE");
   const [busy, setBusy] = useState(false);
+  const [savedClip, setSavedClip] = useState<ClipSaveStatus | null>(null);
+  const [savedClipNoticeDismissed, setSavedClipNoticeDismissed] = useState(false);
   const initialized = useRef(false);
   const visibilityTouched = useRef(false);
   const operation = useRef<SaveOperation | null>(null);
@@ -58,6 +61,35 @@ export function useClipper(
     initialized.current = true;
     setContent(prefill);
   }, [capture, template, templateReady]);
+
+  const lookupSavedClip = useCallback(async () => {
+    if (!capture?.url || !expectation) {
+      return null;
+    }
+    try {
+      return await sendBackgroundRequest({
+        type: "GET_CLIP_STATUS",
+        sourceUrl: capture.url,
+        expectedSource: expectation.source,
+        expectedConnectionId: expectation.connectionId,
+        expectedInstanceUrl: expectation.instanceUrl,
+      });
+    } catch {
+      return null;
+    }
+  }, [capture?.url, expectation?.connectionId, expectation?.instanceUrl, expectation?.source]);
+
+  useEffect(() => {
+    let active = true;
+    setSavedClip(null);
+    setSavedClipNoticeDismissed(false);
+    void lookupSavedClip().then((record) => {
+      if (active && record) setSavedClip(record);
+    });
+    return () => {
+      active = false;
+    };
+  }, [lookupSavedClip]);
 
   const editContent = useCallback((next: string) => {
     // A late capture/template must never replace typing, including an intentional empty value.
@@ -89,6 +121,16 @@ export function useClipper(
           expectedSource: expectation.source,
           expectedConnectionId: expectation.connectionId,
           expectedInstanceUrl: expectation.instanceUrl,
+          ...(capture?.url
+            ? {
+                clip: {
+                  sourceUrl: capture.url,
+                  sourceTitle: capture.title,
+                  ...(capture.selectionMarkdown ? { selectionMarkdown: capture.selectionMarkdown } : {}),
+                  imageCount: images.length,
+                },
+              }
+            : {}),
           saveRequestId: currentOperation.requestId,
           saveStartedAt: currentOperation.startedAt,
           ...(images.length ? { images } : {}),
@@ -99,12 +141,14 @@ export function useClipper(
       if (result.ok) {
         operation.current = null;
         await writeLastVisibility(visibility).catch(() => {});
+        setSavedClipNoticeDismissed(false);
+        setSavedClip({ memoUrl: result.webUrl, savedAt: Date.now() });
       }
       return result;
     } finally {
       setBusy(false);
     }
-  }, [content, expectation, images, visibility]);
+  }, [capture, content, expectation, images, visibility]);
 
   return {
     content,
@@ -116,6 +160,9 @@ export function useClipper(
     visibility,
     setVisibility: changeVisibility,
     busy,
+    savedClip,
+    savedClipNoticeDismissed,
+    dismissSavedClipNotice: () => setSavedClipNoticeDismissed(true),
     save,
   };
 }

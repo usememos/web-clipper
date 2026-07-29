@@ -1,4 +1,5 @@
 import type { OAuthIdentity } from "@/auth/oauth-session";
+import type { ClipCaptureInput } from "./clip-records";
 import type { ConnectionSource } from "./connection-config";
 import type { SaveErrorKind } from "./errors";
 import type { Visibility } from "./memos-client";
@@ -32,6 +33,14 @@ export type Request =
   | { type: "GET_AUTH_USER" }
   | { type: "GET_CONNECTION_STATE"; refresh?: boolean; source?: "active" | "usememos" }
   | { type: "GET_POPUP_STATE" }
+  | {
+      type: "GET_CLIP_STATUS";
+      sourceUrl: string;
+      expectedSource: ConnectionSource;
+      expectedConnectionId: string;
+      expectedInstanceUrl: string;
+    }
+  | { type: "LIST_CLIP_RECORDS" }
   | { type: "AUTH_CHANGED" } // background → extension pages: OAuth session or settings changed
   // Credentials are NOT part of save messages: the background sources them from the active provider.
   | {
@@ -42,6 +51,8 @@ export type Request =
       expectedSource: ConnectionSource;
       expectedConnectionId: string;
       expectedInstanceUrl: string;
+      /** Page metadata saved locally after a successful popup clip. */
+      clip?: ClipCaptureInput;
       /** Stable across retries of one logical save; lets the worker reconcile an ambiguous POST. */
       saveRequestId?: string;
       /** Wall-clock start of the first attempt, used to identify a newly-created exact match. */

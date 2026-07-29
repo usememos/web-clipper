@@ -1,6 +1,7 @@
 import browser from "webextension-polyfill";
 import { OAuthUnavailableError } from "@/auth/oauth-session";
 import { resolveActiveConnection } from "@/background/connection-source";
+import { type ClipCaptureInput, recordSuccessfulClip } from "@/lib/clip-records";
 import type { ConnectionSource } from "@/lib/connection-config";
 import { toSaveErrorKind } from "@/lib/errors";
 import { composeMemoContent, toQuotedMarkdown } from "@/lib/format";
@@ -72,6 +73,7 @@ export async function savePopupMemo(
   images: string[],
   expected: SaveExpectation,
   operation: SaveOperation = { requestId: `legacy_${Date.now()}_${Math.random().toString(36).slice(2)}`, startedAt: Date.now() },
+  clip?: ClipCaptureInput,
 ): Promise<SaveResult> {
   let connection: Awaited<ReturnType<typeof resolveActiveConnection>>;
   try {
@@ -92,9 +94,28 @@ export async function savePopupMemo(
   const running = inFlight.get(operation.requestId);
   if (running) return running;
 
-  const save = savePopupMemoOnce(content, visibility, images, expected, operation, credentials).finally(() => {
-    inFlight.delete(operation.requestId);
-  });
+  const save = savePopupMemoOnce(content, visibility, images, expected, operation, credentials)
+    .then(async (result) => {
+      if (result.ok && clip) {
+        try {
+          await recordSuccessfulClip({
+            connection,
+            capture: clip,
+            recordId: operation.requestId,
+            memoContent: content,
+            visibility,
+            memoUrl: result.webUrl,
+          });
+        } catch (error) {
+          const errorName = typeof error === "object" && error !== null && "name" in error ? String(error.name) : "Error";
+          console.warn("[memos-web-clipper] local clip history write failed", { errorName });
+        }
+      }
+      return result;
+    })
+    .finally(() => {
+      inFlight.delete(operation.requestId);
+    });
   inFlight.set(operation.requestId, save);
   return save;
 }

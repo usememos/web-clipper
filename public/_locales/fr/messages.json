@@ -197,6 +197,53 @@
       }
     }
   },
+  "historyDocumentTitle": { "message": "Memos Web Clipper — Extraits enregistrés" },
+  "popupOpenHistory": { "message": "Ouvrir les extraits enregistrés" },
+  "popupSaveAgain": { "message": "Enregistrer à nouveau" },
+  "popupSavedBefore": {
+    "message": "Déjà enregistré · $DATE$",
+    "placeholders": { "date": { "content": "$1", "example": "29 juil., 14:32" } }
+  },
+  "popupOpenMemo": { "message": "Ouvrir le mémo" },
+  "popupDismissSavedNotice": { "message": "Fermer l’avis d’enregistrement" },
+  "historyTitle": { "message": "Extraits enregistrés" },
+  "historyStoredLocally": { "message": "Enregistrés dans ce navigateur" },
+  "historySettings": { "message": "Paramètres" },
+  "historyCount_one": {
+    "message": "$COUNT$ extrait enregistré",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historyCount_other": {
+    "message": "$COUNT$ extraits enregistrés",
+    "placeholders": { "count": { "content": "$1", "example": "38" } }
+  },
+  "historySearch": { "message": "Rechercher un titre, une URL ou du contenu" },
+  "historyDestinationFilter": { "message": "Destination Memos" },
+  "historyAllDestinations": { "message": "Toutes les destinations" },
+  "historyOpenSource": { "message": "Ouvrir la page source" },
+  "historyOpenMemo": { "message": "Ouvrir le mémo" },
+  "historySelection": { "message": "Votre sélection" },
+  "historySelectedImages_one": {
+    "message": "$COUNT$ image sélectionnée",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historySelectedImages_other": {
+    "message": "$COUNT$ images sélectionnées",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "historyImageOnlySelection": { "message": "Sélection composée uniquement d’images" },
+  "historyMemoContent": { "message": "Contenu enregistré dans Memos" },
+  "historyDetails": { "message": "Détails" },
+  "historySourceUrl": { "message": "URL source" },
+  "historyDestination": { "message": "Destination" },
+  "historySavedAt": { "message": "Enregistré le" },
+  "historyTechnicalDetails": { "message": "Détails techniques" },
+  "historyRecordId": { "message": "ID de l’enregistrement" },
+  "historyDedupeKey": { "message": "Clé de déduplication" },
+  "historyMemoName": { "message": "Nom du mémo" },
+  "historyEmptyTitle": { "message": "Aucun extrait enregistré" },
+  "historyEmptyDescription": { "message": "Enregistrez une page web avec le clipper pour la voir apparaître ici." },
+  "historyNoResults": { "message": "Aucun extrait enregistré ne correspond à votre recherche." },
   "optionsClipTemplate": {
     "message": "Modèle de clip"
   },

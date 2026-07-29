@@ -121,6 +121,56 @@ describe("background — SAVE_MEMO message", () => {
     vi.unstubAllGlobals();
   });
 
+  it("stores the captured save for popup lookup and the complete local history", async () => {
+    seedDirectConnection();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ name: "memos/42", uid: "abc" })));
+    const directExpected = {
+      expectedSource: "direct" as const,
+      expectedConnectionId: "direct_123",
+      expectedInstanceUrl: testCreds.instanceUrl,
+    };
+
+    await emitRuntime({
+      type: "SAVE_MEMO",
+      content: "The final memo content",
+      visibility: "PROTECTED",
+      saveRequestId: "clip_record_123",
+      saveStartedAt: 123,
+      clip: {
+        sourceUrl: "https://example.com/post?utm_source=newsletter",
+        sourceTitle: "A useful post",
+        selectionMarkdown: "The selected paragraph",
+        imageCount: 1,
+      },
+      ...directExpected,
+    });
+
+    const status = await emitRuntime({
+      type: "GET_CLIP_STATUS",
+      sourceUrl: "https://example.com/post#section",
+      ...directExpected,
+    });
+    expect(status).toMatchObject({
+      memoUrl: "https://memos.example.com/memos/abc",
+      savedAt: expect.any(Number),
+    });
+
+    const history = await emitRuntime({ type: "LIST_CLIP_RECORDS" }, optionsSender);
+    expect(history).toEqual([
+      expect.objectContaining({
+        schemaVersion: 1,
+        id: "clip_record_123",
+        sourceTitle: "A useful post",
+        selection: { markdown: "The selected paragraph", imageCount: 1 },
+        memoContent: "The final memo content",
+        visibility: "PROTECTED",
+        memoName: "memos/clip_record_123",
+        memoUrl: "https://memos.example.com/memos/abc",
+      }),
+    ]);
+    vi.unstubAllGlobals();
+  });
+
   it("reloads metadata before choosing the destination instance", async () => {
     const fresh: MockUser = {
       id: "user_123",

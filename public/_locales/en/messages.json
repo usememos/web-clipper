@@ -39,19 +39,18 @@
   "popupSaveToMemos": { "message": "Save to Memos" },
   "popupSaveAgain": { "message": "Save again" },
   "popupSavedToMemos": { "message": "Saved to Memos" },
-  "popupSavedBefore": {
-    "message": "Saved before · $DATE$",
+  "popupSavedAt": {
+    "message": "Saved $DATE$",
     "placeholders": { "date": { "content": "$1", "example": "Jul 29, 14:32" } }
   },
   "popupOpenMemo": { "message": "Open memo" },
-  "popupDismissSavedNotice": { "message": "Dismiss saved notice" },
   "popupFailedImages_one": {
-    "message": "$COUNT$ image couldn't be uploaded",
+    "message": "Saved, but $COUNT$ image wasn't attached",
     "description": "Shown after saving when exactly one image upload failed.",
     "placeholders": { "count": { "content": "$1", "example": "1" } }
   },
   "popupFailedImages_other": {
-    "message": "$COUNT$ images couldn't be uploaded",
+    "message": "Saved, but $COUNT$ images weren't attached",
     "description": "Shown after saving when multiple image uploads failed.",
     "placeholders": { "count": { "content": "$1", "example": "3" } }
   },

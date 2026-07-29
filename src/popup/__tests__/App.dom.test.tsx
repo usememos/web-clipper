@@ -109,19 +109,26 @@ describe("App — signed-in, connected", () => {
     expect(screen.getByRole("button", { name: /save to memos/i })).toBeEnabled();
   });
 
-  it("shows a quiet dismissible saved-before hint and still allows saving again", async () => {
+  it("explains every icon-only header action with a tooltip", async () => {
+    const { user } = renderWithUser(<App />);
+
+    for (const label of ["Open your Memos instance", "Open saved clips", "Extension settings"]) {
+      const action = await screen.findByRole(label === "Open your Memos instance" ? "link" : "button", { name: label });
+      await user.hover(action);
+      expect(await screen.findByRole("tooltip", { name: label })).toBeInTheDocument();
+    }
+  });
+
+  it("shows quiet saved metadata and still allows saving again", async () => {
     wireSaveResult({ ok: true, webUrl: "https://memos.example.com/memos/1" }, readyState, {
       memoUrl: "https://memos.example.com/memos/1",
       savedAt: Date.now(),
     });
-    const { user } = renderWithUser(<App />);
+    renderWithUser(<App />);
 
-    expect(await screen.findByText(/saved before/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /open memo/i })).toHaveAttribute("href", "https://memos.example.com/memos/1");
-    expect(screen.getByRole("button", { name: /save again/i })).toBeEnabled();
-
-    await user.click(screen.getByRole("button", { name: /dismiss saved notice/i }));
-    expect(screen.queryByText(/saved before/i)).not.toBeInTheDocument();
+    const openMemo = await screen.findByRole("link", { name: /open memo/i });
+    expect(openMemo).toHaveAttribute("href", "https://memos.example.com/memos/1");
+    expect(openMemo.closest('[role="status"]')).toHaveTextContent(/saved/i);
     expect(screen.getByRole("button", { name: /save again/i })).toBeEnabled();
   });
 
@@ -155,7 +162,7 @@ describe("App — signed-in, connected", () => {
       ["Protected", "Visible to signed-in users"],
       ["Public", "Visible to everyone"],
     ]) {
-      const option = screen.getByRole("option", { name: new RegExp(`${label}.*${description}`, "i") });
+      const option = await screen.findByRole("option", { name: new RegExp(`${label}.*${description}`, "i") });
       expect(option).toBeInTheDocument();
       expect(option.querySelector("svg")).toBeInTheDocument();
     }
@@ -231,7 +238,7 @@ describe("App — signed-in, connected", () => {
     expect(await screen.findByText(/browser blocks page access here/i)).toBeInTheDocument();
   });
 
-  it("saves and shows a success toast with an Open link", async () => {
+  it("confirms success in the save button and exposes a persistent memo link", async () => {
     const { user } = renderWithUser(<App />);
     const saveBtn = await screen.findByRole("button", { name: /save to memos/i });
     await waitFor(() => expect(saveBtn).toBeEnabled());
@@ -243,8 +250,20 @@ describe("App — signed-in, connected", () => {
     await waitFor(() =>
       expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ type: "SAVE_MEMO", visibility: "PRIVATE" })),
     );
-    expect(await screen.findByText("Saved to Memos")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Open" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Saved to Memos" })).toBeDisabled();
+    expect(screen.getByRole("link", { name: "Open memo" })).toHaveAttribute("href", "https://memos.example.com/memos/1");
+  });
+
+  it("keeps partial image failures visible instead of hiding them in a toast", async () => {
+    wireSaveResult({ ok: true, webUrl: "https://memos.example.com/memos/1", failedImages: 2 });
+    const { user } = renderWithUser(<App />);
+    const saveBtn = await screen.findByRole("button", { name: /save to memos/i });
+    await waitFor(() => expect(saveBtn).toBeEnabled());
+    await user.click(saveBtn);
+
+    const partialFailure = await screen.findByText(/saved, but 2 images weren't attached/i);
+    expect(partialFailure.closest('[role="status"]')).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open memo" })).toBeInTheDocument();
   });
 
   it("shows a persistent error with the why and a settings action when the save fails", async () => {
@@ -275,10 +294,10 @@ describe("App — signed-in, connected", () => {
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Your instance timed out");
 
-    // Retry succeeds → error bar gone, success toast shown, content was reused (no re-capture).
+    // Retry succeeds → error bar gone, save button confirms success, content was reused (no re-capture).
     wireSaveResult();
     await user.click(screen.getByRole("button", { name: /try again/i }));
-    expect(await screen.findByText("Saved to Memos")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Saved to Memos" })).toBeDisabled();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 

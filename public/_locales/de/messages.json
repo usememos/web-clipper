@@ -96,7 +96,7 @@
     "message": "In Memos gespeichert"
   },
   "popupFailedImages_one": {
-    "message": "$COUNT$ Bild konnte nicht hochgeladen werden",
+    "message": "Gespeichert, aber $COUNT$ Bild konnte nicht angehängt werden",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -105,7 +105,7 @@
     }
   },
   "popupFailedImages_other": {
-    "message": "$COUNT$ Bilder konnten nicht hochgeladen werden",
+    "message": "Gespeichert, aber $COUNT$ Bilder konnten nicht angehängt werden",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -200,12 +200,11 @@
   "historyDocumentTitle": { "message": "Memos Web Clipper – Gespeicherte Clips" },
   "popupOpenHistory": { "message": "Gespeicherte Clips öffnen" },
   "popupSaveAgain": { "message": "Erneut speichern" },
-  "popupSavedBefore": {
-    "message": "Bereits gespeichert · $DATE$",
+  "popupSavedAt": {
+    "message": "Gespeichert am $DATE$",
     "placeholders": { "date": { "content": "$1", "example": "29. Juli, 14:32" } }
   },
   "popupOpenMemo": { "message": "Memo öffnen" },
-  "popupDismissSavedNotice": { "message": "Hinweis schließen" },
   "historyTitle": { "message": "Gespeicherte Clips" },
   "historyStoredLocally": { "message": "In diesem Browser gespeichert" },
   "historySettings": { "message": "Einstellungen" },

@@ -99,7 +99,7 @@
     "message": "已保存到 Memos"
   },
   "popupFailedImages_one": {
-    "message": "$COUNT$ 张图片无法上传",
+    "message": "已保存，但 $COUNT$ 张图片未能附加",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -108,7 +108,7 @@
     }
   },
   "popupFailedImages_other": {
-    "message": "$COUNT$ 张图片无法上传",
+    "message": "已保存，但 $COUNT$ 张图片未能附加",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -203,12 +203,11 @@
   "historyDocumentTitle": { "message": "Memos 网页剪藏器 — 保存历史" },
   "popupOpenHistory": { "message": "打开保存历史" },
   "popupSaveAgain": { "message": "再次保存" },
-  "popupSavedBefore": {
-    "message": "保存过 · $DATE$",
+  "popupSavedAt": {
+    "message": "保存于 $DATE$",
     "placeholders": { "date": { "content": "$1", "example": "7月29日 14:32" } }
   },
   "popupOpenMemo": { "message": "打开 Memo" },
-  "popupDismissSavedNotice": { "message": "忽略保存提示" },
   "historyTitle": { "message": "保存历史" },
   "historyStoredLocally": { "message": "保存在这个浏览器中" },
   "historySettings": { "message": "设置" },

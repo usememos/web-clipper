@@ -31,7 +31,6 @@ export function useClipper(
   const [visibility, setVisibility] = useState<Visibility>("PRIVATE");
   const [busy, setBusy] = useState(false);
   const [savedClip, setSavedClip] = useState<ClipSaveStatus | null>(null);
-  const [savedClipNoticeDismissed, setSavedClipNoticeDismissed] = useState(false);
   const initialized = useRef(false);
   const visibilityTouched = useRef(false);
   const operation = useRef<SaveOperation | null>(null);
@@ -82,7 +81,6 @@ export function useClipper(
   useEffect(() => {
     let active = true;
     setSavedClip(null);
-    setSavedClipNoticeDismissed(false);
     void lookupSavedClip().then((record) => {
       if (active && record) setSavedClip(record);
     });
@@ -141,7 +139,6 @@ export function useClipper(
       if (result.ok) {
         operation.current = null;
         await writeLastVisibility(visibility).catch(() => {});
-        setSavedClipNoticeDismissed(false);
         setSavedClip({ memoUrl: result.webUrl, savedAt: Date.now() });
       }
       return result;
@@ -161,8 +158,6 @@ export function useClipper(
     setVisibility: changeVisibility,
     busy,
     savedClip,
-    savedClipNoticeDismissed,
-    dismissSavedClipNotice: () => setSavedClipNoticeDismissed(true),
     save,
   };
 }

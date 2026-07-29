@@ -34,6 +34,8 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 - Save as Private, Protected, or Public.
 - Customize the clip format with a local template.
 - Quick-save selected text or images from the context menu.
+- Browse and search clips saved locally from the popup.
+- See when a page was saved before, with the option to save it again.
 
 The default template keeps the captured content first and adds a link back to the source. Empty fields are removed automatically.
 
@@ -45,11 +47,19 @@ The default template keeps the captured content first and adds a link back to th
 2. Open the extension on a page.
 3. Review the captured content, choose its visibility, and save.
 
+Open **Saved clips** from the popup or extension settings to review previous saves and reopen either the source page or its Memo.
+
 For a direct connection, create a PAT in your Memos user settings at `/setting#access-token`. The clipper tests the instance URL, supported Memos version, and token before saving the connection. The saved token is never displayed again in the extension UI.
 
 You can also right-click selected text or an image and choose **Save selection to Memos**. Context-menu saves are always private.
 
 Browser-owned pages, such as extension stores and internal browser URLs, may block page capture. The clipper falls back to the page title and URL when available.
+
+## Local history
+
+Successful saves made from the popup are recorded in the extension's local browser storage. A record includes the source page, captured selection, final memo content, visibility, destination, Memo link, and save time. This lets the popup recognize a previously saved page without querying Memos.
+
+History stays in the current browser profile and is not synced through usememos.com. Context-menu quick saves are not added to this history.
 
 ## Browser support
 

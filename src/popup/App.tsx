@@ -1,3 +1,4 @@
+import { Tooltip } from "@base-ui/react/tooltip";
 import {
   CheckCircle2Icon,
   EarthIcon,
@@ -9,17 +10,14 @@ import {
   SettingsIcon,
   TriangleAlertIcon,
   UsersRoundIcon,
-  XIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
 import { AccountBadge } from "@/components/account-badge";
 import { AppBrand } from "@/components/app-brand";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Toaster } from "@/components/ui/sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { describeSaveError, type SaveErrorDetail } from "@/lib/errors";
@@ -36,6 +34,7 @@ const SAVED_AT_FORMAT = new Intl.DateTimeFormat(undefined, {
   hour: "2-digit",
   minute: "2-digit",
 });
+const SAVED_CONFIRMATION_MS = 1_400;
 
 function openOptions() {
   void browser.runtime.openOptionsPage();
@@ -43,6 +42,24 @@ function openOptions() {
 
 function openHistory() {
   void browser.tabs.create({ url: browser.runtime.getURL("src/options/index.html?view=history") });
+}
+
+function HeaderActionTooltip({ label, children }: { label: string; children: React.ReactElement }) {
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger render={children} />
+      <Tooltip.Portal>
+        <Tooltip.Positioner side="bottom" sideOffset={6} className="z-50">
+          <Tooltip.Popup
+            role="tooltip"
+            className="max-w-56 rounded-md bg-foreground px-2 py-1 text-center text-[11px] font-medium leading-4 text-background shadow-sm transition-opacity duration-100 data-ending-style:opacity-0 data-starting-style:opacity-0"
+          >
+            {label}
+          </Tooltip.Popup>
+        </Tooltip.Positioner>
+      </Tooltip.Portal>
+    </Tooltip.Root>
+  );
 }
 
 /**
@@ -53,25 +70,33 @@ function Header({ left, instanceUrl }: { left: React.ReactNode; instanceUrl?: st
   return (
     <header className="flex h-11 shrink-0 items-center justify-between border-b pe-2 ps-3">
       <div className="min-w-0">{left}</div>
-      <div className="flex shrink-0 items-center gap-0.5">
-        {instanceUrl ? (
-          <a
-            className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
-            href={instanceUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={t("popupOpenInstance")}
-          >
-            <GlobeIcon />
-          </a>
-        ) : null}
-        <Button variant="ghost" size="icon-sm" onClick={() => openHistory()} aria-label={t("popupOpenHistory")}>
-          <HistoryIcon />
-        </Button>
-        <Button variant="ghost" size="icon-sm" onClick={openOptions} aria-label={t("popupExtensionSettings")}>
-          <SettingsIcon />
-        </Button>
-      </div>
+      <Tooltip.Provider delay={400}>
+        <div className="flex shrink-0 items-center gap-0.5">
+          {instanceUrl ? (
+            <HeaderActionTooltip label={t("popupOpenInstance")}>
+              <a
+                className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                href={instanceUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={t("popupOpenInstance")}
+              >
+                <GlobeIcon />
+              </a>
+            </HeaderActionTooltip>
+          ) : null}
+          <HeaderActionTooltip label={t("popupOpenHistory")}>
+            <Button variant="ghost" size="icon-sm" onClick={() => openHistory()} aria-label={t("popupOpenHistory")}>
+              <HistoryIcon />
+            </Button>
+          </HeaderActionTooltip>
+          <HeaderActionTooltip label={t("popupExtensionSettings")}>
+            <Button variant="ghost" size="icon-sm" onClick={openOptions} aria-label={t("popupExtensionSettings")}>
+              <SettingsIcon />
+            </Button>
+          </HeaderActionTooltip>
+        </div>
+      </Tooltip.Provider>
     </header>
   );
 }
@@ -82,12 +107,7 @@ function IdentityBadge({ identity }: { identity: PopupIdentity }) {
 
 // Fills the fixed popup size (set in index.html) so every view has identical dimensions.
 function Frame({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-full w-full flex-col bg-background text-foreground">
-      {children}
-      <Toaster />
-    </div>
-  );
+  return <div className="flex h-full w-full flex-col bg-background text-foreground">{children}</div>;
 }
 
 function GatePrompt({
@@ -213,6 +233,22 @@ function CaptureNotice({
 
 function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopupState; blocked?: BlockedPopupState }) {
   const [error, setError] = useState<SaveErrorDetail | null>(null);
+  const [failedImageCount, setFailedImageCount] = useState<number | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
+  const confirmationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (confirmationTimer.current) clearTimeout(confirmationTimer.current);
+    },
+    [],
+  );
+
+  const clearSavedConfirmation = () => {
+    if (confirmationTimer.current) clearTimeout(confirmationTimer.current);
+    confirmationTimer.current = null;
+    setJustSaved(false);
+  };
   const visibilityOptions = {
     PRIVATE: {
       label: t("commonPrivate"),
@@ -240,20 +276,30 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
   };
 
   const onSave = async () => {
+    clearSavedConfirmation();
+    setFailedImageCount(null);
     const result = await c.save();
     if (result.ok) {
       setError(null);
-      toast.success(t("popupSavedToMemos"), {
-        // Success is never silently partial: a dropped image is named.
-        description: result.failedImages ? tp("popupFailedImages", result.failedImages) : undefined,
-        action: { label: t("commonOpen"), onClick: () => window.open(result.webUrl) },
-      });
+      setFailedImageCount(result.failedImages ?? null);
+      setJustSaved(true);
+      confirmationTimer.current = setTimeout(() => {
+        confirmationTimer.current = null;
+        setJustSaved(false);
+      }, SAVED_CONFIRMATION_MS);
     } else {
       // Persistent inline state, not a toast: the error stays until it's acted on.
       setError(describeSaveError(result.errorKind, state.source));
     }
   };
   const savedAt = c.savedClip ? SAVED_AT_FORMAT.format(c.savedClip.savedAt) : "";
+  const saveButtonLabel = c.busy
+    ? t("commonSaving")
+    : justSaved
+      ? t("popupSavedToMemos")
+      : c.savedClip
+        ? t("popupSaveAgain")
+        : t("popupSaveToMemos");
 
   return (
     <Frame>
@@ -268,6 +314,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
           className="min-h-0 flex-1 resize-none overflow-y-auto text-sm field-sizing-fixed"
           value={c.content}
           onChange={(e) => {
+            clearSavedConfirmation();
             c.setContent(e.target.value);
             setError(null);
           }}
@@ -276,36 +323,53 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
         <CaptureNotice reason={c.captureFallbackReason} hasSelection={c.hasSelection} hasSource={c.hasSource} />
         {blocked ? <ReconciliationBar state={blocked} /> : null}
         {error && <ErrorBar error={error} busy={c.busy} onRetry={onSave} />}
-        {c.savedClip && !c.savedClipNoticeDismissed ? (
-          <div role="status" className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-            <CheckCircle2Icon aria-hidden="true" className="size-3.5 shrink-0 text-success" />
-            <span className="min-w-0 truncate">{t("popupSavedBefore", savedAt)}</span>
-            <a
-              href={c.savedClip.memoUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="shrink-0 font-medium text-foreground underline-offset-4 hover:underline"
-            >
-              {t("popupOpenMemo")}
-            </a>
-            <button
-              type="button"
-              className="ms-auto flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
-              onClick={c.dismissSavedClipNotice}
-              aria-label={t("popupDismissSavedNotice")}
-            >
-              <XIcon className="size-3" />
-            </button>
+        {failedImageCount ? (
+          <div
+            role="status"
+            className="flex min-w-0 items-center gap-1.5 rounded-md border border-destructive/20 bg-destructive/5 px-2 py-1.5 text-[11px] leading-4"
+          >
+            <TriangleAlertIcon aria-hidden="true" className="size-3.5 shrink-0 text-destructive" />
+            <span className="min-w-0 flex-1 break-words">{tp("popupFailedImages", failedImageCount)}</span>
           </div>
         ) : null}
-        {c.imageCount > 0 && (
-          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <PaperclipIcon className="h-3 w-3" />
-            {tp("popupSelectionImages", c.imageCount)}
-          </p>
-        )}
+        {c.savedClip || c.imageCount > 0 ? (
+          <div className="flex h-4 shrink-0 items-center justify-between gap-3 overflow-hidden text-[11px] leading-4 text-muted-foreground">
+            {c.savedClip ? (
+              <div role="status" className="flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden">
+                <HistoryIcon aria-hidden="true" className="size-3 shrink-0" />
+                <span className="min-w-0 flex-1 truncate">{t("popupSavedAt", savedAt)}</span>
+                <span aria-hidden="true" className="shrink-0">
+                  ·
+                </span>
+                <a
+                  href={c.savedClip.memoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={t("popupOpenMemo")}
+                  className="max-w-[45%] shrink-0 truncate font-medium text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  {t("popupOpenMemo")}
+                </a>
+              </div>
+            ) : null}
+            {c.imageCount > 0 ? (
+              <span className="flex shrink-0 items-center gap-1 font-mono" title={tp("popupSelectionImages", c.imageCount)}>
+                <PaperclipIcon aria-hidden="true" className="size-3" />
+                <span aria-hidden="true">{c.imageCount}</span>
+                <span className="sr-only">{tp("popupSelectionImages", c.imageCount)}</span>
+              </span>
+            ) : null}
+          </div>
+        ) : null}
         <div className="flex items-center gap-2">
-          <Select items={visibilityItems} value={c.visibility} onValueChange={(v) => c.setVisibility(v as Visibility)}>
+          <Select
+            items={visibilityItems}
+            value={c.visibility}
+            onValueChange={(value) => {
+              clearSavedConfirmation();
+              c.setVisibility(value as Visibility);
+            }}
+          >
             <SelectTrigger aria-label={t("popupVisibility")} className="w-32 justify-start bg-muted/60 hover:bg-muted">
               <SelectedVisibilityIcon aria-hidden="true" className="text-muted-foreground" />
               <SelectValue />
@@ -326,8 +390,14 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
               })}
             </SelectContent>
           </Select>
-          <Button className="flex-1" disabled={c.busy || !!blocked || !c.content.trim()} onClick={onSave}>
-            {c.busy ? t("commonSaving") : c.savedClip ? t("popupSaveAgain") : t("popupSaveToMemos")}
+          <Button
+            className={`min-w-0 flex-1 overflow-hidden ${justSaved ? "disabled:opacity-100" : ""}`}
+            disabled={c.busy || justSaved || !!blocked || !c.content.trim()}
+            onClick={onSave}
+            title={saveButtonLabel}
+          >
+            {justSaved ? <CheckCircle2Icon aria-hidden="true" /> : null}
+            <span className="truncate">{saveButtonLabel}</span>
           </Button>
         </div>
       </div>

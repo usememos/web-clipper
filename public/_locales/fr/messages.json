@@ -96,7 +96,7 @@
     "message": "Enregistré dans Memos"
   },
   "popupFailedImages_one": {
-    "message": "Impossible d’importer $COUNT$ image",
+    "message": "Enregistré, mais $COUNT$ image n’a pas été jointe",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -105,7 +105,7 @@
     }
   },
   "popupFailedImages_other": {
-    "message": "Impossible d’importer $COUNT$ images",
+    "message": "Enregistré, mais $COUNT$ images n’ont pas été jointes",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -200,12 +200,11 @@
   "historyDocumentTitle": { "message": "Memos Web Clipper — Extraits enregistrés" },
   "popupOpenHistory": { "message": "Ouvrir les extraits enregistrés" },
   "popupSaveAgain": { "message": "Enregistrer à nouveau" },
-  "popupSavedBefore": {
-    "message": "Déjà enregistré · $DATE$",
+  "popupSavedAt": {
+    "message": "Enregistré le $DATE$",
     "placeholders": { "date": { "content": "$1", "example": "29 juil., 14:32" } }
   },
   "popupOpenMemo": { "message": "Ouvrir le mémo" },
-  "popupDismissSavedNotice": { "message": "Fermer l’avis d’enregistrement" },
   "historyTitle": { "message": "Extraits enregistrés" },
   "historyStoredLocally": { "message": "Enregistrés dans ce navigateur" },
   "historySettings": { "message": "Paramètres" },

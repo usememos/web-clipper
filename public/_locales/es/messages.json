@@ -96,7 +96,7 @@
     "message": "Guardado en Memos"
   },
   "popupFailedImages_one": {
-    "message": "No se pudo subir $COUNT$ imagen",
+    "message": "Guardado, pero no se pudo adjuntar $COUNT$ imagen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -105,7 +105,7 @@
     }
   },
   "popupFailedImages_other": {
-    "message": "No se pudieron subir $COUNT$ imágenes",
+    "message": "Guardado, pero no se pudieron adjuntar $COUNT$ imágenes",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -200,12 +200,11 @@
   "historyDocumentTitle": { "message": "Memos Web Clipper — Clips guardados" },
   "popupOpenHistory": { "message": "Abrir clips guardados" },
   "popupSaveAgain": { "message": "Guardar de nuevo" },
-  "popupSavedBefore": {
-    "message": "Guardado antes · $DATE$",
+  "popupSavedAt": {
+    "message": "Guardado el $DATE$",
     "placeholders": { "date": { "content": "$1", "example": "29 jul, 14:32" } }
   },
   "popupOpenMemo": { "message": "Abrir memo" },
-  "popupDismissSavedNotice": { "message": "Cerrar aviso de guardado" },
   "historyTitle": { "message": "Clips guardados" },
   "historyStoredLocally": { "message": "Guardados en este navegador" },
   "historySettings": { "message": "Ajustes" },

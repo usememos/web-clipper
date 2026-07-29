@@ -99,7 +99,7 @@
     "message": "Memosに保存しました"
   },
   "popupFailedImages_one": {
-    "message": "$COUNT$ 枚の画像をアップロードできませんでした",
+    "message": "保存しましたが、$COUNT$ 枚の画像を添付できませんでした",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -108,7 +108,7 @@
     }
   },
   "popupFailedImages_other": {
-    "message": "$COUNT$ 枚の画像をアップロードできませんでした",
+    "message": "保存しましたが、$COUNT$ 枚の画像を添付できませんでした",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -203,12 +203,11 @@
   "historyDocumentTitle": { "message": "Memos Web Clipper — 保存履歴" },
   "popupOpenHistory": { "message": "保存履歴を開く" },
   "popupSaveAgain": { "message": "もう一度保存" },
-  "popupSavedBefore": {
-    "message": "保存済み · $DATE$",
+  "popupSavedAt": {
+    "message": "$DATE$ に保存",
     "placeholders": { "date": { "content": "$1", "example": "7月29日 14:32" } }
   },
   "popupOpenMemo": { "message": "Memoを開く" },
-  "popupDismissSavedNotice": { "message": "保存済みの通知を閉じる" },
   "historyTitle": { "message": "保存履歴" },
   "historyStoredLocally": { "message": "このブラウザーに保存されています" },
   "historySettings": { "message": "設定" },

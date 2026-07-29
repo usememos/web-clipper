@@ -99,7 +99,7 @@
     "message": "已儲存到 Memos"
   },
   "popupFailedImages_one": {
-    "message": "$COUNT$ 張圖片無法上傳",
+    "message": "已儲存，但 $COUNT$ 張圖片未能附加",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -108,7 +108,7 @@
     }
   },
   "popupFailedImages_other": {
-    "message": "$COUNT$ 張圖片無法上傳",
+    "message": "已儲存，但 $COUNT$ 張圖片未能附加",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -203,12 +203,11 @@
   "historyDocumentTitle": { "message": "Memos 網頁剪藏器 — 儲存記錄" },
   "popupOpenHistory": { "message": "開啟儲存記錄" },
   "popupSaveAgain": { "message": "再次儲存" },
-  "popupSavedBefore": {
-    "message": "曾儲存 · $DATE$",
+  "popupSavedAt": {
+    "message": "儲存於 $DATE$",
     "placeholders": { "date": { "content": "$1", "example": "7月29日 14:32" } }
   },
   "popupOpenMemo": { "message": "開啟 Memo" },
-  "popupDismissSavedNotice": { "message": "忽略儲存提示" },
   "historyTitle": { "message": "儲存記錄" },
   "historyStoredLocally": { "message": "儲存在這個瀏覽器中" },
   "historySettings": { "message": "設定" },

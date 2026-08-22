@@ -48,10 +48,11 @@ export function useClipper(
 
   useEffect(() => {
     if (!capture || !templateReady || initialized.current) return;
-    // The rendered template — quoted selection (when present), description, linked title — is the
-    // editor prefill: what you see is exactly what saves.
+    // The rendered template — quoted selection or extracted article, description, linked title —
+    // is the editor prefill: what you see is exactly what saves. A selection always wins: it is an
+    // explicit choice, where the article is the clipper's guess at what the page is about.
     const prefill = composeMemoContent({
-      bodyMarkdown: capture.selectionMarkdown,
+      bodyMarkdown: capture.selectionMarkdown || capture.articleMarkdown,
       title: capture.title,
       url: capture.url,
       description: capture.description,

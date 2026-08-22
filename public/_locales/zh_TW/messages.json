@@ -155,6 +155,7 @@
   "popupCaptureNoDescriptionSelection": {
     "message": "已擷取選取內容和頁面連結，但找不到可讀的描述。"
   },
+  "popupCaptureNoArticle": { "message": "找不到可讀的內文，因此擷取了頁面描述和連結。" },
   "popupCaptureNoDescription": {
     "message": "找不到可讀的描述，因此只擷取了頁面連結。"
   },

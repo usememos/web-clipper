@@ -155,6 +155,7 @@
   "popupCaptureNoDescriptionSelection": {
     "message": "選択範囲とページのリンクを取得しましたが、読み取り可能な説明が見つかりませんでした。"
   },
+  "popupCaptureNoArticle": { "message": "読み取り可能な記事が見つからなかったため、ページの説明とリンクを取得しました。" },
   "popupCaptureNoDescription": {
     "message": "読み取り可能な説明が見つからなかったため、ページのリンクのみ取得しました。"
   },

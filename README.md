@@ -27,7 +27,7 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 
 ## Features
 
-- Capture the page title, URL, and readable description.
+- Capture a page's main content as Markdown, with its title, URL, and readable description.
 - Convert selected text, links, lists, code, and tables to Markdown.
 - Upload selected images as Memos attachments.
 - Review and edit every clip before saving.
@@ -38,6 +38,14 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 - See when a page was saved before, with the option to save it again.
 
 The default template keeps the captured content first and adds a link back to the source. Empty fields are removed automatically.
+
+## What gets captured
+
+Selecting text before you clip captures exactly that selection, quoted, along with any images in it.
+
+With nothing selected, the clipper extracts the page's main content — the article body, without navigation, sidebars, or footers — and converts it to Markdown, preserving headings, lists, code blocks, and tables. Images in an extracted article are left out rather than linked, so a clip never depends on someone else's server staying up; select an image, or the region containing it, to save it as an attachment.
+
+Pages with no article to extract, such as dashboards, search results, and feeds, fall back to the page's own summary and link. The popup says which of these happened, and every clip is editable before you save it.
 
 ## How to use
 

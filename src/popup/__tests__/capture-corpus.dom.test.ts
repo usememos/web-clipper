@@ -8,9 +8,15 @@ type CorpusCase = {
   head?: string;
   body: string;
   expectedDescription?: string;
+  /** Whether the page has main content worth extracting. When false, the clip falls back to the description. */
+  expectsArticle?: boolean;
+  /** A phrase the extracted article must contain, and one it must not. */
+  articleContains?: string;
+  articleOmits?: string;
 };
 
 const longParagraph = `A long article paragraph ${"continues with useful context ".repeat(40)}`.trim();
+const prose = (label: string) => `${label} ${"The paragraph continues with enough substance to read as body copy. ".repeat(8)}`.trim();
 
 const corpus: CorpusCase[] = [
   {
@@ -29,11 +35,47 @@ const corpus: CorpusCase[] = [
     name: "long article",
     body: `<main><p>${longParagraph}</p></main>`,
     expectedDescription: longParagraph,
+    expectsArticle: true,
+    articleContains: "A long article paragraph",
+  },
+  {
+    name: "news article with full page chrome",
+    head: '<meta property="og:description" content="A concise report about a current event.">',
+    body: `
+      <nav><a href="/">Home</a><a href="/world">World</a></nav>
+      <article>
+        <h1>The Headline</h1>
+        <p>${prose("Reporters described the scene at length.")}</p>
+        <h2>Background</h2>
+        <p>${prose("The history behind the event matters here.")}</p>
+      </article>
+      <aside><p>Sign up for our newsletter to receive more coverage like this every morning.</p></aside>
+      <footer><p>Copyright the publisher, all rights reserved worldwide.</p></footer>`,
+    expectedDescription: "A concise report about a current event.",
+    expectsArticle: true,
+    articleContains: "Reporters described the scene at length.",
+    articleOmits: "newsletter",
   },
   {
     name: "documentation structure",
     body: "<nav><p>Navigation documentation links that are not article content.</p></nav><main><h1>API</h1><p>This documentation paragraph explains the API clearly enough to become useful capture context.</p><pre><code>curl /api</code></pre></main>",
     expectedDescription: "This documentation paragraph explains the API clearly enough to become useful capture context.",
+  },
+  {
+    name: "documentation page with reference body",
+    body: `
+      <nav><p>Navigation documentation links that are not article content.</p></nav>
+      <main>
+        <h1>Clipping API</h1>
+        <p>${prose("The endpoint accepts a serialized document.")}</p>
+        <pre><code>POST /api/v1/clips</code></pre>
+        <p>${prose("Responses carry the created memo.")}</p>
+      </main>`,
+    // No meta description, so the description falls back to the first readable paragraph.
+    expectedDescription: prose("The endpoint accepts a serialized document."),
+    expectsArticle: true,
+    articleContains: "POST /api/v1/clips",
+    articleOmits: "Navigation documentation links",
   },
   {
     name: "client-rendered application",
@@ -57,24 +99,30 @@ const corpus: CorpusCase[] = [
 ];
 
 describe("fixed capture corpus", () => {
-  it.each(corpus)("produces useful context or an intentional link fallback: $name", async (fixture) => {
+  it.each(corpus)("captures the best available content or an intentional fallback: $name", async (fixture) => {
     document.head.innerHTML = `<title>Corpus page</title>${fixture.head ?? ""}`;
     document.body.innerHTML = fixture.body;
     browserMock.tabs.query.mockResolvedValue([{ id: 7, title: "Corpus page", url: "https://example.com/corpus" }]);
-    browserMock.scripting.executeScript.mockImplementation(async (options: unknown) => [
-      { result: (options as { func: () => unknown }).func() },
-    ]);
+    browserMock.scripting.executeScript.mockImplementation(async (options: unknown) => {
+      const { func, args } = options as { func: (...a: unknown[]) => unknown; args?: unknown[] };
+      return [{ result: func(...(args ?? [])) }];
+    });
 
     const { result } = renderHook(() => usePageCapture());
     await waitFor(() => expect(result.current).not.toBeNull());
 
     expect(result.current?.url).toBe("https://example.com/corpus");
-    if (fixture.expectedDescription) {
-      expect(result.current?.description).toBe(fixture.expectedDescription);
+    expect(result.current?.description).toBe(fixture.expectedDescription);
+
+    if (fixture.expectsArticle) {
+      expect(result.current?.articleMarkdown).not.toBe("");
+      if (fixture.articleContains) expect(result.current?.articleMarkdown).toContain(fixture.articleContains);
+      if (fixture.articleOmits) expect(result.current?.articleMarkdown).not.toContain(fixture.articleOmits);
+      // An extracted article is the complete result — there is nothing left to warn about.
       expect(result.current?.fallbackReason).toBeUndefined();
     } else {
-      expect(result.current?.description).toBeUndefined();
-      expect(result.current?.fallbackReason).toBe("no-description");
+      expect(result.current?.articleMarkdown).toBe("");
+      expect(result.current?.fallbackReason).toBe(fixture.expectedDescription ? "no-article" : "no-description");
     }
   });
 });

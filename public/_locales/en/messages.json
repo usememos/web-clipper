@@ -71,6 +71,7 @@
   "popupCaptureRestricted": { "message": "Only the page link was captured — the browser blocks page access here." },
   "popupCaptureTimedOut": { "message": "Only the page link was captured — page capture timed out." },
   "popupCaptureNoDescriptionSelection": { "message": "The selection and page link were captured — no readable description was found." },
+  "popupCaptureNoArticle": { "message": "The page summary and link were captured — no readable article was found." },
   "popupCaptureNoDescription": { "message": "Only the page link was captured — no readable description was found." },
   "popupCaptureContentUnavailable": { "message": "Only the page link was captured — page content was unavailable." },
   "popupCaptureFailed": { "message": "This page could not be captured. You can write the memo manually." },

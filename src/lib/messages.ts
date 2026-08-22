@@ -13,6 +13,11 @@ export type CapturePayload = {
   description?: string;
   /** Absolute URLs of images found in the selection — uploaded as attachments, never hotlinked. */
   images?: string[];
+  /**
+   * A serialized copy of the page, sent only when there is no selection, for the popup to run
+   * main-content extraction against. Scripts and other non-content nodes are already stripped.
+   */
+  documentHtml?: string;
 };
 
 /** The current selection rendered for the context-menu save: text as markdown, images pulled out

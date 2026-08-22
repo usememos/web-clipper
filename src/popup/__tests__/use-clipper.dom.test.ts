@@ -10,6 +10,7 @@ const capture: PageCapture = {
   url: "https://example.com/post",
   description: "A page about greetings",
   selectionMarkdown: "> # Hello\n>\n> Body text",
+  articleMarkdown: "",
   images: [],
 };
 const expectation = { source: "usememos" as const, connectionId: "user_123", instanceUrl: "https://memos.example.com" };
@@ -37,9 +38,37 @@ describe("useClipper", () => {
   });
 
   it("prefills a link note when the capture has no selection and no description", async () => {
-    const linkOnly: PageCapture = { title: "Hello World", url: "https://example.com/post", selectionMarkdown: "", images: [] };
+    const linkOnly: PageCapture = {
+      title: "Hello World",
+      url: "https://example.com/post",
+      selectionMarkdown: "",
+      articleMarkdown: "",
+      images: [],
+    };
     const { result } = renderHook(() => useReadyClipper(linkOnly));
     await waitFor(() => expect(result.current.content).toBe("[Hello World](https://example.com/post)"));
+  });
+
+  it("prefills the editor with the extracted article when nothing was selected", async () => {
+    const article: PageCapture = {
+      ...capture,
+      selectionMarkdown: "",
+      articleMarkdown: "## Extraction\n\nThe readability pass is the heart of it.",
+    };
+    const { result } = renderHook(() => useReadyClipper(article));
+
+    await waitFor(() => expect(result.current.content).toContain("The readability pass is the heart of it."));
+    expect(result.current.content).toContain("## Extraction");
+    expect(result.current.content).toContain("A page about greetings");
+    expect(result.current.content).toContain("[Hello World](https://example.com/post)");
+  });
+
+  it("prefers an explicit selection over the extracted article", async () => {
+    const both: PageCapture = { ...capture, articleMarkdown: "The whole article body, which the selection overrides." };
+    const { result } = renderHook(() => useReadyClipper(both));
+
+    await waitFor(() => expect(result.current.content).toContain("> # Hello"));
+    expect(result.current.content).not.toContain("which the selection overrides");
   });
 
   it("exposes the captured image count and carries the URLs through to SAVE_MEMO", async () => {

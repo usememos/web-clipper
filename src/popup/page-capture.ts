@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
+import { extractArticle } from "@/lib/article";
 import { htmlToMarkdown, toQuotedMarkdown } from "@/lib/format";
 import type { CapturePayload } from "@/lib/messages";
 
@@ -10,17 +11,26 @@ export type PageCapture = {
   description?: string;
   /** The selection as quoted Markdown ("" when there's no selection). */
   selectionMarkdown: string;
+  /** The page's main content as Markdown ("" when there's a selection, or no article was found). */
+  articleMarkdown: string;
   /** Absolute image URLs from the selection, to upload as attachments. */
   images: string[];
   /** Why capture degraded, so the popup can explain a link-only/manual result. */
   fallbackReason?: CaptureFallbackReason;
 };
 
-export type CaptureFallbackReason = "no-description" | "restricted" | "timed-out" | "unavailable";
+export type CaptureFallbackReason = "no-article" | "no-description" | "restricted" | "timed-out" | "unavailable";
 
 /** Keeps total capture comfortably inside the MVP's five-second interaction budget. */
 export const TAB_QUERY_TIMEOUT_MS = 750;
 export const PAGE_INJECTION_TIMEOUT_MS = 2_000;
+
+/**
+ * Ceiling on the serialized page handed back for extraction. Past this the page is an outlier —
+ * an infinite feed or an embedded document viewer — where extraction would cost more than the
+ * link-and-description fallback is worth. Measured after non-content nodes are stripped.
+ */
+export const MAX_DOCUMENT_HTML_CHARS = 5_000_000;
 
 class CaptureTimeoutError extends Error {}
 
@@ -43,7 +53,7 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
  * serializes the function; it can't reference imports). Injected fresh on every popup open, it
  * works even when the tab's content script is stale (tab opened before an extension update).
  */
-function capturePage(): CapturePayload {
+function capturePage(maxDocumentHtmlChars: number): CapturePayload {
   const selection = window.getSelection();
   let selectionHtml = "";
   let images: string[] = [];
@@ -118,13 +128,42 @@ function capturePage(): CapturePayload {
     return undefined;
   };
   const description = meta('meta[property="og:description"]') ?? meta('meta[name="description"]') ?? firstReadableParagraph();
+
+  // With no selection the popup extracts the page's main content instead, which needs the DOM as
+  // the user sees it — after client-side rendering, which the raw HTTP response wouldn't show.
+  // Serialize a stripped clone: scripts and other non-content nodes are most of a modern page's
+  // bytes and none of its meaning, and the result crosses a message boundary.
+  let documentHtml: string | undefined;
+  if (!selectionHtml) {
+    const clone = document.documentElement.cloneNode(true) as HTMLElement;
+    for (const element of clone.querySelectorAll("script,noscript,template,iframe,object,embed,canvas,svg")) {
+      element.remove();
+    }
+    const serialized = `<!doctype html>${clone.outerHTML}`;
+    if (serialized.length <= maxDocumentHtmlChars) documentHtml = serialized;
+  }
+
   return {
     title: document.title,
     url: location.href,
     selectionHtml: selectionHtml || undefined,
     description,
     images,
+    documentHtml,
   };
+}
+
+/**
+ * Names what the clip is missing, so the popup can say so instead of quietly handing back less than
+ * the user expected. A captured article is the complete result and reports nothing; a selection is
+ * complete on its own terms and is judged only on whether the page also had a description.
+ */
+function captureFallback({ hasSelection, hasArticle, description }: { hasSelection: boolean; hasArticle: boolean; description?: string }): {
+  fallbackReason?: CaptureFallbackReason;
+} {
+  if (hasArticle) return {};
+  if (!description) return { fallbackReason: "no-description" };
+  return hasSelection ? {} : { fallbackReason: "no-article" };
 }
 
 async function capture(): Promise<PageCapture> {
@@ -137,6 +176,7 @@ async function capture(): Promise<PageCapture> {
       url: "",
       description: undefined,
       selectionMarkdown: "",
+      articleMarkdown: "",
       images: [],
       fallbackReason: error instanceof CaptureTimeoutError ? "timed-out" : "unavailable",
     };
@@ -150,7 +190,11 @@ async function capture(): Promise<PageCapture> {
   if (tab?.id !== undefined) {
     try {
       const [injection] = await withTimeout(
-        browser.scripting.executeScript({ target: { tabId: tab.id }, func: capturePage }),
+        browser.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: capturePage,
+          args: [MAX_DOCUMENT_HTML_CHARS],
+        }),
         PAGE_INJECTION_TIMEOUT_MS,
       );
       const cap = injection?.result as CapturePayload | null | undefined;
@@ -159,13 +203,17 @@ async function capture(): Promise<PageCapture> {
         url = url || cap.url;
         description = cap.description;
         if (cap.selectionHtml) selectionMarkdown = toQuotedMarkdown(htmlToMarkdown(cap.selectionHtml));
+        // A selection is an explicit instruction about what to capture — never second-guess it
+        // with the whole article. Extraction only fills the gap when nothing was selected.
+        const article = selectionMarkdown || !cap.documentHtml ? null : await extractArticle(cap.documentHtml, url || cap.url);
         return {
           title,
           url,
           description,
           selectionMarkdown,
+          articleMarkdown: article ?? "",
           images: cap.images ?? [],
-          ...(!description ? { fallbackReason: "no-description" as const } : {}),
+          ...captureFallback({ hasSelection: Boolean(selectionMarkdown), hasArticle: Boolean(article), description }),
         };
       }
     } catch (error) {
@@ -175,12 +223,13 @@ async function capture(): Promise<PageCapture> {
         url,
         description,
         selectionMarkdown,
+        articleMarkdown: "",
         images: [],
         fallbackReason: error instanceof CaptureTimeoutError ? "timed-out" : "restricted",
       };
     }
   }
-  return { title, url, description, selectionMarkdown, images: [], fallbackReason: "unavailable" };
+  return { title, url, description, selectionMarkdown, articleMarkdown: "", images: [], fallbackReason: "unavailable" };
 }
 
 /**

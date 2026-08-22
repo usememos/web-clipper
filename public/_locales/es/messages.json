@@ -152,6 +152,7 @@
   "popupCaptureNoDescriptionSelection": {
     "message": "La selección y el enlace de la página fueron capturados — no se encontró ninguna descripción legible."
   },
+  "popupCaptureNoArticle": { "message": "Se capturaron la descripción y el enlace de la página; no se encontró ningún artículo legible." },
   "popupCaptureNoDescription": {
     "message": "Solo se capturó el enlace de la página; no se encontró ninguna descripción legible."
   },

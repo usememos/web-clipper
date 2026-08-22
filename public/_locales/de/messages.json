@@ -152,6 +152,7 @@
   "popupCaptureNoDescriptionSelection": {
     "message": "Auswahl und Seitenlink wurden erfasst – keine lesbare Beschreibung gefunden."
   },
+  "popupCaptureNoArticle": { "message": "Seitenbeschreibung und Seitenlink wurden erfasst – kein lesbarer Artikel gefunden." },
   "popupCaptureNoDescription": {
     "message": "Nur der Seitenlink wurde erfasst – keine lesbare Beschreibung gefunden."
   },

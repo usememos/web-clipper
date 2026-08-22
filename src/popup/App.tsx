@@ -217,13 +217,15 @@ function CaptureNotice({
       ? t("popupCaptureRestricted")
       : reason === "timed-out"
         ? t("popupCaptureTimedOut")
-        : reason === "no-description"
-          ? hasSelection
-            ? t("popupCaptureNoDescriptionSelection")
-            : t("popupCaptureNoDescription")
-          : hasSource
-            ? t("popupCaptureContentUnavailable")
-            : t("popupCaptureFailed");
+        : reason === "no-article"
+          ? t("popupCaptureNoArticle")
+          : reason === "no-description"
+            ? hasSelection
+              ? t("popupCaptureNoDescriptionSelection")
+              : t("popupCaptureNoDescription")
+            : hasSource
+              ? t("popupCaptureContentUnavailable")
+              : t("popupCaptureFailed");
   return (
     <p role="status" className="text-xs text-muted-foreground">
       {text}

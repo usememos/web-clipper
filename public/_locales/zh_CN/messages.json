@@ -155,6 +155,7 @@
   "popupCaptureNoDescriptionSelection": {
     "message": "已捕获所选内容和页面链接，但未找到可读的描述。"
   },
+  "popupCaptureNoArticle": { "message": "未找到可读的正文，因此捕获了页面描述和链接。" },
   "popupCaptureNoDescription": {
     "message": "未找到可读的描述，因此只捕获了页面链接。"
   },

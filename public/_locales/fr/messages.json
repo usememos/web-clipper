@@ -152,6 +152,7 @@
   "popupCaptureNoDescriptionSelection": {
     "message": "La sélection et le lien de la page ont été capturés ; aucune description lisible n’a été trouvée."
   },
+  "popupCaptureNoArticle": { "message": "La description et le lien de la page ont été capturés ; aucun article lisible n’a été trouvé." },
   "popupCaptureNoDescription": {
     "message": "Seul le lien de la page a été capturé ; aucune description lisible n’a été trouvée."
   },

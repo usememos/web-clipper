@@ -27,6 +27,7 @@
     "@fontsource-variable/geist-mono": "^5.2.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "defuddle": "^0.19.2",
     "lucide-react": "^1.22.0",
     "next-themes": "^0.4.6",
     "react": "^19.2.7",

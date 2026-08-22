@@ -29,6 +29,7 @@ describe("usePageCapture", () => {
     expect(result.current?.url).toBe("https://example.com/post");
     expect(result.current?.description).toBe("A page about greetings");
     expect(result.current?.images).toEqual(["https://cdn.example.com/a.png"]);
+    expect(result.current?.articleMarkdown).toBe("");
   });
 
   it("falls back to the tab title/url with no selection when injection is refused", async () => {
@@ -41,6 +42,7 @@ describe("usePageCapture", () => {
       url: "https://example.com/post",
       description: undefined,
       selectionMarkdown: "",
+      articleMarkdown: "",
       images: [],
       fallbackReason: "restricted",
     });
@@ -53,14 +55,15 @@ describe("usePageCapture", () => {
       <main><p>This is the first meaningful article paragraph and it contains enough text to be useful.</p></main>
     `;
     browserMock.scripting.executeScript.mockImplementation(async (options: unknown) => {
-      const func = (options as { func: () => unknown }).func;
-      return [{ result: func() }];
+      const { func, args } = options as { func: (...a: unknown[]) => unknown; args?: unknown[] };
+      return [{ result: func(...(args ?? [])) }];
     });
 
     const { result } = renderHook(() => usePageCapture());
     await waitFor(() => expect(result.current).not.toBeNull());
     expect(result.current?.description).toBe("This is the first meaningful article paragraph and it contains enough text to be useful.");
-    expect(result.current?.fallbackReason).toBeUndefined();
+    expect(result.current?.articleMarkdown).toBe("");
+    expect(result.current?.fallbackReason).toBe("no-article");
   });
 
   it("returns a link fallback when page injection exceeds its time budget", async () => {

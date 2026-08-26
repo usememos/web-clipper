@@ -1,11 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   applyLocalePreference,
+  formatDateTime,
   getLocalePreference,
   getTextDirection,
   getUiLocale,
   initializeLocalePreference,
+  LOCALE_AUTONYMS,
   LOCALE_PREFERENCE_KEY,
+  SUPPORTED_LOCALES,
   t,
   tp,
   updateLocalePreference,
@@ -87,5 +90,46 @@ describe("i18n", () => {
     expect(getLocalePreference()).toBe("ja");
     expect(t("optionsChooseHowToConnect")).toBe("接続方法を選択");
     expect(storage.set).toHaveBeenCalledWith({ [LOCALE_PREFERENCE_KEY]: "ja" });
+  });
+
+  it("allows Russian and Korean to be manually selected", async () => {
+    const set = vi.fn(async () => undefined);
+    vi.stubGlobal("browser", {
+      i18n: { getMessage: () => "", getUILanguage: () => "en-US" },
+      storage: { local: { set } },
+    });
+
+    expect(SUPPORTED_LOCALES).toEqual(expect.arrayContaining(["ru", "ko"]));
+    expect(LOCALE_AUTONYMS.ru).toBe("Русский");
+    expect(LOCALE_AUTONYMS.ko).toBe("한국어");
+
+    await updateLocalePreference("ru");
+    expect(getUiLocale()).toBe("ru");
+    expect(t("commonOpenSettings")).toBe("Открыть настройки");
+
+    await updateLocalePreference("ko");
+    expect(getUiLocale()).toBe("ko");
+    expect(t("commonOpenSettings")).toBe("설정 열기");
+    expect(set).toHaveBeenNthCalledWith(1, { [LOCALE_PREFERENCE_KEY]: "ru" });
+    expect(set).toHaveBeenNthCalledWith(2, { [LOCALE_PREFERENCE_KEY]: "ko" });
+  });
+
+  it("selects the Russian one, few, and many plural forms", () => {
+    applyLocalePreference("ru");
+
+    expect(tp("historyCount", 1)).toBe("1 сохранённый материал");
+    expect(tp("historyCount", 2)).toBe("2 сохранённых материала");
+    expect(tp("historyCount", 5)).toBe("5 сохранённых материалов");
+  });
+
+  it("formats dates using a manually selected locale", () => {
+    const value = Date.UTC(2026, 6, 26, 14, 5);
+    const options = { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" } satisfies Intl.DateTimeFormatOptions;
+
+    applyLocalePreference("ru");
+    expect(formatDateTime(value, options)).toBe(new Intl.DateTimeFormat("ru", options).format(value));
+
+    applyLocalePreference("ko");
+    expect(formatDateTime(value, options)).toBe(new Intl.DateTimeFormat("ko", options).format(value));
   });
 });

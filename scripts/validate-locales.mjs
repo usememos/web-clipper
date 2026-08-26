@@ -36,22 +36,42 @@ const placeholderSchema = (entry) =>
       .sort(([left], [right]) => left.localeCompare(right)),
   );
 
+const validateEntry = (locale, key, entry, sourceEntry) => {
+  if (!entry || typeof entry.message !== "string" || !entry.message.trim()) fail(`${locale}.${key} must have a non-empty message`);
+  const expectedSchema = placeholderSchema(sourceEntry);
+  const actualSchema = placeholderSchema(entry);
+  if (JSON.stringify(actualSchema) !== JSON.stringify(expectedSchema)) fail(`${locale}.${key} has a mismatched placeholder schema`);
+  const tokens = namedTokens(entry.message);
+  const placeholders = Object.keys(actualSchema).sort();
+  if (tokens.join("\0") !== placeholders.join("\0")) fail(`${locale}.${key} message and placeholder names do not match`);
+};
+
+const pluralSourceKeyForExtra = (key, validCategories) => {
+  const match = /^(.*)_([a-z]+)$/.exec(key);
+  if (!match) return null;
+  const [, base, category] = match;
+  const sourceOtherKey = `${base}_other`;
+  if (!(sourceOtherKey in source) || !validCategories.has(category)) return null;
+  return sourceOtherKey;
+};
+
 for (const locale of actualLocales) {
   const catalog = readCatalog(locale);
   const keys = Object.keys(catalog).sort();
   const missing = sourceKeys.filter((key) => !(key in catalog));
   const extra = keys.filter((key) => !(key in source));
-  if (missing.length || extra.length) fail(`${locale} key mismatch; missing [${missing.join(", ")}], extra [${extra.join(", ")}]`);
+  if (missing.length) fail(`${locale} is missing source keys [${missing.join(", ")}]`);
 
   for (const key of sourceKeys) {
-    const entry = catalog[key];
-    if (!entry || typeof entry.message !== "string" || !entry.message.trim()) fail(`${locale}.${key} must have a non-empty message`);
-    const expectedSchema = placeholderSchema(source[key]);
-    const actualSchema = placeholderSchema(entry);
-    if (JSON.stringify(actualSchema) !== JSON.stringify(expectedSchema)) fail(`${locale}.${key} has a mismatched placeholder schema`);
-    const tokens = namedTokens(entry.message);
-    const placeholders = Object.keys(actualSchema).sort();
-    if (tokens.join("\0") !== placeholders.join("\0")) fail(`${locale}.${key} message and placeholder names do not match`);
+    validateEntry(locale, key, catalog[key], source[key]);
+  }
+
+  const localeTag = locale.replaceAll("_", "-");
+  const validPluralCategories = new Set(new Intl.PluralRules(localeTag).resolvedOptions().pluralCategories);
+  for (const key of extra) {
+    const sourceKey = pluralSourceKeyForExtra(key, validPluralCategories);
+    if (!sourceKey) fail(`${locale} has unsupported extra key ${key}`);
+    validateEntry(locale, key, catalog[key], source[sourceKey]);
   }
 }
 

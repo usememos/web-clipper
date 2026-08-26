@@ -5,17 +5,17 @@ import { AppBrand } from "@/components/app-brand";
 import { buttonVariants } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import type { ClipRecord } from "@/lib/clip-records";
-import { t, tp } from "@/lib/i18n";
+import { formatDateTime, t, tp } from "@/lib/i18n";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 
-const FULL_TIMESTAMP = new Intl.DateTimeFormat(undefined, {
+const FULL_TIMESTAMP: Intl.DateTimeFormatOptions = {
   year: "numeric",
   month: "short",
   day: "numeric",
   hour: "2-digit",
   minute: "2-digit",
-});
-const SHORT_TIMESTAMP = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+};
+const SHORT_TIMESTAMP: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
 const SECTION_LABEL_CLASS = "font-mono text-[11px] font-medium uppercase tracking-[0.09em] text-muted-foreground";
 
 function host(value: string): string {
@@ -103,7 +103,7 @@ function ClipDetail({ record }: { record: ClipRecord }) {
                 <DetailRow label={t("historySourceUrl")} value={record.sourceUrl} />
                 <DetailRow label={t("historyDestination")} value={record.instanceUrl} />
                 <DetailRow label={t("popupVisibility")} value={visibilityLabel(record.visibility)} />
-                <DetailRow label={t("historySavedAt")} value={FULL_TIMESTAMP.format(record.savedAt)} />
+                <DetailRow label={t("historySavedAt")} value={formatDateTime(record.savedAt, FULL_TIMESTAMP)} />
               </dl>
             </section>
 
@@ -239,7 +239,7 @@ export function ClipHistory() {
                   <div className="flex items-center justify-between gap-2.5">
                     <span className="truncate font-mono text-[11px] leading-4 text-muted-foreground">{host(record.sourceUrl)}</span>
                     <span className="shrink-0 font-mono text-[10px] leading-4 text-muted-foreground">
-                      {SHORT_TIMESTAMP.format(record.savedAt)}
+                      {formatDateTime(record.savedAt, SHORT_TIMESTAMP)}
                     </span>
                   </div>
                   <p className="mt-0.5 truncate text-[13px] font-medium leading-5">{record.sourceTitle || record.sourceUrl}</p>

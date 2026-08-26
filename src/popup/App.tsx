@@ -21,19 +21,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { describeSaveError, type SaveErrorDetail } from "@/lib/errors";
-import { t, tp } from "@/lib/i18n";
+import { formatDateTime, t, tp } from "@/lib/i18n";
 import type { Visibility } from "@/lib/memos-client";
 import type { PopupIdentity, PopupState } from "@/lib/popup-state";
 import { usePageCapture } from "./page-capture";
 import { useClipper } from "./use-clipper";
 import { usePopupState } from "./use-popup-state";
 
-const SAVED_AT_FORMAT = new Intl.DateTimeFormat(undefined, {
+const SAVED_AT_FORMAT: Intl.DateTimeFormatOptions = {
   month: "short",
   day: "numeric",
   hour: "2-digit",
   minute: "2-digit",
-});
+};
 const SAVED_CONFIRMATION_MS = 1_400;
 
 function openOptions() {
@@ -294,7 +294,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
       setError(describeSaveError(result.errorKind, state.source));
     }
   };
-  const savedAt = c.savedClip ? SAVED_AT_FORMAT.format(c.savedClip.savedAt) : "";
+  const savedAt = c.savedClip ? formatDateTime(c.savedClip.savedAt, SAVED_AT_FORMAT) : "";
   const saveButtonLabel = c.busy
     ? t("commonSaving")
     : justSaved

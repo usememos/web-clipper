@@ -6,12 +6,13 @@ type PluralKey = Extract<MessageKey, `${string}_other`>;
 export type PluralMessageKey = PluralKey extends `${infer Base}_other` ? Base : never;
 export type MessageSubstitutions = string | number | readonly (string | number)[];
 type CatalogEntry = { message: string; placeholders?: Record<string, { content: string }> };
+type Catalog = Record<string, CatalogEntry>;
 const sourceCatalog = englishMessages as unknown as Record<MessageKey, CatalogEntry>;
 
 const catalogModules = import.meta.glob("../../public/_locales/*/messages.json", {
   eager: true,
   import: "default",
-}) as Record<string, Record<MessageKey, CatalogEntry>>;
+}) as Record<string, Catalog>;
 
 const catalogs = Object.fromEntries(
   Object.entries(catalogModules).map(([path, catalog]) => {
@@ -19,7 +20,7 @@ const catalogs = Object.fromEntries(
     if (!locale) throw new Error(`Invalid locale catalog path: ${path}`);
     return [locale, catalog];
   }),
-) as Record<string, Record<MessageKey, CatalogEntry>>;
+) as Record<string, Catalog>;
 
 if (!catalogs.en) throw new Error("The English locale catalog is required.");
 
@@ -42,6 +43,8 @@ const preferredAutonyms: Record<string, string> = {
   de: "Deutsch",
   fr: "Français",
   ja: "日本語",
+  ko: "한국어",
+  ru: "Русский",
   zh_CN: "简体中文",
   zh_TW: "繁體中文",
 };
@@ -114,7 +117,7 @@ function fallbackMessage(key: MessageKey, substitutions: string[]): string {
 
 function getMessage(key: string, substitutions: string[]): string {
   if (localePreference !== "browser") {
-    return formatCatalogMessage(catalogs[localePreference]?.[key as MessageKey], substitutions, "");
+    return formatCatalogMessage(catalogs[localePreference]?.[key], substitutions, "");
   }
   return extensionApis().i18n?.getMessage(key, substitutions) || "";
 }
@@ -171,6 +174,20 @@ export function tp(baseKey: PluralMessageKey, count: number, substitutions: read
 
 export function getUiLocale(): string {
   return localePreference === "browser" ? extensionApis().i18n?.getUILanguage() || "en" : toLocaleTag(localePreference);
+}
+
+const dateTimeFormatters = new Map<string, Intl.DateTimeFormat>();
+
+/** Formats a date with the active UI locale, including a manually selected locale. */
+export function formatDateTime(value: Date | number, options: Intl.DateTimeFormatOptions): string {
+  const locale = getUiLocale();
+  const cacheKey = `${locale}\0${JSON.stringify(options)}`;
+  let formatter = dateTimeFormatters.get(cacheKey);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, options);
+    dateTimeFormatters.set(cacheKey, formatter);
+  }
+  return formatter.format(value);
 }
 
 export function getTextDirection(): "ltr" | "rtl" {

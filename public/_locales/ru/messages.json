@@ -1,0 +1,368 @@
+{
+  "extensionName": { "message": "Memos Web Clipper" },
+  "extensionDescription": { "message": "Сохраняйте веб-страницы в своём экземпляре Memos." },
+  "actionTitle": { "message": "Сохранить в Memos" },
+  "popupDocumentTitle": { "message": "Сохранить в Memos" },
+  "optionsDocumentTitle": { "message": "Memos Web Clipper — настройки" },
+  "historyDocumentTitle": { "message": "Memos Web Clipper — сохранённые материалы" },
+  "optionsLanguage": { "message": "Язык" },
+  "localeBrowserDefault": { "message": "Язык браузера" },
+  "optionsLanguageSaveError": { "message": "Не удалось сохранить выбранный язык. Повторите попытку." },
+
+  "commonLoading": { "message": "Загрузка" },
+  "commonOpen": { "message": "Открыть" },
+  "commonOpenSettings": { "message": "Открыть настройки" },
+  "commonRetrying": { "message": "Повторная попытка…" },
+  "commonTryAgain": { "message": "Повторить" },
+  "commonSaving": { "message": "Сохранение…" },
+  "commonPrivate": { "message": "Личное" },
+  "commonProtected": { "message": "Защищённое" },
+  "commonPublic": { "message": "Общедоступное" },
+  "commonRecommended": { "message": "Рекомендуется" },
+  "commonCancel": { "message": "Отмена" },
+  "commonChecking": { "message": "Проверка…" },
+  "commonConnected": { "message": "Подключено" },
+  "commonDirect": { "message": "Напрямую" },
+
+  "popupOpenInstance": { "message": "Открыть свой экземпляр Memos" },
+  "popupOpenHistory": { "message": "Открыть сохранённые материалы" },
+  "popupExtensionSettings": { "message": "Настройки расширения" },
+  "popupMemoContent": { "message": "Содержимое заметки" },
+  "popupVisibility": { "message": "Видимость" },
+  "popupPrivateDescription": { "message": "Видно только вам" },
+  "popupProtectedDescription": { "message": "Видно пользователям, вошедшим в систему" },
+  "popupPublicDescription": { "message": "Видно всем" },
+  "popupEmptyCapturePlaceholder": { "message": "Не удалось извлечь содержимое этой страницы — напишите заметку здесь" },
+  "popupSaveToMemos": { "message": "Сохранить в Memos" },
+  "popupSaveAgain": { "message": "Сохранить ещё раз" },
+  "popupSavedToMemos": { "message": "Сохранено в Memos" },
+  "popupSavedAt": {
+    "message": "Сохранено $DATE$",
+    "placeholders": { "date": { "content": "$1", "example": "29 июля, 14:32" } }
+  },
+  "popupOpenMemo": { "message": "Открыть заметку" },
+  "popupFailedImages_one": {
+    "message": "Сохранено, но не удалось прикрепить $COUNT$ изображение",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "popupFailedImages_few": {
+    "message": "Сохранено, но не удалось прикрепить $COUNT$ изображения",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "popupFailedImages_many": {
+    "message": "Сохранено, но не удалось прикрепить $COUNT$ изображений",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "popupFailedImages_other": {
+    "message": "Сохранено, но не удалось прикрепить $COUNT$ изображения",
+    "placeholders": { "count": { "content": "$1", "example": "1,5" } }
+  },
+  "popupSelectionImages_one": {
+    "message": "К заметке будет прикреплено $COUNT$ изображение из выделенного фрагмента",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "popupSelectionImages_few": {
+    "message": "К заметке будут прикреплены $COUNT$ изображения из выделенного фрагмента",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "popupSelectionImages_many": {
+    "message": "К заметке будет прикреплено $COUNT$ изображений из выделенного фрагмента",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "popupSelectionImages_other": {
+    "message": "К заметке будет прикреплено $COUNT$ изображения из выделенного фрагмента",
+    "placeholders": { "count": { "content": "$1", "example": "1,5" } }
+  },
+  "popupSignedOut": { "message": "Вы не вошли в систему" },
+  "popupDisconnected": { "message": "Memos не подключён" },
+  "popupNeedsUpgrade": { "message": "Memos необходимо обновить" },
+  "popupDraftPreserved": { "message": "Черновик не потерян, но сохранить его можно будет только тогда, когда подключение будет готово." },
+  "popupCaptureRestricted": { "message": "Получена только ссылка на страницу — браузер блокирует доступ к её содержимому." },
+  "popupCaptureTimedOut": { "message": "Получена только ссылка на страницу — время извлечения содержимого истекло." },
+  "popupCaptureNoDescriptionSelection": { "message": "Получены выделенный фрагмент и ссылка на страницу — читаемого описания не найдено." },
+  "popupCaptureNoArticle": { "message": "Получены краткое содержание страницы и ссылка — читаемой статьи не найдено." },
+  "popupCaptureNoDescription": { "message": "Получена только ссылка на страницу — читаемого описания не найдено." },
+  "popupCaptureContentUnavailable": { "message": "Получена только ссылка на страницу — содержимое страницы недоступно." },
+  "popupCaptureFailed": { "message": "Не удалось извлечь содержимое этой страницы. Заметку можно написать вручную." },
+  "popupChooseConnection": { "message": "Выберите способ подключения расширения к своему экземпляру Memos." },
+  "popupConnectToStart": { "message": "Подключите свой экземпляр Memos, чтобы начать сохранять материалы." },
+  "popupUnsupportedWithVersion": {
+    "message": "В вашем экземпляре используется версия $VERSION$. $WHY$ $FIX$",
+    "placeholders": {
+      "version": { "content": "$1", "example": "0.25.0" },
+      "why": { "content": "$2", "example": "Для этого расширения требуется более новая версия." },
+      "fix": { "content": "$3", "example": "Обновите свой экземпляр Memos." }
+    }
+  },
+  "popupUnsupportedWithoutVersion": {
+    "message": "$WHY$ $FIX$",
+    "placeholders": {
+      "why": { "content": "$1", "example": "Для этого расширения требуется более новая версия." },
+      "fix": { "content": "$2", "example": "Обновите свой экземпляр Memos." }
+    }
+  },
+
+  "historyTitle": { "message": "Сохранённые материалы" },
+  "historyStoredLocally": { "message": "Сохранено в этом браузере" },
+  "historySettings": { "message": "Настройки" },
+  "historyCount_one": {
+    "message": "$COUNT$ сохранённый материал",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historyCount_few": {
+    "message": "$COUNT$ сохранённых материала",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "historyCount_many": {
+    "message": "$COUNT$ сохранённых материалов",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "historyCount_other": {
+    "message": "$COUNT$ сохранённого материала",
+    "placeholders": { "count": { "content": "$1", "example": "1,5" } }
+  },
+  "historySearch": { "message": "Поиск по заголовку, URL или содержимому" },
+  "historyDestinationFilter": { "message": "Целевой экземпляр Memos" },
+  "historyAllDestinations": { "message": "Все экземпляры" },
+  "historyOpenSource": { "message": "Открыть исходную страницу" },
+  "historyOpenMemo": { "message": "Открыть заметку" },
+  "historySelection": { "message": "Выделенный вами фрагмент" },
+  "historySelectedImages_one": {
+    "message": "$COUNT$ выбранное изображение",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "historySelectedImages_few": {
+    "message": "$COUNT$ выбранных изображения",
+    "placeholders": { "count": { "content": "$1", "example": "2" } }
+  },
+  "historySelectedImages_many": {
+    "message": "$COUNT$ выбранных изображений",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "historySelectedImages_other": {
+    "message": "$COUNT$ выбранного изображения",
+    "placeholders": { "count": { "content": "$1", "example": "1,5" } }
+  },
+  "historyImageOnlySelection": { "message": "Выделено только изображение" },
+  "historyMemoContent": { "message": "Содержимое, сохранённое в Memos" },
+  "historyDetails": { "message": "Сведения" },
+  "historySourceUrl": { "message": "URL источника" },
+  "historyDestination": { "message": "Целевой экземпляр" },
+  "historySavedAt": { "message": "Время сохранения" },
+  "historyTechnicalDetails": { "message": "Технические сведения" },
+  "historyRecordId": { "message": "Идентификатор записи" },
+  "historyDedupeKey": { "message": "Ключ дедупликации" },
+  "historyMemoName": { "message": "Имя заметки" },
+  "historyEmptyTitle": { "message": "Пока нет сохранённых материалов" },
+  "historyEmptyDescription": { "message": "Сохраните веб-страницу с помощью расширения, и она появится здесь." },
+  "historyNoResults": { "message": "Сохранённых материалов, соответствующих запросу, не найдено." },
+
+  "optionsClipTemplate": { "message": "Шаблон сохранения" },
+  "optionsTemplateLocked": {
+    "message": "Сначала подключите поддерживаемый экземпляр Memos, после чего сможете настроить формат сохраняемых материалов."
+  },
+  "optionsTemplateDescription": {
+    "message": "Настройте формат каждого материала перед отправкой в Memos. Эта настройка хранится только в этом браузере."
+  },
+  "optionsLoadingTemplate": { "message": "Загрузка шаблона…" },
+  "optionsSignInTitle": { "message": "Вход через usememos.com" },
+  "optionsAccountConnectionDescription": {
+    "message": "Сохраните подключение в своей учётной записи, чтобы использовать его после входа на других устройствах."
+  },
+  "optionsContinueUseMemos": { "message": "Продолжить через usememos.com" },
+  "optionsDirectConnection": { "message": "Прямое подключение" },
+  "optionsDirectDescription": {
+    "message": "Подключите этот браузер, указав URL экземпляра и персональный токен доступа. Учётная запись usememos.com не требуется."
+  },
+  "optionsConnectDirectly": { "message": "Подключиться напрямую" },
+  "optionsBackToMethods": { "message": "Назад к способам подключения" },
+  "optionsDirectSetupDescription": { "message": "Введите адрес своего экземпляра Memos и персональный токен доступа." },
+  "optionsInstanceUrl": { "message": "URL экземпляра" },
+  "optionsAccessToken": { "message": "Токен доступа" },
+  "optionsCreateToken": { "message": "Создать токен в настройках Memos" },
+  "optionsEnterUrlForTokenSettings": { "message": "Введите URL экземпляра, чтобы открыть настройки токенов" },
+  "optionsHideAccessToken": { "message": "Скрыть токен доступа" },
+  "optionsShowAccessToken": { "message": "Показать токен доступа" },
+  "optionsTokenAdvice": { "message": "Используйте отдельный токен с названием «Web Clipper» и задайте для него срок действия." },
+  "optionsInvalidUrlField": { "message": "Введите полный адрес Memos, начинающийся с http:// или https://." },
+  "optionsMissingTokenField": { "message": "Введите персональный токен доступа." },
+  "optionsUnencryptedTitle": { "message": "Это подключение не зашифровано" },
+  "optionsUnencryptedBody": {
+    "message": "Токен доступа и будущие материалы будут передаваться по HTTP. Используйте HTTPS, если только это не доверенная сеть."
+  },
+  "optionsContinueHttp": { "message": "Продолжить по HTTP" },
+  "optionsTestingConnection": { "message": "Проверка подключения…" },
+  "optionsTestAndSave": { "message": "Проверить и сохранить" },
+  "optionsTestingDirectConnection": { "message": "Проверка прямого подключения к Memos" },
+  "optionsUseMemosSetupDescription": {
+    "message": "Ваша учётная запись хранит сведения о подключении, чтобы они были доступны после входа на другом устройстве."
+  },
+  "optionsCheckingAccount": { "message": "Проверка учётной записи…" },
+  "optionsSupported": { "message": "Поддерживается" },
+  "optionsUseThisConnection": { "message": "Использовать это подключение" },
+  "optionsFinishSetup": { "message": "Завершить настройку" },
+  "optionsSavedConnectionIncomplete": { "message": "В сохранённом подключении не хватает данных. Исправьте его на usememos.com." },
+  "optionsNoConnectionFound": {
+    "message": "Для этой учётной записи подключение не найдено. Убедитесь, что на usememos.com используется та же учётная запись."
+  },
+  "optionsRepairDestination": {
+    "message": "Подключите или восстановите целевой экземпляр на usememos.com, затем вернитесь сюда и проверьте его."
+  },
+  "optionsWaitingForConnection": { "message": "Ожидание подключения" },
+  "optionsConnectOnUseMemos": { "message": "Подключиться на usememos.com" },
+  "optionsCheckAgain": { "message": "Проверить ещё раз" },
+  "optionsRefreshConnectionError": {
+    "message": "Не удалось обновить подключение к usememos.com. Проверьте соединение и повторите попытку."
+  },
+  "optionsSignInError": { "message": "Вход отменён или не завершён. Можно повторить попытку." },
+  "optionsCurrentConnectionActive": { "message": "Текущее подключение останется активным, пока новое не будет проверено." },
+  "optionsLastVerified": { "message": "Последняя проверка" },
+  "optionsConnectedAs": {
+    "message": "Подключено: $NAME$",
+    "placeholders": { "name": { "content": "$1", "example": "Алексей" } }
+  },
+  "optionsTokenSaved": { "message": "Токен доступа сохранён в этом браузере." },
+  "optionsCheckConnection": { "message": "Проверить подключение" },
+  "optionsChangeConnection": { "message": "Изменить подключение" },
+  "optionsDisconnect": { "message": "Отключить" },
+  "optionsDisconnectConfirm": { "message": "Отключить этот браузер от Memos? Прямой токен на сервере Memos при этом не будет отозван." },
+  "optionsConnectedToHost": {
+    "message": "Подключено · сохранение на $HOST$",
+    "placeholders": { "host": { "content": "$1", "example": "memos.example.com" } }
+  },
+  "optionsSetupClipper": { "message": "Настройте Web Clipper" },
+  "optionsMemosConnected": { "message": "Memos подключён" },
+  "optionsChooseHowToConnect": { "message": "Выберите способ подключения" },
+  "optionsConnectToMemos": { "message": "Подключиться к Memos" },
+  "optionsConnectionSummary": { "message": "Выберите единый источник для URL экземпляра и токена доступа." },
+  "optionsCheckingConnection": { "message": "Проверка подключения…" },
+
+  "templateAriaLabel": { "message": "Шаблон" },
+  "templateEmptyPreview": { "message": "Предпросмотр недоступен — шаблон пуст." },
+  "templateSaveError": { "message": "Не удалось сохранить шаблон. Черновик остался здесь — повторите попытку." },
+  "templateEditor": { "message": "Редактор" },
+  "templateResetDefault": { "message": "Восстановить шаблон по умолчанию" },
+  "templateHelp": {
+    "message": "Перед тем как попасть в редактор, каждый материал формируется по этому шаблону. Обычный текст, включая #теги, сохраняется без изменений."
+  },
+  "templatePlaceholderReference": { "message": "Справочник по заполнителям" },
+  "templateColumnPlaceholder": { "message": "Заполнитель" },
+  "templateColumnAdds": { "message": "Что добавляет" },
+  "templateColumnSource": { "message": "Источник" },
+  "templateExample": {
+    "message": "Пример: $VALUE$",
+    "placeholders": { "value": { "content": "$1", "example": "Пример статьи" } }
+  },
+  "templatePreviewContent": { "message": "> Съешь ещё этих мягких французских булок, да выпей чаю." },
+  "templatePreviewTitle": { "message": "Пример статьи" },
+  "templatePreviewDescription": { "message": "Краткое описание страницы." },
+  "templateContentMeaning": { "message": "Выделенный текст в виде цитаты Markdown" },
+  "templateContentSource": { "message": "Выделенный вами фрагмент страницы" },
+  "templateContentExample": { "message": "> Съешь ещё этих мягких французских булок…" },
+  "templateDescriptionMeaning": {
+    "message": "Краткое описание страницы, до $COUNT$ символов",
+    "placeholders": { "count": { "content": "$1", "example": "800" } }
+  },
+  "templateDescriptionSource": { "message": "Open Graph → метаописание → первый читаемый абзац" },
+  "templateTitleMeaning": { "message": "Заголовок страницы или URL, если заголовка нет" },
+  "templateTitleSource": { "message": "Вкладка браузера → заголовок документа" },
+  "templateUrlMeaning": { "message": "Точный адрес страницы" },
+  "templateUrlSource": { "message": "Текущая вкладка браузера" },
+  "templatePreviewSection": { "message": "Предпросмотр — как материал будет выглядеть в Memos" },
+  "templateJustNow": { "message": "только что" },
+  "templateSave": { "message": "Сохранить шаблон" },
+  "templateSavedBrowser": { "message": "Сохранено в этом браузере" },
+  "templateUnsavedChanges": { "message": "Несохранённые изменения" },
+  "templateExternalUpdate": { "message": "На другой странице настроек сохранён другой шаблон. Ваш несохранённый черновик остался здесь." },
+  "templateLoadSaved": { "message": "Загрузить сохранённую версию" },
+  "templateReadError": { "message": "Не удалось прочитать сохранённый шаблон. Пока показан шаблон по умолчанию." },
+  "templateStorageError": { "message": "Не удалось сохранить шаблон в этом браузере. Повторите попытку." },
+  "authRefreshError": { "message": "Расширению не удалось обновить вашу учётную запись usememos.com." },
+  "authSignOutError": { "message": "Расширению не удалось выполнить выход. Повторите попытку." },
+
+  "contextMenuSaveSelection": { "message": "Сохранить выделенное в Memos" },
+  "contextFailureWithFix": {
+    "message": "$TITLE$ — $FIX$",
+    "placeholders": {
+      "title": { "content": "$1", "example": "Токен доступа отклонён" },
+      "fix": { "content": "$2", "example": "Подключите учётную запись заново." }
+    }
+  },
+  "contextSavePartial_one": {
+    "message": "Сохранено в Memos — не удалось загрузить $COUNT$ изображение",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "contextSavePartial_few": {
+    "message": "Сохранено в Memos — не удалось загрузить $COUNT$ изображения",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "contextSavePartial_many": {
+    "message": "Сохранено в Memos — не удалось загрузить $COUNT$ изображений",
+    "placeholders": { "count": { "content": "$1", "example": "5" } }
+  },
+  "contextSavePartial_other": {
+    "message": "Сохранено в Memos — не удалось загрузить $COUNT$ изображения",
+    "placeholders": { "count": { "content": "$1", "example": "1,5" } }
+  },
+
+  "errorInvalidUrlTitle": { "message": "Недопустимый URL экземпляра" },
+  "errorInvalidUrlWhy": {
+    "message": "Адрес назначения должен быть полным адресом http:// или https:// без встроенных учётных данных, строки запроса и фрагмента."
+  },
+  "errorInvalidUrlFix": { "message": "Введите адрес, по которому вы открываете Memos, например https://memos.example.com." },
+  "errorExtensionTitle": { "message": "Расширение перестало отвечать" },
+  "errorExtensionWhy": {
+    "message": "Всплывающему окну не удалось связаться с фоновым сервис-воркером, поэтому результат сохранения неизвестен."
+  },
+  "errorExtensionFix": { "message": "Не закрывайте это окно и повторите попытку; черновик всё ещё здесь." },
+  "errorStorageTitle": { "message": "Не удалось сохранить подключение" },
+  "errorStorageWhy": { "message": "Подключение проверено, но браузеру не удалось сохранить его на этом устройстве." },
+  "errorStorageFix": { "message": "Убедитесь, что хранилище расширения доступно, и повторите попытку." },
+  "errorAuthChangedTitle": { "message": "Учётная запись изменилась" },
+  "errorAuthChangedWhy": { "message": "После открытия этого окна изменилась учётная запись или целевой экземпляр Memos." },
+  "errorAuthChangedFix": { "message": "Проверьте текущую учётную запись и повторите сохранение." },
+  "errorAuthUnavailableTitle": { "message": "Не удалось проверить учётную запись" },
+  "errorAuthUnavailableWhy": {
+    "message": "Расширению не удалось связаться с usememos.com, поэтому кешированные учётные данные не использовались для этой операции записи."
+  },
+  "errorAuthUnavailableFix": { "message": "Проверьте соединение и повторите попытку." },
+  "errorNotConfiguredTitle": { "message": "Экземпляр Memos не подключён" },
+  "errorNotConfiguredWhy": { "message": "Вы ещё не подключили экземпляр Memos к расширению." },
+  "errorNotConfiguredFix": { "message": "Откройте настройки расширения, выберите способ подключения и подключите свой экземпляр." },
+  "errorMixedContentTitle": { "message": "Подключение не зашифровано" },
+  "errorMixedContentWhy": { "message": "Расширение отправит токен доступа Memos и содержимое материала по http:// без шифрования TLS." },
+  "errorMixedContentFixHttps": { "message": "Настройте HTTPS для своего экземпляра Memos." },
+  "errorMixedContentFixLocal": { "message": "Используйте http:// только для локального экземпляра разработки, например localhost." },
+  "errorCorsTitle": { "message": "Экземпляр заблокировал запрос (CORS)" },
+  "errorCorsWhy": { "message": "Сервер доступен, но не разрешил расширению прочитать ответ." },
+  "errorCorsFixOnline": { "message": "Убедитесь, что экземпляр работает и доступен по сети." },
+  "errorCorsFixUrl": { "message": "Проверьте URL экземпляра и повторите подключение." },
+  "errorUnreachableTitle": { "message": "Не удалось связаться с экземпляром" },
+  "errorUnreachableWhy": { "message": "Сервер не ответил на запрос." },
+  "errorUnreachableFixOnline": { "message": "Убедитесь, что экземпляр работает." },
+  "errorUnreachableFixOpen": { "message": "Откройте URL экземпляра во вкладке и убедитесь, что он загружается." },
+  "errorUnauthorizedTitle": { "message": "Токен доступа отклонён" },
+  "errorUnauthorizedWhy": { "message": "Экземпляр вернул ошибку 401/403 — токен недействителен или просрочен." },
+  "errorUnauthorizedDirectFixReplace": { "message": "Замените токен в настройках расширения." },
+  "errorUnauthorizedDirectFixCreate": { "message": "При необходимости создайте новый токен в пользовательских настройках Memos." },
+  "errorUnauthorizedAccountFixReconnect": { "message": "Войдите на usememos.com и подключитесь заново." },
+  "errorUnauthorizedAccountFixRegenerate": { "message": "Если проблема сохраняется, создайте новый токен доступа в настройках Memos." },
+  "errorTimeoutTitle": { "message": "Время ожидания ответа от экземпляра истекло" },
+  "errorTimeoutWhy": { "message": "Сервер не ответил вовремя." },
+  "errorTimeoutFixOnline": { "message": "Убедитесь, что сервер работает и не перегружен." },
+  "errorTimeoutFixRetry": { "message": "Повторите попытку через несколько секунд." },
+  "errorUnsupportedTitle": { "message": "Неподдерживаемая версия Memos" },
+  "errorUnsupportedWhy": {
+    "message": "Для этого расширения требуется Memos $VERSION$ или более новый стабильный выпуск 0.x, совместимый с используемым API.",
+    "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
+  },
+  "errorUnsupportedFix": {
+    "message": "Обновите свой экземпляр Memos до версии $VERSION$ или более нового стабильного выпуска 0.x, затем подключитесь заново.",
+    "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
+  },
+  "errorUpgradeGuide": { "message": "Как обновить Memos" },
+  "errorBadResponseTitle": { "message": "Неожиданный ответ" },
+  "errorBadResponseWhy": { "message": "Экземпляр вернул данные, которые не являются допустимым ответом API." },
+  "errorBadResponseFixApi": { "message": "Убедитесь, что URL указывает на API вашего экземпляра Memos." },
+  "errorBadResponseFixRedirect": { "message": "Если сервер перенаправляет запрос, используйте конечный URL." }
+}

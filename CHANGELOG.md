@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/usememos/web-clipper/compare/v0.3.0...v0.4.0) (2026-08-26)
+
+
+### Features
+
+* **capture:** extract page main content as Markdown ([b1b25ab](https://github.com/usememos/web-clipper/commit/b1b25ab7f069938245efe83fd94396da6d308b4b))
+* **i18n:** add Russian and Korean locales ([28a1859](https://github.com/usememos/web-clipper/commit/28a18593c1fd08e3dd95ded60d63ab5754841917))
+
 ## [0.3.0](https://github.com/usememos/web-clipper/compare/v0.2.0...v0.3.0) (2026-07-29)
 
 

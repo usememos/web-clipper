@@ -189,7 +189,13 @@ export type MemoSummary = CreatedMemo & {
   createTime: string;
 };
 
-/** Newest memos used to reconcile a POST whose response may have been lost. */
+const CLIPPER_VISIBILITIES = new Set<string>(["PRIVATE", "PROTECTED", "PUBLIC"]);
+
+/**
+ * Newest memos used to reconcile a POST whose response may have been lost. Memos with a
+ * visibility the clipper never creates (e.g. `SPACE`, added in Memos 0.31) cannot be a lost
+ * clip, so they are skipped rather than failing the whole list.
+ */
 export async function listRecentMemos(
   creds: MemosCredentials,
   pageSize = 20,
@@ -201,7 +207,7 @@ export async function listRecentMemos(
   if (typeof raw !== "object" || raw === null || !Array.isArray((raw as { memos?: unknown }).memos)) return badResponse();
 
   return (raw as { memos: unknown[] }).memos
-    .map((value) => {
+    .flatMap((value): MemoSummary[] => {
       if (typeof value !== "object" || value === null) return badResponse();
       const memo = value as Record<string, unknown>;
       if (
@@ -210,20 +216,23 @@ export async function listRecentMemos(
         typeof memo.creator !== "string" ||
         !memo.creator ||
         typeof memo.content !== "string" ||
-        (memo.visibility !== "PRIVATE" && memo.visibility !== "PROTECTED" && memo.visibility !== "PUBLIC") ||
+        typeof memo.visibility !== "string" ||
         typeof memo.createTime !== "string" ||
         !Number.isFinite(Date.parse(memo.createTime))
       ) {
         return badResponse();
       }
-      return {
-        name: memo.name,
-        uid: typeof memo.uid === "string" && memo.uid ? memo.uid : undefined,
-        creator: memo.creator,
-        content: memo.content,
-        visibility: memo.visibility as Visibility,
-        createTime: memo.createTime,
-      };
+      if (!CLIPPER_VISIBILITIES.has(memo.visibility)) return [];
+      return [
+        {
+          name: memo.name,
+          uid: typeof memo.uid === "string" && memo.uid ? memo.uid : undefined,
+          creator: memo.creator,
+          content: memo.content,
+          visibility: memo.visibility as Visibility,
+          createTime: memo.createTime,
+        },
+      ];
     })
     .filter((memo) => !creator || memo.creator === creator);
 }

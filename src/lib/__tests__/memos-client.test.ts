@@ -175,8 +175,45 @@ describe("listRecentMemos", () => {
     ]);
   });
 
+  it("skips memos with visibilities the clipper never creates (Memos 0.31 SPACE)", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        memos: [
+          {
+            name: "memos/space",
+            creator: "users/steven",
+            content: "hello",
+            visibility: "SPACE",
+            space: "spaces/team",
+            createTime: "2026-07-13T12:00:01Z",
+          },
+          {
+            name: "memos/mine",
+            creator: "users/steven",
+            content: "hello",
+            visibility: "PRIVATE",
+            createTime: "2026-07-13T12:00:00Z",
+          },
+        ],
+      }),
+    );
+
+    await expect(listRecentMemos(creds, 20, "users/steven", { fetchImpl })).resolves.toEqual([
+      expect.objectContaining({ name: "memos/mine", visibility: "PRIVATE" }),
+    ]);
+  });
+
   it("rejects a malformed list response", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ memos: [{}] }));
+    await expect(listRecentMemos(creds, 20, undefined, { fetchImpl })).rejects.toMatchObject({ kind: "bad-response" });
+  });
+
+  it("rejects a memo whose visibility is missing", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      jsonResponse({
+        memos: [{ name: "memos/x", creator: "users/steven", content: "hello", createTime: "2026-07-13T12:00:00Z" }],
+      }),
+    );
     await expect(listRecentMemos(creds, 20, undefined, { fetchImpl })).rejects.toMatchObject({ kind: "bad-response" });
   });
 });

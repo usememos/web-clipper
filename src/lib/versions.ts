@@ -2,7 +2,7 @@ import compareSemVer from "semver/functions/compare";
 import parseSemVer from "semver/functions/parse";
 
 /** Immutable source snapshots currently published in usememos/dotcom/openapi (newest first). */
-export const OPENAPI_SNAPSHOT_VERSIONS = ["0.29.1", "0.28.0", "0.27.1", "0.26.2"] as const;
+export const OPENAPI_SNAPSHOT_VERSIONS = ["0.30.0", "0.29.1", "0.28.0", "0.27.1", "0.26.2"] as const;
 
 type MemosVersion = {
   major: number;

@@ -37,6 +37,9 @@ describe("isSupportedVersion", () => {
     expect(isSupportedVersion("0.30.0")).toBe(true);
     expect(isSupportedVersion("0.30.0-rc.1")).toBe(true);
     expect(isSupportedVersion("v0.30.0-RC.2+build.7")).toBe(true);
+    expect(isSupportedVersion("0.31.0-rc.1")).toBe(true);
+    expect(isSupportedVersion("0.31.0")).toBe(true);
+    expect(isSupportedVersion("0.32.5")).toBe(true);
   });
 
   it("rejects releases before 0.26.x, non-RC prereleases, and unaudited majors", () => {
@@ -51,6 +54,6 @@ describe("isSupportedVersion", () => {
 
 describe("OPENAPI_SNAPSHOT_VERSIONS", () => {
   it("keeps immutable documentation snapshots separate from the supported series floor", () => {
-    expect(OPENAPI_SNAPSHOT_VERSIONS).toEqual(["0.29.1", "0.28.0", "0.27.1", "0.26.2"]);
+    expect(OPENAPI_SNAPSHOT_VERSIONS).toEqual(["0.30.0", "0.29.1", "0.28.0", "0.27.1", "0.26.2"]);
   });
 });

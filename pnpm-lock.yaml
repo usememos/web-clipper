@@ -975,10 +975,9 @@ packages:
   '@webcomponents/custom-elements@1.6.0':
     resolution: {integrity: sha512-CqTpxOlUCPWRNUPZDxT5v2NnHXA4oox612iUGnmTUGQFhZ1Gkj8kirtl/2wcF6MqX7+PqqicZzOCBKKfIn0dww==}
 
-  '@xmldom/xmldom@0.9.11':
-    resolution: {integrity: sha512-tW8bcK3hsG0/uqSnNz6TK4BkcuZSezoU7DlnYssILmZDktPnSHHuDJJFM0AJv+13gz2r0iGdrj6qqKeUnxXEDg==}
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
     engines: {node: '>=14.6'}
-    deprecated: this version has critical issues, please update to the latest version
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -1646,6 +1645,7 @@ packages:
   eslint@9.39.4:
     resolution: {integrity: sha512-XoMjdBOwe/esVgEvLmNsD3IRHkm7fbKIUGvrleloJXUZgDHig2IPWNniv+GwjyJXzuNqVjlr5+4yVUZjycJwfQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -4299,7 +4299,7 @@ snapshots:
 
   '@webcomponents/custom-elements@1.6.0': {}
 
-  '@xmldom/xmldom@0.9.11':
+  '@xmldom/xmldom@0.9.12':
     optional: true
 
   accepts@2.0.0:
@@ -5671,7 +5671,7 @@ snapshots:
 
   mathml-to-latex@1.8.0:
     dependencies:
-      '@xmldom/xmldom': 0.9.11
+      '@xmldom/xmldom': 0.9.12
     optional: true
 
   mdn-data@2.27.1: {}

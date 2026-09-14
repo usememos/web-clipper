@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/usememos/web-clipper/compare/v0.4.0...v0.4.1) (2026-09-14)
+
+
+### Bug Fixes
+
+* **deps:** bump @xmldom/xmldom to 0.9.12 to clear audit findings ([ebbfff7](https://github.com/usememos/web-clipper/commit/ebbfff7a9cea8d104e9bf1ba44274428e5b62e49))
+* skipping non-clipper visibilities ([aa31cb7](https://github.com/usememos/web-clipper/commit/aa31cb7e72b4976e37f4ae707351c8df9327297d))
+
 ## [0.4.0](https://github.com/usememos/web-clipper/compare/v0.3.0...v0.4.0) (2026-08-26)
 
 

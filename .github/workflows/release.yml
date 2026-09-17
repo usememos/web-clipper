@@ -28,10 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # Public PKCE defaults match ci.yml; repository variables may override them.
-      VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID || 'qWpeYiL3b7ZwvPyU' }}
-      VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER || 'https://clerk.usememos.com' }}
-      VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL || 'https://usememos.com' }}
+      VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID }}
+      VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER }}
+      VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout released source
@@ -54,7 +53,7 @@ jobs:
             VITE_WEB_APP_URL
           do
             if [ -z "${!name}" ]; then
-              echo "Required release variable is missing: $name" >&2
+              echo "::error::Missing repository variable $name. Configure it in Settings > Secrets and variables > Actions > Variables."
               exit 1
             fi
           done

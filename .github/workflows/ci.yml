@@ -18,15 +18,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      # Public PKCE client values from the official v0.4.1 release; no secrets needed.
-      # Keep these defaults aligned with release.yml. Repository variables override them.
-      VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID || 'qWpeYiL3b7ZwvPyU' }}
-      VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER || 'https://clerk.usememos.com' }}
-      VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL || 'https://usememos.com' }}
+      VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID }}
+      VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER }}
+      VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Validate build configuration
+        run: |
+          for name in \
+            VITE_CLERK_OAUTH_CLIENT_ID \
+            VITE_CLERK_OAUTH_ISSUER \
+            VITE_WEB_APP_URL
+          do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing repository variable $name. Configure it in Settings > Secrets and variables > Actions > Variables."
+              exit 1
+            fi
+          done
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:

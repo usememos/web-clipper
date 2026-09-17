@@ -20,7 +20,7 @@ The CI workflow runs on pushes to every branch, PR creation/updates, and manual 
 
 The run summary links directly to each install ZIP. `actions/upload-artifact@v7` uploads single files with `archive: false`, so users do not have to unpack a ZIP containing another ZIP. Artifacts expire after 30 days; GitHub requires sign-in for downloads. Installation instructions and build provenance are embedded in each package. Preview files keep the package version; the commit and run identify the exact build.
 
-Forks may need to enable Actions on the repository's Actions page. Once enabled, pushing a branch triggers this workflow without configuring Release Please. The Release Please token is only needed for the formal version flow. Manual dispatch becomes available once the workflow exists on the default branch; a branch push works immediately.
+For a newly forked repository, open **Actions** and click **I understand my workflows, go ahead and enable them** once. This first-run gate can still be active even when the API reports Actions as enabled. Push a new commit after activation; earlier blocked pushes are not replayed. No Release Please setup is needed for these branch builds. The Release Please token is only needed for the formal version flow. Manual dispatch becomes available once the workflow exists on the default branch; a branch push works immediately.
 
 Locally, after committing the source tree, run `pnpm package` with the public build environment configured, then `node scripts/verify-packages.mjs`. The verifier is shared by CI and Release and rejects missing/corrupt archives, mismatched source/version/target metadata, missing installation assets, and invalid browser manifests. See [installation instructions](INSTALL.md).
 

@@ -745,6 +745,27 @@ describe("background — onInstalled", () => {
     expect(browserMock.contextMenus.create).toHaveBeenCalledWith(expect.objectContaining({ title: "Auswahl in Memos speichern" }));
     expect(browserMock.action.setTitle).toHaveBeenCalledWith({ title: "In Memos speichern" });
   });
+
+  it("serializes overlapping registrations so removeAll/create pairs never interleave", async () => {
+    // On install the top-level call and the onInstalled listener overlap; interleaved pairs would
+    // remove twice and then create twice, and the second create fails with a duplicate id.
+    const order: string[] = [];
+    browserMock.contextMenus.removeAll.mockImplementation(async () => {
+      order.push("removeAll");
+      await new Promise((resolve) => setTimeout(resolve, 5));
+    });
+    browserMock.contextMenus.create.mockImplementation(() => {
+      order.push("create");
+      return "menu-id";
+    });
+
+    await Promise.all([
+      browserMock.runtime.onInstalled.emit(),
+      browserMock.storage.onChanged.emit({ [LOCALE_PREFERENCE_KEY]: { newValue: "de" } }, "local"),
+    ]);
+
+    expect(order).toEqual(["removeAll", "create", "removeAll", "create"]);
+  });
 });
 
 describe("background — context menu quick save", () => {
@@ -833,6 +854,22 @@ describe("background — context menu quick save", () => {
     expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/api/v1/memos/7/attachments"))).toBe(false);
     expect(browserMock.action.setBadgeText).toHaveBeenCalledWith({ text: "✓" });
     vi.unstubAllGlobals();
+  });
+
+  it("storage failure before the save → flashes the error badge and shows a failure toast", async () => {
+    ready();
+    // The first read on the click path is the connection config; a rejected read must not vanish
+    // as an unhandled rejection with no feedback to the user.
+    browserMock.storage.local.get.mockRejectedValueOnce(new Error("storage unavailable"));
+
+    await click();
+
+    expect(browserMock.action.setBadgeText).toHaveBeenCalledWith({ text: "!" });
+    expect(browserMock.tabs.sendMessage).toHaveBeenCalledWith(
+      5,
+      expect.objectContaining({ type: "SHOW_SAVE_RESULT", ok: false, title: expect.stringContaining("The extension stopped responding") }),
+    );
+    expect(browserMock.runtime.openOptionsPage).not.toHaveBeenCalled();
   });
 
   it("signed out → opens settings to choose a source, no save", async () => {

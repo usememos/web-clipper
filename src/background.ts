@@ -12,7 +12,8 @@ import {
 import { clearMemoSaveAttempts, savePopupMemo, saveSelectionClip } from "@/background/memo-save";
 import { isTrustedBackgroundRequest, parseBackgroundRequest, type RuntimeSender } from "@/lib/background-protocol";
 import { findLatestClipStatus, listClipRecords } from "@/lib/clip-records";
-import { describeSaveError, type SaveErrorKind, toSaveErrorKind } from "@/lib/errors";
+import type { ConnectionSource } from "@/lib/connection-config";
+import { ClientError, describeSaveError, InstanceError, type SaveErrorKind, toSaveErrorKind } from "@/lib/errors";
 import { applyLocalePreference, getTextDirection, initializeLocalePreference, LOCALE_PREFERENCE_KEY, t, tp } from "@/lib/i18n";
 import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
 import { memosUserDisplayName } from "@/lib/memos-client";
@@ -166,21 +167,33 @@ async function flashBadge(text: string, color: string): Promise<void> {
 // One contextual item, shown on both a text selection and an image (never on a blank right-click).
 // removeAll-then-create makes registration idempotent so it can run both on install and on every
 // service-worker startup (menus can be lost when the SW is replaced, e.g. during development).
-async function localizeBrowserUi(): Promise<void> {
+async function applyBrowserUi(): Promise<void> {
   await localeReady;
   await Promise.all([
     browser.action.setTitle({ title: t("actionTitle") }),
-    browser.contextMenus.removeAll().then(() => {
+    (async () => {
+      await browser.contextMenus.removeAll();
       browser.contextMenus.create({ id: "save-selection", title: t("contextMenuSaveSelection"), contexts: ["selection", "image"] });
-    }),
+    })(),
   ]);
+}
+
+// Install, worker startup, and a locale change can overlap (on install, the top-level call and the
+// onInstalled listener run in the same worker). Two interleaved removeAll/create pairs would both
+// remove, then both create, and the second create fails with a duplicate-id error — so run them
+// one at a time.
+let browserUiUpdate: Promise<void> = Promise.resolve();
+function localizeBrowserUi(): Promise<void> {
+  const run = browserUiUpdate.then(applyBrowserUi, applyBrowserUi);
+  browserUiUpdate = run.catch(() => undefined);
+  return run;
 }
 browser.runtime.onInstalled.addListener(() => localizeBrowserUi());
 void localizeBrowserUi();
 browser.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName !== "local" || !changes[LOCALE_PREFERENCE_KEY]) return;
+  if (areaName !== "local" || !changes[LOCALE_PREFERENCE_KEY]) return undefined;
   applyLocalePreference(changes[LOCALE_PREFERENCE_KEY].newValue);
-  void localizeBrowserUi();
+  return localizeBrowserUi();
 });
 
 /** After a save, drop the page's selection/focus (best-effort; no-op on pages without the content script). */
@@ -265,32 +278,34 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
   // The item follows the same gate as the popup. When a setup gate isn't met we open the place
   // that resolves it (opening the tab is the feedback).
-  let connection: Awaited<ReturnType<typeof resolveActiveConnection>>;
+  let result: SaveResult;
+  let source: ConnectionSource | undefined;
   try {
-    connection = await resolveActiveConnection();
-  } catch (error) {
-    if (!(error instanceof OAuthUnavailableError)) throw error;
-    const result: SaveResult = { ok: false, errorKind: "auth-unavailable" };
-    await Promise.all([flashBadge("!", "#dc2626"), showSaveResultInTab(tab?.id, result)]);
-    return;
-  }
-  if (!connection) {
-    await browser.runtime.openOptionsPage();
-    return;
-  }
-  const { credentials } = connection;
-  // Version is a per-device cache (see instance-version.ts); resolve it, self-populating on a
-  // device that connected on another machine but never verified here.
-  const version = credentials ? await resolveVersion(credentials) : null;
-  if (!version || !isSupportedVersion(version)) {
-    await browser.runtime.openOptionsPage();
-    return;
-  }
+    const connection = await resolveActiveConnection();
+    if (!connection) {
+      await browser.runtime.openOptionsPage();
+      return;
+    }
+    source = connection.source;
+    const { credentials } = connection;
+    // Version is a per-device cache (see instance-version.ts); resolve it, self-populating on a
+    // device that connected on another machine but never verified here.
+    const version = await resolveVersion(credentials);
+    if (!version || !isSupportedVersion(version)) {
+      await browser.runtime.openOptionsPage();
+      return;
+    }
 
-  const template = await readClipTemplate();
-  const title = tab?.title ?? "";
-  const url = info.pageUrl ?? tab?.url ?? "";
-  const result = await saveSelectionClip(await clipPromise, title, url, credentials, template);
+    const template = await readClipTemplate();
+    const title = tab?.title ?? "";
+    const url = info.pageUrl ?? tab?.url ?? "";
+    result = await saveSelectionClip(await clipPromise, title, url, credentials, template);
+  } catch (error) {
+    // A quick-save has no UI of its own, so anything that throws on the way to the save — an OAuth
+    // outage, a failed storage read, an unexpected error — must still surface as a failed save
+    // rather than as a silent no-op with only a console entry behind it.
+    result = { ok: false, errorKind: quickSaveErrorKind(error) };
+  }
 
   if (!result.ok) {
     console.warn("[memos-web-clipper] context-menu save failed:", describeSaveError(result.errorKind).title);
@@ -299,6 +314,13 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
   await Promise.all([
     result.ok ? clearTabSelection(tab?.id) : Promise.resolve(),
     result.ok ? flashBadge("✓", "#C96442") : flashBadge("!", "#dc2626"),
-    showSaveResultInTab(tab?.id, result, connection.source),
+    showSaveResultInTab(tab?.id, result, source),
   ]);
 });
+
+/** Maps a throw from the quick-save gate to user-facing copy; unknown errors are the extension's own fault, not the instance's. */
+function quickSaveErrorKind(error: unknown): SaveErrorKind {
+  if (error instanceof OAuthUnavailableError) return "auth-unavailable";
+  if (error instanceof InstanceError || error instanceof ClientError) return error.kind;
+  return "extension-error";
+}

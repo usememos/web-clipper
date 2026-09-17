@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/usememos/web-clipper/compare/v0.4.1...v0.4.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* serialize context menu registration and surface quick-save failures ([90ee20f](https://github.com/usememos/web-clipper/commit/90ee20fa4ae226f68c6eb1c282f48c6309fb7bce))
+
 ## [0.4.1](https://github.com/usememos/web-clipper/compare/v0.4.0...v0.4.1) (2026-09-14)
 
 

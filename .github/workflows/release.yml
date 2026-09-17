@@ -28,9 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID }}
-      VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER }}
-      VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL }}
+      # Public PKCE defaults match ci.yml; repository variables may override them.
+      VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID || 'qWpeYiL3b7ZwvPyU' }}
+      VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER || 'https://clerk.usememos.com' }}
+      VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL || 'https://usememos.com' }}
       GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout released source
@@ -77,70 +78,10 @@ jobs:
           pnpm test
       - name: Build release packages
         run: pnpm package
-      - name: Verify release packages
+      - name: Verify archives and generate checksums
+        run: node scripts/verify-packages.mjs
+      - name: Generate release notes
         run: |
-          for package in \
-            "artifacts/memos-web-clipper-chromium-v${VERSION}.zip" \
-            "artifacts/memos-web-clipper-chrome-v${VERSION}.zip" \
-            "artifacts/memos-web-clipper-edge-v${VERSION}.zip" \
-            "artifacts/memos-web-clipper-firefox-v${VERSION}.zip"
-          do
-            unzip -tq "$package"
-          done
-
-          cmp \
-            "artifacts/memos-web-clipper-chrome-v${VERSION}.zip" \
-            "artifacts/memos-web-clipper-edge-v${VERSION}.zip"
-
-          verify_stage="$(mktemp -d)"
-          trap 'rm -rf "$verify_stage"' EXIT
-          unzip -p "artifacts/memos-web-clipper-chromium-v${VERSION}.zip" manifest.json > "$verify_stage/chromium.json"
-          unzip -p "artifacts/memos-web-clipper-chrome-v${VERSION}.zip" manifest.json > "$verify_stage/chrome.json"
-          unzip -p "artifacts/memos-web-clipper-edge-v${VERSION}.zip" manifest.json > "$verify_stage/edge.json"
-          unzip -p "artifacts/memos-web-clipper-firefox-v${VERSION}.zip" manifest.json > "$verify_stage/firefox.json"
-
-          node --input-type=module - "$verify_stage" "$VERSION" <<'NODE'
-          import { readFileSync } from "node:fs";
-          import { join } from "node:path";
-
-          const [stage, version] = process.argv.slice(2);
-          const readManifest = (name) => JSON.parse(readFileSync(join(stage, `${name}.json`), "utf8"));
-          const chromium = readManifest("chromium");
-          const chrome = readManifest("chrome");
-          const edge = readManifest("edge");
-          const firefox = readManifest("firefox");
-
-          if (chromium.version !== version || !chromium.key || chromium.update_url) {
-            throw new Error("The manual Chromium package has the wrong version, identity key, or update URL.");
-          }
-          for (const [name, manifest] of [["Chrome", chrome], ["Edge", edge]]) {
-            if (manifest.version !== version || manifest.key || manifest.update_url) {
-              throw new Error(`${name} store package has the wrong version or store-owned identity fields.`);
-            }
-          }
-          if (
-            firefox.version !== version ||
-            firefox.key ||
-            firefox.update_url ||
-            firefox.browser_specific_settings?.gecko?.id !== "web-clipper@usememos.com" ||
-            !firefox.background?.scripts?.length ||
-            firefox.background?.service_worker
-          ) {
-            throw new Error("The Firefox store package has invalid release metadata.");
-          }
-          NODE
-      - name: Generate checksums and release notes
-        run: |
-          (
-            cd artifacts
-            sha256sum \
-              "memos-web-clipper-chromium-v${VERSION}.zip" \
-              "memos-web-clipper-chrome-v${VERSION}.zip" \
-              "memos-web-clipper-edge-v${VERSION}.zip" \
-              "memos-web-clipper-firefox-v${VERSION}.zip" \
-              > SHA256SUMS
-          )
-
           awk '
             /^## \[/ {
               if (found) exit

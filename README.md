@@ -7,6 +7,16 @@ Save pages, selections, and images directly to your Memos instance. Available fo
 - [Chrome Web Store](https://chromewebstore.google.com/detail/memos-web-clipper/nebaoebnljalfegiidibihhkebeiklbl)
 - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/memos-web-clipper/)
 
+### Automatic branch and PR builds
+
+Every branch push, PR update, and manual **Run workflow** produces downloadable preview packages after CI passes. Open this repository's **Actions → CI → successful run** and use the download links in its summary (or **Artifacts**):
+
+- `memos-web-clipper-chromium-v<version>.zip`: manual Chrome / Edge installation.
+- `memos-web-clipper-firefox-v<version>.zip`: temporary Firefox installation.
+- `SHA256SUMS`: checksums from the same build.
+
+Sign in to GitHub to download Actions artifacts; they are kept for 30 days. ZIPs contain `manifest.json` at the root, `INSTALL.md`, and `BUILD_INFO.json` with the tested source commit. Extract once, then follow the instructions below. Formal versions continue to use GitHub Releases.
+
 ### Manual installation
 
 Versioned packages and checksums are available from [GitHub Releases](https://github.com/usememos/web-clipper/releases). Store installation is recommended for automatic updates.

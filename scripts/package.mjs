@@ -46,6 +46,17 @@ if (baseManifest.version !== packageJson.version) {
 
 if (requestedTarget === "all") rmSync(ARTIFACTS, { recursive: true, force: true });
 mkdirSync(ARTIFACTS, { recursive: true });
+const buildInfo = {
+  version: packageJson.version,
+  commit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim(),
+  builtAt: new Date().toISOString(),
+  ...(process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
+    ? {
+        workflowUrl: `${process.env.GITHUB_SERVER_URL || "https://github.com"}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`,
+      }
+    : {}),
+};
+writeFileSync(join(ARTIFACTS, "BUILD_INFO.json"), `${JSON.stringify(buildInfo, null, 2)}\n`);
 
 const zipDirectory = (sourceDir, outputPath) => {
   rmSync(outputPath, { force: true });
@@ -97,6 +108,8 @@ const createStage = (label, manifest) => {
   const stage = mkdtempSync(join(tmpdir(), `memos-web-clipper-${label}-`));
   cpSync(DIST, stage, { recursive: true });
   writeFileSync(join(stage, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  copyFileSync(join(ROOT, "docs/INSTALL.md"), join(stage, "INSTALL.md"));
+  writeFileSync(join(stage, "BUILD_INFO.json"), `${JSON.stringify({ ...buildInfo, target: label }, null, 2)}\n`);
   return stage;
 };
 

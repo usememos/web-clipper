@@ -3,21 +3,30 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: ['**']
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      VITE_CLERK_OAUTH_CLIENT_ID: test-client
-      VITE_CLERK_OAUTH_ISSUER: https://clerk.example.com
-      VITE_WEB_APP_URL: https://usememos.com
+      # Public PKCE client values from the official v0.4.1 release; no secrets needed.
+      # Keep these defaults aligned with release.yml. Repository variables override them.
+      VITE_CLERK_OAUTH_CLIENT_ID: ${{ vars.VITE_CLERK_OAUTH_CLIENT_ID || 'qWpeYiL3b7ZwvPyU' }}
+      VITE_CLERK_OAUTH_ISSUER: ${{ vars.VITE_CLERK_OAUTH_ISSUER || 'https://clerk.usememos.com' }}
+      VITE_WEB_APP_URL: ${{ vars.VITE_WEB_APP_URL || 'https://usememos.com' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -26,6 +35,61 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test
-      - run: pnpm build
       - run: pnpm audit --prod
-      - run: node scripts/package.mjs all
+      - name: Build installable packages
+        run: pnpm package
+      - name: Verify archives and generate checksums
+        run: node scripts/verify-packages.mjs
+      # Upload each install ZIP directly, avoiding an extra ZIP around the ZIP.
+      - name: Upload Chrome / Edge manual install
+        id: chromium
+        uses: actions/upload-artifact@v7
+        with:
+          path: artifacts/memos-web-clipper-chromium-v*.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Firefox temporary install
+        id: firefox
+        uses: actions/upload-artifact@v7
+        with:
+          path: artifacts/memos-web-clipper-firefox-v*.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload checksums
+        uses: actions/upload-artifact@v7
+        with:
+          path: artifacts/SHA256SUMS
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+      - name: Download and installation guide
+        env:
+          CHROMIUM_DOWNLOAD: ${{ steps.chromium.outputs.artifact-url }}
+          FIREFOX_DOWNLOAD: ${{ steps.firefox.outputs.artifact-url }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync, readFileSync } from 'node:fs';
+          const info = JSON.parse(readFileSync('artifacts/BUILD_INFO.json', 'utf8'));
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Download this build
+
+          Version: **${info.version}** · Commit: \`${info.commit}\`
+
+          - [Chrome / Edge manual install ZIP](${process.env.CHROMIUM_DOWNLOAD})
+          - [Firefox temporary install ZIP](${process.env.FIREFOX_DOWNLOAD})
+
+          Sign in to GitHub to download. These artifacts are retained for 30 days.
+
+          **Chrome / Edge:** extract the ZIP once, open \`chrome://extensions\` or \`edge://extensions\`, enable Developer mode, choose **Load unpacked**, and select the folder containing \`manifest.json\`.
+
+          **Firefox:** extract the ZIP, open \`about:debugging#/runtime/this-firefox\`, choose **Load Temporary Add-on**, and select \`manifest.json\`. Permanent installation requires a Mozilla-signed build.
+
+          These are preview builds. For an update, replace the extracted files in the same folder and reload the extension. Installation instructions and build information are also inside each ZIP.
+
+          ### SHA-256
+
+          \`\`\`text
+          ${readFileSync('artifacts/SHA256SUMS', 'utf8')}\`\`\`
+          `.replace(/^ {10}/gm, ''));
+          NODE

@@ -40,6 +40,7 @@ import {
 import { isValidInstanceUrl, normalizeInstanceUrl, requiresInsecureHttpConfirmation } from "@/lib/memos-client";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
+import { AiSettingsEditor } from "./ai-settings";
 import { ErrorNotice, StepRow } from "./connection-controls";
 import { TemplateEditor } from "./template-editor";
 
@@ -126,7 +127,7 @@ function OptionsHeader({
 function LocalTemplateStep({ enabled }: { enabled: boolean }) {
   const clipTemplate = useClipTemplate();
   return (
-    <StepRow n={2} state={enabled ? "active" : "locked"} title={t("optionsClipTemplate")} last>
+    <StepRow n={2} state={enabled ? "active" : "locked"} title={t("optionsClipTemplate")}>
       {!enabled ? (
         <p className="text-sm text-muted-foreground">{t("optionsTemplateLocked")}</p>
       ) : clipTemplate.isLoaded ? (
@@ -677,6 +678,9 @@ export function Options() {
           )}
         </StepRow>
         <LocalTemplateStep enabled={ready} />
+        <StepRow n={3} state={ready ? "active" : "locked"} title={t("aiTitle")} last>
+          {ready ? <AiSettingsEditor /> : <p className="text-sm text-muted-foreground">{t("aiLocked")}</p>}
+        </StepRow>
       </div>
     </div>
   );

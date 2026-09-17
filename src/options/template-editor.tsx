@@ -9,13 +9,14 @@ import { t } from "@/lib/i18n";
 import { DEFAULT_TEMPLATE, renderTemplate, splitTemplateTokens } from "@/lib/template";
 
 // Record<TemplateVarName, …> keeps the preview in sync with the template engine.
-// Tags are not a variable — default tags are literal #tags typed into the template body.
 function previewVars(): Record<TemplateVarName, string> {
   return {
     content: t("templatePreviewContent"),
     title: t("templatePreviewTitle"),
     url: "https://example.com/post",
     description: t("templatePreviewDescription"),
+    summary: t("templateAiSummaryExample"),
+    tags: "#Memos #Markdown",
   };
 }
 
@@ -40,6 +41,8 @@ function placeholderMeta(): Record<TemplateVarName, { meaning: string; source: s
       meaning: t("templateUrlMeaning"),
       source: t("templateUrlSource"),
     },
+    summary: { meaning: t("templateAiSummaryMeaning"), source: t("templateAiSource") },
+    tags: { meaning: t("templateAiTagsMeaning"), source: t("templateAiSource") },
   };
 }
 

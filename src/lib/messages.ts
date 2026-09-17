@@ -1,4 +1,5 @@
 import type { OAuthIdentity } from "@/auth/oauth-session";
+import type { AiInput, AiSettingsUpdate } from "./ai";
 import type { ClipCaptureInput } from "./clip-records";
 import type { ConnectionSource } from "./connection-config";
 import type { SaveErrorKind } from "./errors";
@@ -26,6 +27,11 @@ export type CapturePayload = {
 export type SelectionClip = { markdown: string; images: string[]; description?: string };
 
 export type Request =
+  | { type: "GET_AI_SETTINGS" }
+  | ({ type: "SAVE_AI_SETTINGS" } & AiSettingsUpdate)
+  | { type: "REMOVE_AI_KEY"; expectedRevision?: number }
+  | { type: "CANCEL_AI_CLIP"; requestId: string }
+  | ({ type: "GENERATE_AI_CLIP" } & AiInput)
   | { type: "GET_SELECTION" } // background → content script: markdown + image URLs for the selection
   | { type: "CLEAR_SELECTION" } // background → content script: drop the page selection after a save
   | { type: "SHOW_SAVE_RESULT"; ok: boolean; title: string; webUrl?: string; openLabel?: string; direction?: "ltr" | "rtl" } // background → content script: in-page toast

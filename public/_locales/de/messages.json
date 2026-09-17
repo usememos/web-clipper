@@ -470,10 +470,10 @@
     "message": "Eine kurze Zusammenfassung der Seite."
   },
   "templateContentMeaning": {
-    "message": "Ausgewählter Text (Markdown)"
+    "message": "Erfasster Text oder KI-bereinigter Text"
   },
   "templateContentSource": {
-    "message": "Ihre Auswahl auf der Seite"
+    "message": "Auswahl oder Artikel; bei aktivierter KI DeepSeek"
   },
   "templateContentExample": {
     "message": "> Der schnelle braune Fuchs…"
@@ -724,5 +724,86 @@
   },
   "errorBadResponseFixRedirect": {
     "message": "Falls Ihr Server weiterleitet, verwenden Sie die endgültige URL."
-  }
+  },
+  "aiTitle": { "message": "KI-Bereinigung · DeepSeek" },
+  "aiLocked": { "message": "Verbinde Memos, um die KI-Bereinigung einzurichten." },
+  "aiDescription": {
+    "message": "Erfasstes Material bereinigen und Zusammenfassung und Tags ergänzen. Wähle die gewünschte Ausgabe."
+  },
+  "aiEnable": { "message": "KI-Unterstützung aktivieren" },
+  "aiApiKey": { "message": "DeepSeek API Key" },
+  "aiKeyStored": { "message": "Schlüssel gespeichert; zum Beibehalten leer lassen" },
+  "aiRemoveKey": { "message": "Schlüssel entfernen und KI ausschalten" },
+  "aiPreferredTags": { "message": "Bevorzugte Tags" },
+  "aiTagsExample": { "message": "Programmierung, Produkt, Lesen" },
+  "aiTagsHelp": {
+    "message": "Mit Kommas oder Zeilenumbrüchen trennen. KI bevorzugt passende Kandidaten; die Ausgabeeinstellungen können Tags auf diese Liste beschränken. Bis zu 50 Tags mit je 40 Zeichen, ohne Leerzeichen."
+  },
+  "aiTagsInvalid": {
+    "message": "Maximal 50 Tags mit je 40 Zeichen: Buchstaben, Zahlen, Unterstriche, Bindestriche oder durch / getrennte Gruppen."
+  },
+  "aiPrivacy": {
+    "message": "Text, Titel und Tag-Kandidaten werden an das gewählte DeepSeek-Modell gesendet. API-Kosten können entstehen. Der Schlüssel bleibt in diesem Browser. Ein Ergebnis kann in dieser Sitzung 5 Minuten wiederverwendet werden. Bilder und Rechtsklick-Speichern bleiben unverändert."
+  },
+  "aiSaveSettings": { "message": "KI-Einstellungen speichern" },
+  "aiGenerating": { "message": "DeepSeek bereitet den Text auf… Du kannst den aktuellen Inhalt bearbeiten oder speichern." },
+  "aiApplied": { "message": "KI-Ergebnis angewendet. Vor dem Speichern prüfen." },
+  "aiReady": { "message": "KI-Ergebnis verfügbar. Dein aktueller Inhalt wurde beibehalten." },
+  "aiReview": { "message": "KI-Ergebnis prüfen" },
+  "aiApply": { "message": "Aktuellen Inhalt durch dieses Ergebnis ersetzen" },
+  "aiRestore": { "message": "Ursprünglichen Ausschnitt wiederherstellen" },
+  "aiErrorSettings": { "message": "KI-Einstellungen konnten nicht gelesen oder gespeichert werden. Dein Ausschnitt bleibt unverändert." },
+  "aiErrorMissingKey": { "message": "Gib einen DeepSeek API Key ein, um die KI zu aktivieren." },
+  "aiErrorInvalidKey": {
+    "message": "DeepSeek hat den Schlüssel abgelehnt. Prüfe die Einstellungen; der ursprüngliche Inhalt bleibt verfügbar."
+  },
+  "aiErrorQuota": { "message": "Das DeepSeek-Guthaben reicht nicht aus. Du kannst den aktuellen Inhalt weiterhin speichern." },
+  "aiErrorRateLimit": { "message": "DeepSeek begrenzt die Anfragen. Später erneut versuchen oder den aktuellen Inhalt speichern." },
+  "aiErrorTimeout": { "message": "Zeitüberschreitung bei der KI-Bereinigung. Dein Inhalt bleibt erhalten." },
+  "aiErrorUnavailable": { "message": "DeepSeek ist nicht erreichbar. Dein Inhalt bleibt unverändert." },
+  "aiErrorResponse": { "message": "DeepSeek hat ein unvollständiges oder ungültiges Ergebnis geliefert. Dein Inhalt bleibt unverändert." },
+  "aiErrorTooLong": {
+    "message": "Dieser Ausschnitt hat über 40.000 Zeichen. Wähle einen kürzeren Abschnitt oder speichere das vollständige Original."
+  },
+  "aiErrorNoContent": {
+    "message": "Zu wenig Artikeltext für die KI. Wähle den gewünschten Text aus; es wurde keine Zusammenfassung erfunden."
+  },
+  "templateAiSummaryExample": { "message": "Eine kurze chinesische Zusammenfassung des erfassten Texts." },
+  "templateAiSummaryMeaning": { "message": "KI-Zusammenfassung in der eingestellten Sprache; leer bei deaktivierter KI" },
+  "templateAiTagsMeaning": { "message": "KI-Themen-Tags im Format #Tags" },
+  "templateAiSource": { "message": "DeepSeek, wenn aktiviert" },
+  "aiTrigger": { "message": "Ausführung" },
+  "aiAutomatic": { "message": "Automatisch beim Öffnen" },
+  "aiManual": { "message": "Nur per Klick" },
+  "aiOutputSettings": { "message": "Ausgabe: Text, Zusammenfassung, Tags, Modell" },
+  "aiContentMode": { "message": "Zu speichernder Text" },
+  "aiContentCleaned": { "message": "Bereinigter Text + Zusammenfassung" },
+  "aiContentOriginal": { "message": "Originaltext + Zusammenfassung" },
+  "aiContentSummary": { "message": "Nur Zusammenfassung" },
+  "aiSummaryLanguage": { "message": "Sprache für Zusammenfassung und neue Tags" },
+  "aiSourceLanguage": { "message": "Wie der Ausgangstext" },
+  "aiSummaryLength": { "message": "Detailgrad" },
+  "aiLengthShort": { "message": "Kurz · ein Satz" },
+  "aiLengthStandard": { "message": "Standard · 2–3 Sätze" },
+  "aiLengthDetailed": { "message": "Ausführlich · 4–6 Punkte" },
+  "aiTagCount": { "message": "Maximale KI-Tags" },
+  "aiNoTags": { "message": "Keine Tags erzeugen" },
+  "aiTagMode": { "message": "Tag-Auswahl" },
+  "aiTagsPrefer": { "message": "Kandidaten bevorzugen; neue erlauben" },
+  "aiTagsOnly": { "message": "Nur passende Kandidaten" },
+  "aiModel": { "message": "DeepSeek-Modell" },
+  "aiResetPreferences": { "message": "Standardoptionen wiederherstellen" },
+  "aiSettingsConflict": {
+    "message": "Einstellungen wurden in einem anderen Fenster geändert. Dein Entwurf bleibt erhalten. Lade zuerst die gespeicherten Einstellungen."
+  },
+  "aiSettingsChanged": {
+    "message": "KI-Einstellungen haben sich geändert. Dein Text bleibt erhalten. Erneut erzeugen, um sie anzuwenden."
+  },
+  "aiEmptyTags": { "message": "Füge mindestens einen Kandidaten hinzu oder erlaube neue Tags." },
+  "aiReloadSettings": { "message": "Gespeicherte Einstellungen laden (Entwurf verwerfen)" },
+  "aiIdle": { "message": "Bereit. Starte die Verarbeitung dieses Ausschnitts." },
+  "aiReused": { "message": "Letztes KI-Ergebnis wiederverwendet. Vor dem Speichern prüfen." },
+  "aiRegenerate": { "message": "Erneut erzeugen" },
+  "aiGenerate": { "message": "Erzeugen" },
+  "aiUndo": { "message": "Letztes Ersetzen rückgängig" }
 }

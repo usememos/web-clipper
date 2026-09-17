@@ -48,6 +48,7 @@ function fakeEvent(): FakeEvent {
 
 /** Backing store for storage.local; module-scoped so reset can clear it. */
 const store = new Map<string, unknown>();
+const sessionStore = new Map<string, unknown>();
 let uiLocale = "en";
 let textDirection: "ltr" | "rtl" = "ltr";
 
@@ -71,7 +72,7 @@ function resolveMessage(messageName: string, substitutions?: string | string[]):
     .replace(/\$\$/g, "$");
 }
 
-function makeStorageArea() {
+function makeStorageArea(store: Map<string, unknown>) {
   return {
     get: vi.fn(async (keys?: string | string[] | Record<string, unknown> | null) => {
       if (keys == null) return Object.fromEntries(store);
@@ -120,7 +121,8 @@ function build() {
       sendMessage: vi.fn(async (_id: number, _msg: unknown) => undefined as unknown),
     },
     storage: {
-      local: makeStorageArea(),
+      local: makeStorageArea(store),
+      session: makeStorageArea(sessionStore),
       onChanged: fakeEvent(),
     },
     scripting: {
@@ -171,6 +173,7 @@ function walk(target: any, source: any): void {
 /** Reset storage + call history between tests; keeps registered listeners. */
 export function resetBrowserMock(): void {
   store.clear();
+  sessionStore.clear();
   uiLocale = "en";
   textDirection = "ltr";
   messageCatalog = englishMessages;

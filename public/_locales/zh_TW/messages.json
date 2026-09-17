@@ -473,10 +473,10 @@
     "message": "頁面的簡短摘要。"
   },
   "templateContentMeaning": {
-    "message": "以 Markdown 引用格式顯示的選取的文字"
+    "message": "擷取的正文，或 AI 整理後的正文"
   },
   "templateContentSource": {
-    "message": "您在頁面上的選取內容"
+    "message": "選取範圍或文章；開啟 AI 後由 DeepSeek 整理"
   },
   "templateContentExample": {
     "message": "> 敏捷的棕色狐狸…"
@@ -727,5 +727,72 @@
   },
   "errorBadResponseFixRedirect": {
     "message": "如果伺服器會重新導向，請使用最終 URL。"
-  }
+  },
+  "aiTitle": { "message": "AI 整理 · DeepSeek" },
+  "aiLocked": { "message": "連接 Memos 後可設定 AI 整理。" },
+  "aiDescription": { "message": "整理擷取內容，產生摘要與主題標籤。可設定正文保留方式、摘要語言與詳略、標籤和模型。" },
+  "aiEnable": { "message": "啟用 AI 整理" },
+  "aiApiKey": { "message": "DeepSeek API Key" },
+  "aiKeyStored": { "message": "已儲存金鑰，留空保持不變" },
+  "aiRemoveKey": { "message": "刪除金鑰並關閉 AI" },
+  "aiPreferredTags": { "message": "預定義標籤" },
+  "aiTagsExample": { "message": "程式設計，產品，閱讀" },
+  "aiTagsHelp": {
+    "message": "以逗號或換行分隔。AI 優先挑選相關項，也可在輸出設定中限制為僅從候選中選擇。最多 50 個，每個不超過 40 字，不能含空格。"
+  },
+  "aiTagsInvalid": { "message": "最多填寫 50 個標籤，每個不超過 40 字，只能包含文字、數字、底線、連字號或用 / 分組。" },
+  "aiPrivacy": {
+    "message": "AI 會將擷取的文字、標題與候選標籤直接傳送給所選 DeepSeek 模型，可能產生 API 費用。金鑰僅存目前瀏覽器。同一瀏覽器工作階段中，最近一次結果可在 5 分鐘內重用。圖片和右鍵快速儲存不做 AI 處理。"
+  },
+  "aiSaveSettings": { "message": "儲存 AI 設定" },
+  "aiGenerating": { "message": "DeepSeek 正在整理…你仍可編輯或儲存目前內容。" },
+  "aiApplied": { "message": "已套用 AI 整理結果，請檢查後儲存。" },
+  "aiReady": { "message": "AI 整理已完成，已保留你目前的內容。" },
+  "aiReview": { "message": "查看 AI 整理結果" },
+  "aiApply": { "message": "用此結果取代目前內容" },
+  "aiRestore": { "message": "還原原始剪藏" },
+  "aiErrorSettings": { "message": "無法讀取或儲存 AI 設定，剪藏內容保持不變。" },
+  "aiErrorMissingKey": { "message": "請先填寫 DeepSeek API Key，再開啟 AI。" },
+  "aiErrorInvalidKey": { "message": "DeepSeek 拒絕了金鑰，請在設定中檢查。原內容仍可編輯和儲存。" },
+  "aiErrorQuota": { "message": "DeepSeek 餘額不足，仍可儲存目前內容。" },
+  "aiErrorRateLimit": { "message": "DeepSeek 請求頻率受限，請稍後重試，或直接儲存目前內容。" },
+  "aiErrorTimeout": { "message": "AI 整理逾時，原內容已保留，可重試或直接儲存。" },
+  "aiErrorUnavailable": { "message": "暫時無法連接 DeepSeek，原內容已保留。" },
+  "aiErrorResponse": { "message": "DeepSeek 傳回的結果不完整或格式不正確，原內容已保留。" },
+  "aiErrorTooLong": { "message": "內容超過 40,000 字元，請選取較短片段進行 AI 整理，或儲存完整原文。" },
+  "aiErrorNoContent": { "message": "未取得足夠的正文，無法整理。請選取要儲存的文字；不會僅憑標題編造摘要。" },
+  "templateAiSummaryExample": { "message": "這段內容說明如何使用 Markdown 整理筆記。" },
+  "templateAiSummaryMeaning": { "message": "AI 依設定語言產生的摘要，未啟用時為空" },
+  "templateAiTagsMeaning": { "message": "AI 主題標籤，格式為 #標籤" },
+  "templateAiSource": { "message": "開啟後由 DeepSeek 產生" },
+  "aiTrigger": { "message": "觸發方式" },
+  "aiAutomatic": { "message": "開啟彈窗時自動產生" },
+  "aiManual": { "message": "點擊產生按鈕後執行" },
+  "aiOutputSettings": { "message": "輸出設定：正文、摘要、標籤與模型" },
+  "aiContentMode": { "message": "儲存的正文" },
+  "aiContentCleaned": { "message": "整理後的正文＋摘要" },
+  "aiContentOriginal": { "message": "保留原始正文＋摘要" },
+  "aiContentSummary": { "message": "僅儲存摘要" },
+  "aiSummaryLanguage": { "message": "摘要與新增標籤的語言" },
+  "aiSourceLanguage": { "message": "跟隨原文語言" },
+  "aiSummaryLength": { "message": "摘要詳略" },
+  "aiLengthShort": { "message": "簡短 · 一句話" },
+  "aiLengthStandard": { "message": "標準 · 2–3 句話" },
+  "aiLengthDetailed": { "message": "詳細 · 4–6 個重點" },
+  "aiTagCount": { "message": "AI 標籤數量上限" },
+  "aiNoTags": { "message": "不產生標籤" },
+  "aiTagMode": { "message": "標籤選擇方式" },
+  "aiTagsPrefer": { "message": "優先候選標籤，允許新增" },
+  "aiTagsOnly": { "message": "僅從候選標籤選擇相關項" },
+  "aiModel": { "message": "DeepSeek 模型" },
+  "aiResetPreferences": { "message": "還原預設選項" },
+  "aiSettingsConflict": { "message": "其他視窗已修改設定，目前草稿已保留。請先載入已儲存設定，再繼續修改。" },
+  "aiSettingsChanged": { "message": "產生期間 AI 設定已變更，目前內容已保留。重新產生即可使用新設定。" },
+  "aiEmptyTags": { "message": "請至少填寫一個候選標籤，或允許新增標籤。" },
+  "aiReloadSettings": { "message": "載入已儲存設定（放棄目前草稿）" },
+  "aiIdle": { "message": "點擊產生，即可整理本次擷取的內容。" },
+  "aiReused": { "message": "已重用最近的 AI 結果，請檢查後儲存。" },
+  "aiRegenerate": { "message": "重新產生" },
+  "aiGenerate": { "message": "產生" },
+  "aiUndo": { "message": "復原上次取代" }
 }

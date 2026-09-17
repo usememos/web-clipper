@@ -1,3 +1,4 @@
+import { parseAiSettingsUpdate } from "./ai";
 import type { ClipCaptureInput } from "./clip-records";
 import type { ConnectionSource } from "./connection-config";
 import type { Visibility } from "./memos-client";
@@ -7,6 +8,11 @@ export type BackgroundRequest = Extract<
   Request,
   {
     type:
+      | "GET_AI_SETTINGS"
+      | "SAVE_AI_SETTINGS"
+      | "REMOVE_AI_KEY"
+      | "GENERATE_AI_CLIP"
+      | "CANCEL_AI_CLIP"
       | "GET_POPUP_STATE"
       | "OPEN_SIGN_IN"
       | "SIGN_OUT"
@@ -72,6 +78,42 @@ function parseClipCapture(value: unknown): ClipCaptureInput | null {
 export function parseBackgroundRequest(value: unknown): BackgroundRequest | null {
   if (!value || typeof value !== "object") return null;
   const request = value as Record<string, unknown>;
+  if (request.type === "GET_AI_SETTINGS") return { type: request.type };
+  if (request.type === "REMOVE_AI_KEY") {
+    if (
+      request.expectedRevision !== undefined &&
+      (!Number.isSafeInteger(request.expectedRevision) || (request.expectedRevision as number) < 0)
+    )
+      return null;
+    return { type: request.type, ...(typeof request.expectedRevision === "number" ? { expectedRevision: request.expectedRevision } : {}) };
+  }
+  if (request.type === "CANCEL_AI_CLIP") {
+    if (typeof request.requestId !== "string" || !/^[a-zA-Z0-9_-]{8,128}$/.test(request.requestId)) return null;
+    return { type: request.type, requestId: request.requestId };
+  }
+  if (request.type === "SAVE_AI_SETTINGS") {
+    const settings = parseAiSettingsUpdate(request);
+    return settings ? { type: request.type, ...settings } : null;
+  }
+  if (request.type === "GENERATE_AI_CLIP") {
+    if (
+      typeof request.title !== "string" ||
+      request.title.length > MAX_CLIP_TITLE_CHARS ||
+      typeof request.content !== "string" ||
+      request.content.length > MAX_CLIP_SELECTION_CHARS
+    )
+      return null;
+    if (request.requestId !== undefined && (typeof request.requestId !== "string" || !/^[a-zA-Z0-9_-]{8,128}$/.test(request.requestId)))
+      return null;
+    if (request.bypassCache !== undefined && typeof request.bypassCache !== "boolean") return null;
+    return {
+      type: request.type,
+      title: request.title,
+      content: request.content,
+      ...(typeof request.requestId === "string" ? { requestId: request.requestId } : {}),
+      ...(typeof request.bypassCache === "boolean" ? { bypassCache: request.bypassCache } : {}),
+    };
+  }
   if (
     request.type === "GET_POPUP_STATE" ||
     request.type === "OPEN_SIGN_IN" ||
@@ -175,6 +217,8 @@ export function isTrustedBackgroundRequest(request: BackgroundRequest, sender: R
   }
 
   if (
+    request.type === "SAVE_AI_SETTINGS" ||
+    request.type === "REMOVE_AI_KEY" ||
     request.type === "GET_CONNECTION_STATE" ||
     request.type === "SELECT_USEMEMOS_SOURCE" ||
     request.type === "ACTIVATE_USEMEMOS_CONNECTION" ||
@@ -184,7 +228,12 @@ export function isTrustedBackgroundRequest(request: BackgroundRequest, sender: R
   ) {
     return path === "/src/options/index.html";
   }
-  if (request.type === "OPEN_SIGN_IN" || request.type === "SIGN_OUT" || request.type === "GET_AUTH_USER") {
+  if (
+    request.type === "GET_AI_SETTINGS" ||
+    request.type === "OPEN_SIGN_IN" ||
+    request.type === "SIGN_OUT" ||
+    request.type === "GET_AUTH_USER"
+  ) {
     return path === "/src/popup/index.html" || path === "/src/options/index.html";
   }
   return path === "/src/popup/index.html";

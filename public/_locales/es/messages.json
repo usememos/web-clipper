@@ -470,10 +470,10 @@
     "message": "Un breve resumen de la página."
   },
   "templateContentMeaning": {
-    "message": "Texto seleccionado como citado Markdown"
+    "message": "Texto capturado o texto organizado por IA"
   },
   "templateContentSource": {
-    "message": "Tu selección en la página"
+    "message": "Selección o artículo; DeepSeek si la IA está activada"
   },
   "templateContentExample": {
     "message": "> El zorro marrón rápido..."
@@ -724,5 +724,80 @@
   },
   "errorBadResponseFixRedirect": {
     "message": "Si su servidor redirige, utilice la URL final."
-  }
+  },
+  "aiTitle": { "message": "Limpieza con IA · DeepSeek" },
+  "aiLocked": { "message": "Conecta Memos para configurar la limpieza con IA." },
+  "aiDescription": {
+    "message": "Organiza el texto capturado y añade un resumen y etiquetas. Elige la salida deseada."
+  },
+  "aiEnable": { "message": "Activar asistencia de IA" },
+  "aiApiKey": { "message": "DeepSeek API Key" },
+  "aiKeyStored": { "message": "Clave guardada; déjalo vacío para conservarla" },
+  "aiRemoveKey": { "message": "Eliminar clave y desactivar la IA" },
+  "aiPreferredTags": { "message": "Etiquetas preferidas" },
+  "aiTagsExample": { "message": "Programación, Producto, Lectura" },
+  "aiTagsHelp": {
+    "message": "Separa con comas o saltos de línea. La IA prioriza candidatos relevantes; puedes limitar las etiquetas a esta lista en los ajustes de salida. Hasta 50 etiquetas de 40 caracteres, sin espacios."
+  },
+  "aiTagsInvalid": {
+    "message": "Usa hasta 50 etiquetas de 40 caracteres con letras, números, guiones bajos, guiones o grupos separados por /."
+  },
+  "aiPrivacy": {
+    "message": "El texto, título y etiquetas candidatas se envían al modelo DeepSeek elegido. Puede haber cargos de API. La clave queda en este navegador. Un resultado puede reutilizarse durante 5 minutos en esta sesión. No se procesan imágenes ni capturas por clic derecho."
+  },
+  "aiSaveSettings": { "message": "Guardar ajustes de IA" },
+  "aiGenerating": { "message": "DeepSeek está organizando… Puedes editar o guardar el contenido actual." },
+  "aiApplied": { "message": "Resultado de IA aplicado. Revísalo antes de guardar." },
+  "aiReady": { "message": "Resultado de IA listo. Se ha conservado tu contenido actual." },
+  "aiReview": { "message": "Revisar resultado de IA" },
+  "aiApply": { "message": "Reemplazar el contenido actual con este resultado" },
+  "aiRestore": { "message": "Restaurar captura original" },
+  "aiErrorSettings": { "message": "No se pudieron leer o guardar los ajustes de IA. Tu captura no ha cambiado." },
+  "aiErrorMissingKey": { "message": "Introduce una DeepSeek API Key para activar la IA." },
+  "aiErrorInvalidKey": { "message": "DeepSeek rechazó la clave. Revísala en los ajustes; el contenido original sigue disponible." },
+  "aiErrorQuota": { "message": "Saldo insuficiente en DeepSeek. Puedes guardar el contenido actual." },
+  "aiErrorRateLimit": { "message": "DeepSeek está limitando las solicitudes. Inténtalo más tarde o guarda el contenido actual." },
+  "aiErrorTimeout": { "message": "Se agotó el tiempo de la IA. Tu contenido se ha conservado." },
+  "aiErrorUnavailable": { "message": "No se pudo conectar con DeepSeek. Tu contenido no ha cambiado." },
+  "aiErrorResponse": { "message": "DeepSeek devolvió un resultado incompleto o no válido. Tu contenido no ha cambiado." },
+  "aiErrorTooLong": {
+    "message": "La captura supera los 40.000 caracteres. Selecciona un fragmento más corto o guarda el original completo."
+  },
+  "aiErrorNoContent": { "message": "No hay suficiente texto para la IA. Selecciona el texto deseado; no se ha inventado ningún resumen." },
+  "templateAiSummaryExample": { "message": "Un breve resumen en chino del texto capturado." },
+  "templateAiSummaryMeaning": { "message": "Resumen de IA en el idioma configurado; vacío si la IA está desactivada" },
+  "templateAiTagsMeaning": { "message": "Etiquetas temáticas de IA en formato #etiquetas" },
+  "templateAiSource": { "message": "DeepSeek, cuando está activado" },
+  "aiTrigger": { "message": "Cuándo ejecutar" },
+  "aiAutomatic": { "message": "Al abrir la ventana" },
+  "aiManual": { "message": "Solo al pulsar Generar" },
+  "aiOutputSettings": { "message": "Salida: texto, resumen, etiquetas y modelo" },
+  "aiContentMode": { "message": "Contenido que guardar" },
+  "aiContentCleaned": { "message": "Texto limpio + resumen" },
+  "aiContentOriginal": { "message": "Texto original + resumen" },
+  "aiContentSummary": { "message": "Solo resumen" },
+  "aiSummaryLanguage": { "message": "Idioma del resumen y las etiquetas nuevas" },
+  "aiSourceLanguage": { "message": "El del texto original" },
+  "aiSummaryLength": { "message": "Detalle del resumen" },
+  "aiLengthShort": { "message": "Breve · una frase" },
+  "aiLengthStandard": { "message": "Normal · 2–3 frases" },
+  "aiLengthDetailed": { "message": "Detallado · 4–6 puntos" },
+  "aiTagCount": { "message": "Máximo de etiquetas IA" },
+  "aiNoTags": { "message": "No generar etiquetas" },
+  "aiTagMode": { "message": "Selección de etiquetas" },
+  "aiTagsPrefer": { "message": "Preferir candidatas; permitir nuevas" },
+  "aiTagsOnly": { "message": "Solo candidatas pertinentes" },
+  "aiModel": { "message": "Modelo DeepSeek" },
+  "aiResetPreferences": { "message": "Restaurar opciones predeterminadas" },
+  "aiSettingsConflict": {
+    "message": "Los ajustes cambiaron en otra ventana. Se conserva tu borrador. Carga los ajustes guardados antes de continuar."
+  },
+  "aiSettingsChanged": { "message": "Los ajustes de IA cambiaron. Tu contenido se conserva; genera de nuevo para aplicarlos." },
+  "aiEmptyTags": { "message": "Añade al menos una etiqueta candidata o permite nuevas." },
+  "aiReloadSettings": { "message": "Cargar ajustes guardados (descartar borrador)" },
+  "aiIdle": { "message": "Pulsa Generar para organizar esta captura." },
+  "aiReused": { "message": "Se reutilizó el resultado reciente. Revísalo antes de guardar." },
+  "aiRegenerate": { "message": "Generar de nuevo" },
+  "aiGenerate": { "message": "Generar" },
+  "aiUndo": { "message": "Deshacer último reemplazo" }
 }

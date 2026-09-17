@@ -34,25 +34,28 @@ export type ComposeInput = {
   url: string;
   /** The page's own summary (og:description / meta description). */
   description?: string;
+  summary?: string;
+  tags?: string[];
   /** User template from settings; falls back to DEFAULT_TEMPLATE when absent/blank. */
   template?: string | null;
 };
 
 /**
  * Every `{{var}}` the template engine fills — the options UI derives its chip list from this.
- * Deliberately few: the capture data the default template actually needs. Tags are not a
- * variable — default tags are literal #tags written in the template itself.
+ * AI fields resolve empty when AI is off. Fixed tags can still be written in the template.
  */
-export const TEMPLATE_VAR_NAMES = ["content", "title", "url", "description"] as const;
+export const TEMPLATE_VAR_NAMES = ["content", "title", "url", "description", "summary", "tags"] as const;
 export type TemplateVarName = (typeof TEMPLATE_VAR_NAMES)[number];
 
 /** Renders the memo body through the user's template (or the default). */
-export function composeMemoContent({ bodyMarkdown, title, url, description, template }: ComposeInput): string {
+export function composeMemoContent({ bodyMarkdown, title, url, description, summary, tags, template }: ComposeInput): string {
   const vars: Record<TemplateVarName, string> = {
     content: bodyMarkdown.trim(),
     title: title || url,
     url,
     description: (description ?? "").trim().slice(0, DESCRIPTION_MAX_CHARS),
+    summary: summary?.trim() ?? "",
+    tags: (tags ?? []).map((tag) => `#${tag}`).join(" "),
   };
   return renderTemplate(template?.trim() ? template : DEFAULT_TEMPLATE, vars);
 }

@@ -16,15 +16,18 @@ export function splitTemplateTokens(text: string): string[] {
 }
 
 /**
- * The out-of-the-box template: the user's note / quoted selection first, the page's own
- * description second, provenance last. Default tags are literal #tags users add here —
- * there is no per-clip tag input. Empty-variable lines drop, so every combination stays clean.
+ * AI summary first, content, description, provenance, then AI tags. Empty fields drop,
+ * preserving the original format when AI is off. Literal fixed tags remain supported.
  */
-export const DEFAULT_TEMPLATE = `{{content}}
+export const DEFAULT_TEMPLATE = `{{summary}}
+
+{{content}}
 
 {{description}}
 
-[{{title}}]({{url}})`;
+[{{title}}]({{url}})
+
+{{tags}}`;
 
 export function renderTemplate(template: string, vars: Record<string, string | undefined>): string {
   const rendered = template

@@ -473,10 +473,10 @@
     "message": "ページの短い要約です。"
   },
   "templateContentMeaning": {
-    "message": "引用 Markdown としての選択テキスト"
+    "message": "取得した本文、または AI で整理した本文"
   },
   "templateContentSource": {
-    "message": "ページ上の選択範囲"
+    "message": "選択範囲または記事。有効時は DeepSeek が整理"
   },
   "templateContentExample": {
     "message": "> すばやい茶色の狐…"
@@ -727,5 +727,76 @@
   },
   "errorBadResponseFixRedirect": {
     "message": "サーバーでリダイレクトする場合は、最終的な URL を使用してください。"
-  }
+  },
+  "aiTitle": { "message": "AI 整理 · DeepSeek" },
+  "aiLocked": { "message": "Memos に接続して AI 整理を設定します。" },
+  "aiDescription": {
+    "message": "取得した本文を整理し、要約とタグを追加します。出力方法を設定できます。"
+  },
+  "aiEnable": { "message": "AI 整理を有効にする" },
+  "aiApiKey": { "message": "DeepSeek API Key" },
+  "aiKeyStored": { "message": "キーは保存済みです。変更しない場合は空欄にしてください" },
+  "aiRemoveKey": { "message": "キーを削除して AI をオフにする" },
+  "aiPreferredTags": { "message": "優先タグ" },
+  "aiTagsExample": { "message": "プログラミング, 製品, 読書" },
+  "aiTagsHelp": {
+    "message": "カンマまたは改行で区切ります。AI は関連する候補を優先します。出力設定で候補のみに制限できます。最大 50 個、各 40 文字以内、スペース不可。"
+  },
+  "aiTagsInvalid": {
+    "message": "最大 50 個、各 40 文字以内で、文字・数字・アンダースコア・ハイフン・/ で区切ったグループを使用してください。"
+  },
+  "aiPrivacy": {
+    "message": "本文・タイトル・候補タグを選択した DeepSeek モデルへ送信します。API 料金が発生する場合があります。キーはこのブラウザーに保存されます。直近の結果は同じセッションで5分間再利用できます。画像と右クリック保存は対象外です。"
+  },
+  "aiSaveSettings": { "message": "AI 設定を保存" },
+  "aiGenerating": { "message": "DeepSeek が整理中…現在の内容を編集・保存できます。" },
+  "aiApplied": { "message": "AI の結果を適用しました。保存前に確認してください。" },
+  "aiReady": { "message": "AI の結果ができました。現在の内容は保持されています。" },
+  "aiReview": { "message": "AI の結果を確認" },
+  "aiApply": { "message": "現在の内容をこの結果で置き換える" },
+  "aiRestore": { "message": "元のクリップに戻す" },
+  "aiErrorSettings": { "message": "AI 設定を読み込み・保存できませんでした。内容は変更されていません。" },
+  "aiErrorMissingKey": { "message": "AI を有効にするには DeepSeek API Key を入力してください。" },
+  "aiErrorInvalidKey": { "message": "DeepSeek がキーを拒否しました。設定を確認してください。元の内容は保持されています。" },
+  "aiErrorQuota": { "message": "DeepSeek の残高が不足しています。現在の内容は保存できます。" },
+  "aiErrorRateLimit": { "message": "DeepSeek のリクエスト制限に達しました。後で再試行するか、現在の内容を保存してください。" },
+  "aiErrorTimeout": { "message": "AI の処理がタイムアウトしました。元の内容は保持されています。" },
+  "aiErrorUnavailable": { "message": "DeepSeek に接続できません。内容は変更されていません。" },
+  "aiErrorResponse": { "message": "DeepSeek の結果が不完全か、形式が不正です。内容は変更されていません。" },
+  "aiErrorTooLong": { "message": "40,000 文字を超えています。短い範囲を選ぶか、元の全文を保存してください。" },
+  "aiErrorNoContent": { "message": "本文が不足しています。保存したい文字を選択してください。タイトルだけから要約は作成しません。" },
+  "templateAiSummaryExample": { "message": "取得した本文の短い中国語要約。" },
+  "templateAiSummaryMeaning": { "message": "設定した言語での AI 要約。AI が無効の場合は空欄" },
+  "templateAiTagsMeaning": { "message": "#タグ 形式の AI トピックタグ" },
+  "templateAiSource": { "message": "有効時に DeepSeek が生成" },
+  "aiTrigger": { "message": "実行タイミング" },
+  "aiAutomatic": { "message": "ポップアップを開くと自動実行" },
+  "aiManual": { "message": "生成ボタンを押したときだけ" },
+  "aiOutputSettings": { "message": "出力：本文・要約・タグ・モデル" },
+  "aiContentMode": { "message": "保存する本文" },
+  "aiContentCleaned": { "message": "整理した本文＋要約" },
+  "aiContentOriginal": { "message": "元の本文＋要約" },
+  "aiContentSummary": { "message": "要約のみ" },
+  "aiSummaryLanguage": { "message": "要約と新規タグの言語" },
+  "aiSourceLanguage": { "message": "原文と同じ" },
+  "aiSummaryLength": { "message": "要約の詳しさ" },
+  "aiLengthShort": { "message": "短く・1文" },
+  "aiLengthStandard": { "message": "標準・2～3文" },
+  "aiLengthDetailed": { "message": "詳しく・4～6項目" },
+  "aiTagCount": { "message": "AI タグの上限" },
+  "aiNoTags": { "message": "タグを生成しない" },
+  "aiTagMode": { "message": "タグの選び方" },
+  "aiTagsPrefer": { "message": "候補を優先し、新規タグも許可" },
+  "aiTagsOnly": { "message": "関連する候補タグのみ" },
+  "aiModel": { "message": "DeepSeek モデル" },
+  "aiResetPreferences": { "message": "オプションを既定値に戻す" },
+  "aiSettingsConflict": { "message": "別のウィンドウで設定が変更されました。下書きは保持されています。保存済み設定を読み込んでください。" },
+  "aiSettingsChanged": { "message": "生成中に AI 設定が変更されました。内容は保持されています。再生成してください。" },
+  "aiEmptyTags": { "message": "候補タグを入力するか、新規タグを許可してください。" },
+  "aiReloadSettings": { "message": "保存済み設定を読み込む（下書きを破棄）" },
+  "aiIdle": { "message": "生成を押すと今回の取得内容を整理します。" },
+  "aiReused": { "message": "最近の AI 結果を再利用しました。保存前に確認してください。" },
+  "aiRegenerate": { "message": "再生成" },
+  "aiGenerate": { "message": "生成" },
+  "aiUndo": { "message": "直前の置換を取り消す" }
 }

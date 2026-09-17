@@ -1,5 +1,6 @@
 import browser from "webextension-polyfill";
 import { beginOAuthSignIn, clearOAuthSession, getOAuthUser, OAuthUnavailableError, toOAuthIdentity } from "@/auth/oauth-session";
+import { cancelAiClip, generateAiClip, getAiSettings, removeAiKey, saveAiSettings } from "@/background/ai";
 import { getOptionsConnectionState, reconcilePopupState } from "@/background/auth-session";
 import {
   clearActiveConnectionConfig,
@@ -90,6 +91,14 @@ async function activateConnection(verify: () => Promise<VerifiedConnection>) {
 browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) => {
   const req = parseBackgroundRequest(message);
   if (!req || !isTrustedBackgroundRequest(req, sender, browser.runtime.id)) return undefined;
+  if (req.type === "GET_AI_SETTINGS") return getAiSettings();
+  if (req.type === "SAVE_AI_SETTINGS") return saveAiSettings(req);
+  if (req.type === "REMOVE_AI_KEY") return removeAiKey(req.expectedRevision);
+  if (req.type === "CANCEL_AI_CLIP") {
+    cancelAiClip(req.requestId);
+    return Promise.resolve();
+  }
+  if (req.type === "GENERATE_AI_CLIP") return generateAiClip(req);
   if (req.type === "GET_POPUP_STATE") return reconcilePopupState();
   if (req.type === "LIST_CLIP_RECORDS") return listClipRecords();
   if (req.type === "GET_CLIP_STATUS") {

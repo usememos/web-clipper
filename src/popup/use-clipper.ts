@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { AiClip } from "@/lib/ai";
+import { composeAiMemo } from "@/lib/ai-format";
 import type { ClipSaveStatus } from "@/lib/clip-records";
 import type { ConnectionSource } from "@/lib/connection-config";
 import { composeMemoContent } from "@/lib/format";
@@ -7,6 +9,7 @@ import type { SaveResult } from "@/lib/messages";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import { readLastVisibility, writeLastVisibility } from "@/lib/visibility";
 import type { PageCapture } from "./page-capture";
+import { useAiClip } from "./use-ai-clip";
 
 /**
  * The popup's clip state. `capture` is the page capture (started at App mount, in parallel with
@@ -35,6 +38,31 @@ export function useClipper(
   const visibilityTouched = useRef(false);
   const operation = useRef<SaveOperation | null>(null);
   const images = capture?.images ?? [];
+  const edited = useRef(false);
+  const appliedResult = useRef<AiClip | null>(null);
+  const [undoContent, setUndoContent] = useState<string | null>(null);
+  const ai = useAiClip(capture, Boolean(expectation && templateReady));
+  const composition = {
+    bodyMarkdown: capture?.selectionMarkdown || capture?.articleMarkdown || "",
+    title: capture?.title ?? "",
+    url: capture?.url ?? "",
+    description: capture?.description,
+    template,
+  };
+  const aiContent = ai.clip ? composeAiMemo(composition, ai.clip, ai.preferences) : "";
+  const aiApplied = Boolean(ai.clip && content === aiContent);
+
+  useEffect(() => {
+    if (!ai.clip || appliedResult.current === ai.clip) return;
+    appliedResult.current = ai.clip;
+    // Generation may complete after typing or even after Save. Keep the result available
+    // for review, but never replace the editor or mutate an already-saved note in that case.
+    if (edited.current) return;
+    initialized.current = true;
+    operation.current = null;
+    setUndoContent(content);
+    setContent(aiContent);
+  }, [ai.clip, aiContent]);
 
   useEffect(() => {
     let active = true;
@@ -93,6 +121,8 @@ export function useClipper(
   const editContent = useCallback((next: string) => {
     // A late capture/template must never replace typing, including an intentional empty value.
     initialized.current = true;
+    edited.current = true;
+    setUndoContent(null);
     operation.current = null;
     setContent(next);
   }, []);
@@ -105,6 +135,7 @@ export function useClipper(
 
   const save = useCallback(async (): Promise<SaveResult> => {
     if (!expectation) return { ok: false, errorKind: "not-configured" };
+    edited.current = true;
     if (!operation.current) operation.current = newSaveOperation();
     const currentOperation = operation.current;
     setBusy(true);
@@ -158,6 +189,26 @@ export function useClipper(
     visibility,
     setVisibility: changeVisibility,
     busy,
+    ai,
+    aiContent,
+    aiApplied,
+    canUndoAi: undoContent !== null,
+    undoAi: () => {
+      if (undoContent !== null) editContent(undoContent);
+    },
+    applyAi: () => {
+      if (aiContent && aiContent !== content) {
+        editContent(aiContent);
+        setUndoContent(content);
+      }
+    },
+    restoreOriginal: () => {
+      const original = composeMemoContent(composition);
+      if (original !== content) {
+        editContent(original);
+        setUndoContent(content);
+      }
+    },
     savedClip,
     save,
   };

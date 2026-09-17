@@ -36,8 +36,9 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 - Quick-save selected text or images from the context menu.
 - Browse and search clips saved locally from the popup.
 - See when a page was saved before, with the option to save it again.
+- Optionally use DeepSeek to clean captured text, add a configurable summary, and suggest topic tags, with your own preferred tag vocabulary.
 
-The default template keeps the captured content first and adds a link back to the source. Empty fields are removed automatically.
+The default template includes the captured content and a link back to the source, with an optional AI summary above and tags below. Empty fields are removed automatically.
 
 ## What gets captured
 
@@ -62,6 +63,38 @@ For a direct connection, create a PAT in your Memos user settings at `/setting#a
 You can also right-click selected text or an image and choose **Save selection to Memos**. Context-menu saves are always private.
 
 Browser-owned pages, such as extension stores and internal browser URLs, may block page capture. The clipper falls back to the page title and URL when available.
+
+## AI cleanup
+
+In extension settings, enter your DeepSeek API Key, add optional **Preferred tags**, enable **AI assistance**, and save. AI is off by default. Preferred tags are candidates: the model picks relevant ones first and may add new tags. Separate them with commas or new lines (up to 50 tags of 40 characters each).
+
+By default, opening the popup organizes the selected text, or the extracted article if there is no selection. The model is instructed to remove advertisements, navigation, recommendations, and repeated text while preserving facts, steps, code, tables, and the original body language. The result includes a short Chinese summary, cleaned body, source link, and up to five relevant tags. Metadata descriptions are omitted to avoid adding clutter back.
+
+### Configuration
+
+| Setting | Choices | Default |
+| --- | --- | --- |
+| When to run | Automatically on opening the popup; manually via Generate | Automatic |
+| Content to save | Cleaned body + summary; original body + summary; summary only | Cleaned body + summary |
+| Summary and new tag language | Simplified Chinese; Traditional Chinese; English; source language | Simplified Chinese |
+| Summary detail | One sentence; 2–3 sentences; 4–6 key points | 2–3 sentences |
+| Maximum AI tags | 0–10; zero disables generated tags | 5 |
+| How to choose tags | Prefer relevant candidates and allow additions; restrict to candidates | Prefer candidates |
+| DeepSeek model | `deepseek-flash`; `deepseek-v4-pro` | `deepseek-flash` |
+
+Output options are under **Output: content, summary, tags, and model**. Restricting tags to candidates requires a nonempty candidate list unless generated tags are disabled. No matches produce no tags, instead of irrelevant filler. Fixed tags in a custom template are unaffected by the generated-tag limit. Original-body mode preserves captured Markdown locally; the model only returns summary and tags. Summary-only mode keeps source attribution through the template.
+
+### Review and recovery
+
+Review and edit before saving. If you type or save while AI is running, late results remain available for explicit replacement without overwriting your draft. **Restore original clip** recovers the capture. **Undo last replacement** restores the draft from before applying AI or restoring the original; further typing starts a new draft. Save always sends the editor's current text.
+
+Use **Cancel** to stop waiting and request cancellation, or **Regenerate** for a fresh response. Closing the popup also requests cancellation; cancellation cannot guarantee that the provider stops processing or charging. The last successful result is reused for five minutes only when source text, title, credentials, and settings match. It is held in browser session storage, not persisted across browser restarts. Regenerate bypasses it, and saving settings or removing the key clears it.
+
+Failures leave current content editable and saveable. Titles or page descriptions alone are not summarized. Inputs over 40,000 characters and responses exceeding the 25-second timeout fall back to the capture; long input is never silently truncated. Retries are explicit. A settings change cancels stale generation; simultaneous settings edits require reloading the saved version before overwriting it. Unsaved settings are marked, and deleting the API Key preserves other edits in the form.
+
+Templates support `{{summary}}` and `{{tags}}`, both empty when AI is off. Existing custom templates without these fields get the summary prepended and tags appended. `{{content}}` follows the selected content mode; `{{description}}` is empty after successful AI processing. Custom templates still control source-link placement.
+
+The extension calls [DeepSeek's Chat Completions API](https://api-docs.deepseek.com/api/create-chat-completion/) directly with thinking disabled and JSON output. Generation sends captured text, title, and preferred tags to the selected model and may incur API charges. The key stays in local browser storage, is read by the background worker, and is never synced or shown again in the UI. Removing it turns off AI. Images and context-menu quick saves are not processed by AI. See [configuration decisions and usability checks](docs/AI_CLIPPING_DESIGN.md) for implementation boundaries.
 
 ## Local history
 

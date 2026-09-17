@@ -228,8 +228,8 @@
   "templatePreviewContent": { "message": "> The quick brown fox jumps over the lazy dog." },
   "templatePreviewTitle": { "message": "Example Article" },
   "templatePreviewDescription": { "message": "A short summary of the page." },
-  "templateContentMeaning": { "message": "Selected text as quoted Markdown" },
-  "templateContentSource": { "message": "Your selection on the page" },
+  "templateContentMeaning": { "message": "Captured text, or the AI-cleaned body" },
+  "templateContentSource": { "message": "Selection or article; DeepSeek when enabled" },
   "templateContentExample": { "message": "> The quick brown fox…" },
   "templateDescriptionMeaning": {
     "message": "Page summary, up to $COUNT$ characters",
@@ -334,5 +334,82 @@
   "errorBadResponseTitle": { "message": "Unexpected response" },
   "errorBadResponseWhy": { "message": "The instance returned something that isn't a valid API response." },
   "errorBadResponseFixApi": { "message": "Confirm the URL points at your Memos API." },
-  "errorBadResponseFixRedirect": { "message": "If your server redirects, use the final URL." }
+  "errorBadResponseFixRedirect": { "message": "If your server redirects, use the final URL." },
+  "aiTitle": { "message": "AI cleanup · DeepSeek" },
+  "aiLocked": { "message": "Connect Memos to configure AI cleanup." },
+  "aiDescription": {
+    "message": "Clean up captured text and add a summary and topic tags. Choose the output you want below."
+  },
+  "aiEnable": { "message": "Enable AI assistance" },
+  "aiApiKey": { "message": "DeepSeek API Key" },
+  "aiKeyStored": { "message": "Key saved; leave blank to keep it" },
+  "aiRemoveKey": { "message": "Remove key and turn off AI" },
+  "aiPreferredTags": { "message": "Preferred tags" },
+  "aiTagsExample": { "message": "Programming, Product, Reading" },
+  "aiTagsHelp": {
+    "message": "Separate with commas or new lines. AI prefers relevant candidates; output settings can restrict tags to this list. Up to 50 tags, 40 characters each, without spaces."
+  },
+  "aiTagsInvalid": {
+    "message": "Use up to 50 tags of 40 characters each, containing letters, numbers, underscores, hyphens, or slash-separated groups."
+  },
+  "aiPrivacy": {
+    "message": "AI sends captured text, its title, and candidate tags directly to DeepSeek with the selected model. API charges may apply. Your key stays in this browser. One recent result may be reused for 5 minutes during this browser session. Images and right-click saves are not processed."
+  },
+  "aiSaveSettings": { "message": "Save AI settings" },
+  "aiGenerating": { "message": "Organizing with DeepSeek… You can edit or save the current content." },
+  "aiApplied": { "message": "AI cleanup applied. Review before saving." },
+  "aiReady": { "message": "AI result ready. Your current content has been kept." },
+  "aiReview": { "message": "Review AI result" },
+  "aiApply": { "message": "Replace current content with this result" },
+  "aiRestore": { "message": "Restore original clip" },
+  "aiErrorSettings": { "message": "AI settings could not be read or saved. Your clip is unchanged." },
+  "aiErrorMissingKey": { "message": "Enter a DeepSeek API Key to enable AI." },
+  "aiErrorInvalidKey": { "message": "DeepSeek rejected the API key. Check it in settings; the original content is still available." },
+  "aiErrorQuota": { "message": "DeepSeek balance is insufficient. You can still save the current content." },
+  "aiErrorRateLimit": { "message": "DeepSeek is rate limiting requests. Try again later or save the current content." },
+  "aiErrorTimeout": { "message": "AI cleanup timed out. Your content is unchanged; try again or save it as is." },
+  "aiErrorUnavailable": { "message": "DeepSeek could not be reached. Your content is unchanged." },
+  "aiErrorResponse": { "message": "DeepSeek returned an incomplete or invalid result. Your content is unchanged." },
+  "aiErrorTooLong": {
+    "message": "This clip is over 40,000 characters. Select a shorter passage for AI cleanup, or save the full original."
+  },
+  "aiErrorNoContent": { "message": "Not enough article text for AI cleanup. Select the text you want to save; no summary was invented." },
+  "templateAiSummaryExample": { "message": "A short Chinese summary of the captured text." },
+  "templateAiSummaryMeaning": { "message": "AI summary in the configured language; empty when AI is off" },
+  "templateAiTagsMeaning": { "message": "AI topic tags formatted as #tags" },
+  "templateAiSource": { "message": "DeepSeek, when enabled" },
+  "aiTrigger": { "message": "When to run" },
+  "aiAutomatic": { "message": "Automatically when opening the popup" },
+  "aiManual": { "message": "Only when I click Generate" },
+  "aiOutputSettings": { "message": "Output: content, summary, tags, and model" },
+  "aiContentMode": { "message": "Content to save" },
+  "aiContentCleaned": { "message": "Cleaned text + summary" },
+  "aiContentOriginal": { "message": "Original text + summary" },
+  "aiContentSummary": { "message": "Summary only" },
+  "aiSummaryLanguage": { "message": "Summary and new tag language" },
+  "aiSourceLanguage": { "message": "Same as the source text" },
+  "aiSummaryLength": { "message": "Summary detail" },
+  "aiLengthShort": { "message": "Brief · one sentence" },
+  "aiLengthStandard": { "message": "Standard · 2–3 sentences" },
+  "aiLengthDetailed": { "message": "Detailed · 4–6 key points" },
+  "aiTagCount": { "message": "Maximum AI tags" },
+  "aiNoTags": { "message": "Do not generate tags" },
+  "aiTagMode": { "message": "How to choose tags" },
+  "aiTagsPrefer": { "message": "Prefer candidates; allow new tags" },
+  "aiTagsOnly": { "message": "Only use relevant candidate tags" },
+  "aiModel": { "message": "DeepSeek model" },
+  "aiResetPreferences": { "message": "Restore default options" },
+  "aiSettingsConflict": {
+    "message": "Settings changed in another window. Your draft is kept. Load the saved settings before making further changes."
+  },
+  "aiSettingsChanged": {
+    "message": "AI settings changed during generation. Your content is kept; generate again to use the new settings."
+  },
+  "aiEmptyTags": { "message": "Add at least one candidate tag, or allow new tags." },
+  "aiReloadSettings": { "message": "Load saved settings (discard draft)" },
+  "aiIdle": { "message": "Ready when you are. Generate to organize this capture." },
+  "aiReused": { "message": "Recent AI result reused. Review before saving." },
+  "aiRegenerate": { "message": "Generate again" },
+  "aiGenerate": { "message": "Generate" },
+  "aiUndo": { "message": "Undo last replacement" }
 }

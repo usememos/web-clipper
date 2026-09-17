@@ -1,9 +1,14 @@
 import browser from "webextension-polyfill";
+import type { AiResult, AiSettingsResult } from "./ai";
 import type { BackgroundRequest } from "./background-protocol";
 import type { ClipRecord, ClipSaveStatus } from "./clip-records";
 import type { AuthUserResult, ConnectionActionResult, ConnectionStateResult, PopupStateResult, SaveResult } from "./messages";
 
 type BackgroundResponses = {
+  GET_AI_SETTINGS: AiSettingsResult;
+  SAVE_AI_SETTINGS: AiSettingsResult;
+  REMOVE_AI_KEY: AiSettingsResult;
+  GENERATE_AI_CLIP: AiResult;
   GET_POPUP_STATE: PopupStateResult;
   GET_AUTH_USER: AuthUserResult;
   GET_CONNECTION_STATE: ConnectionStateResult;

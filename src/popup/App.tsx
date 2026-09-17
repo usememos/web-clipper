@@ -24,6 +24,7 @@ import { describeSaveError, type SaveErrorDetail } from "@/lib/errors";
 import { formatDateTime, t, tp } from "@/lib/i18n";
 import type { Visibility } from "@/lib/memos-client";
 import type { PopupIdentity, PopupState } from "@/lib/popup-state";
+import { AiNotice } from "./ai-notice";
 import { usePageCapture } from "./page-capture";
 import { useClipper } from "./use-clipper";
 import { usePopupState } from "./use-popup-state";
@@ -251,6 +252,10 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
     confirmationTimer.current = null;
     setJustSaved(false);
   };
+  useEffect(() => {
+    clearSavedConfirmation();
+    setError(null);
+  }, [c.content]);
   const visibilityOptions = {
     PRIVATE: {
       label: t("commonPrivate"),
@@ -306,7 +311,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
   return (
     <Frame>
       <Header left={<IdentityBadge identity={state.identity} />} instanceUrl={state.instanceUrl} />
-      <div className="flex flex-1 flex-col gap-2.5 p-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto p-3">
         <Textarea
           aria-label={t("popupMemoContent")}
           // field-sizing-fixed overrides the component's default `field-sizing-content` (which would
@@ -323,6 +328,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
           placeholder={t("popupEmptyCapturePlaceholder")}
         />
         <CaptureNotice reason={c.captureFallbackReason} hasSelection={c.hasSelection} hasSource={c.hasSource} />
+        <AiNotice clipper={c} />
         {blocked ? <ReconciliationBar state={blocked} /> : null}
         {error && <ErrorBar error={error} busy={c.busy} onRetry={onSave} />}
         {failedImageCount ? (

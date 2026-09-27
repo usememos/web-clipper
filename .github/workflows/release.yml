@@ -1,9 +1,6 @@
 name: Release
 
 on:
-  pull_request:
-    branches: [main]
-    types: [closed]
   workflow_dispatch:
     inputs:
       ref:
@@ -12,19 +9,14 @@ on:
         default: main
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.merge_commit_sha || inputs.ref }}
+  group: ${{ github.workflow }}-${{ inputs.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   release:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true &&
-       startsWith(github.event.pull_request.head.ref, 'release-please--'))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -36,7 +28,7 @@ jobs:
       - name: Checkout released source
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.event.pull_request.merge_commit_sha }}
+          ref: ${{ inputs.ref }}
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
       - name: Setup Node.js
@@ -59,11 +51,6 @@ jobs:
           done
 
           package_version="$(node -p "require('./package.json').version")"
-          manifest_version="$(node -p "require('./.release-please-manifest.json')['.']")"
-          if [ "$package_version" != "$manifest_version" ]; then
-            echo "package.json version ${package_version} does not match Release Please version ${manifest_version}." >&2
-            exit 1
-          fi
 
           echo "VERSION=${package_version}" >> "$GITHUB_ENV"
           echo "TAG=v${package_version}" >> "$GITHUB_ENV"
@@ -192,19 +179,3 @@ jobs:
           fi
 
           gh release edit "$TAG" --draft=false --latest
-      - name: Mark release pull request complete
-        if: github.event_name == 'pull_request'
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          labels="$(gh pr view "$PR_NUMBER" --json labels --jq '.labels[].name')"
-          edit_args=()
-          if printf '%s\n' "$labels" | grep -Fxq "autorelease: pending"; then
-            edit_args+=(--remove-label "autorelease: pending")
-          fi
-          if ! printf '%s\n' "$labels" | grep -Fxq "autorelease: tagged"; then
-            edit_args+=(--add-label "autorelease: tagged")
-          fi
-          if [ "${#edit_args[@]}" -gt 0 ]; then
-            gh pr edit "$PR_NUMBER" "${edit_args[@]}"
-          fi

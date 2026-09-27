@@ -693,7 +693,7 @@
     "message": "Version Memos non prise en charge."
   },
   "errorUnsupportedWhy": {
-    "message": "Ce clipper nécessite Memos, $VERSION$ ou une version stable 0.x plus récente pour être compatible avec l'API utilisée.",
+    "message": "Ce clipper nécessite Memos, $VERSION$ ou une version stable plus récente pour être compatible avec l'API utilisée.",
     "placeholders": {
       "version": {
         "content": "$1",
@@ -702,7 +702,7 @@
     }
   },
   "errorUnsupportedFix": {
-    "message": "Mettez à jour votre instance Memos vers $VERSION$ ou une version stable 0.x plus récente, puis reconnectez-vous.",
+    "message": "Mettez à jour votre instance Memos vers $VERSION$ ou une version stable plus récente, puis reconnectez-vous.",
     "placeholders": {
       "version": {
         "content": "$1",

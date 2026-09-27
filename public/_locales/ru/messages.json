@@ -353,11 +353,11 @@
   "errorTimeoutFixRetry": { "message": "Повторите попытку через несколько секунд." },
   "errorUnsupportedTitle": { "message": "Неподдерживаемая версия Memos" },
   "errorUnsupportedWhy": {
-    "message": "Для этого расширения требуется Memos $VERSION$ или более новый стабильный выпуск 0.x, совместимый с используемым API.",
+    "message": "Для этого расширения требуется Memos $VERSION$ или более новый стабильный выпуск, совместимый с используемым API.",
     "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
   },
   "errorUnsupportedFix": {
-    "message": "Обновите свой экземпляр Memos до версии $VERSION$ или более нового стабильного выпуска 0.x, затем подключитесь заново.",
+    "message": "Обновите свой экземпляр Memos до версии $VERSION$ или более нового стабильного выпуска, затем подключитесь заново.",
     "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
   },
   "errorUpgradeGuide": { "message": "Как обновить Memos" },

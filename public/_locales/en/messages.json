@@ -321,12 +321,12 @@
   "errorTimeoutFixRetry": { "message": "Try again in a moment." },
   "errorUnsupportedTitle": { "message": "Unsupported Memos version" },
   "errorUnsupportedWhy": {
-    "message": "This clipper needs Memos $VERSION$ or a newer stable 0.x release to match the API it uses.",
+    "message": "This clipper needs Memos $VERSION$ or a newer stable release to match the API it uses.",
     "description": "Explains the minimum supported Memos version.",
     "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
   },
   "errorUnsupportedFix": {
-    "message": "Update your Memos instance to $VERSION$ or a newer stable 0.x release, then reconnect.",
+    "message": "Update your Memos instance to $VERSION$ or a newer stable release, then reconnect.",
     "description": "Recovery instruction containing the minimum supported Memos version.",
     "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
   },

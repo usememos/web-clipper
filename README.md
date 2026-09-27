@@ -73,4 +73,4 @@ History stays in the current browser profile and is not synced through usememos.
 
 - Chromium-based browsers that support Chrome extensions, including Google Chrome, Microsoft Edge, Brave, and Arc
 - Mozilla Firefox 142 or later
-- Memos 0.26.0 or later in the 0.x series
+- Memos 0.26.0 or later, including calendar-versioned releases such as 26.10

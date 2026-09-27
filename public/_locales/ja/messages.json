@@ -696,7 +696,7 @@
     "message": "未対応のMemosバージョン"
   },
   "errorUnsupportedWhy": {
-    "message": "このクリッパーが使用する API に対応するには、Memos $VERSION$ またはそれ以降の安定版 0.x が必要です。",
+    "message": "このクリッパーが使用する API に対応するには、Memos $VERSION$ またはそれ以降の安定版が必要です。",
     "placeholders": {
       "version": {
         "content": "$1",
@@ -705,7 +705,7 @@
     }
   },
   "errorUnsupportedFix": {
-    "message": "Memos インスタンスを $VERSION$ またはそれ以降の安定版 0.x に更新してから、再接続してください。",
+    "message": "Memos インスタンスを $VERSION$ またはそれ以降の安定版に更新してから、再接続してください。",
     "placeholders": {
       "version": {
         "content": "$1",

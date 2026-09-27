@@ -693,7 +693,7 @@
     "message": "Nicht unterstützte Version Memos"
   },
   "errorUnsupportedWhy": {
-    "message": "Dieser Clipper benötigt Memos $VERSION$ oder eine neuere stabile 0.x-Version, um die verwendete API zu unterstützen.",
+    "message": "Dieser Clipper benötigt Memos $VERSION$ oder eine neuere stabile Version, um die verwendete API zu unterstützen.",
     "placeholders": {
       "version": {
         "content": "$1",
@@ -702,7 +702,7 @@
     }
   },
   "errorUnsupportedFix": {
-    "message": "Aktualisieren Sie Ihre Memos-Instanz auf $VERSION$ oder eine neuere stabile 0.x-Version und stellen Sie die Verbindung erneut her.",
+    "message": "Aktualisieren Sie Ihre Memos-Instanz auf $VERSION$ oder eine neuere stabile Version und stellen Sie die Verbindung erneut her.",
     "placeholders": {
       "version": {
         "content": "$1",

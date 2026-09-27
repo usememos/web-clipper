@@ -323,12 +323,12 @@
   "errorTimeoutFixRetry": { "message": "잠시 후 다시 시도하세요." },
   "errorUnsupportedTitle": { "message": "지원되지 않는 Memos 버전" },
   "errorUnsupportedWhy": {
-    "message": "이 클리퍼가 사용하는 API와 호환하려면 Memos $VERSION$ 또는 그보다 최신인 안정적인 0.x 릴리스가 필요합니다.",
+    "message": "이 클리퍼가 사용하는 API와 호환하려면 Memos $VERSION$ 또는 그보다 최신인 안정적인 릴리스가 필요합니다.",
     "description": "Explains the minimum supported Memos version.",
     "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
   },
   "errorUnsupportedFix": {
-    "message": "Memos 인스턴스를 $VERSION$ 또는 그보다 최신인 안정적인 0.x 릴리스로 업데이트한 다음 다시 연결하세요.",
+    "message": "Memos 인스턴스를 $VERSION$ 또는 그보다 최신인 안정적인 릴리스로 업데이트한 다음 다시 연결하세요.",
     "description": "Recovery instruction containing the minimum supported Memos version.",
     "placeholders": { "version": { "content": "$1", "example": "0.26.0" } }
   },

@@ -693,7 +693,7 @@
     "message": "Versión Memos no compatible"
   },
   "errorUnsupportedWhy": {
-    "message": "Este clipper necesita Memos $VERSION$ o una versión 0.x estable más reciente para que coincida con la API que utiliza.",
+    "message": "Este clipper necesita Memos $VERSION$ o una versión estable más reciente para que coincida con la API que utiliza.",
     "placeholders": {
       "version": {
         "content": "$1",
@@ -702,7 +702,7 @@
     }
   },
   "errorUnsupportedFix": {
-    "message": "Actualice su instancia Memos a $VERSION$ o a una versión 0.x estable más reciente, luego vuelva a conectarse.",
+    "message": "Actualice su instancia Memos a $VERSION$ o a una versión estable más reciente, luego vuelva a conectarse.",
     "placeholders": {
       "version": {
         "content": "$1",

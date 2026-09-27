@@ -10,6 +10,14 @@ describe("parseVersion", () => {
     expect(parseVersion("0.26.0-rc.01")).toBeNull();
     expect(parseVersion("canary")).toBeNull();
   });
+
+  it("parses calendar versions onto the same shape", () => {
+    expect(parseVersion("26.10")).toEqual({ major: 26, minor: 10, patch: 0, prerelease: [] });
+    expect(parseVersion("26.09.1")).toEqual({ major: 26, minor: 9, patch: 1, prerelease: [] });
+    expect(parseVersion("26.10-rc.1")).toEqual({ major: 26, minor: 10, patch: 0, prerelease: ["rc", "1"] });
+    expect(parseVersion("26.9")).toBeNull();
+    expect(parseVersion("26.13")).toBeNull();
+  });
 });
 
 describe("compareVersions", () => {
@@ -19,12 +27,22 @@ describe("compareVersions", () => {
     expect(compareVersions("0.26.0+build.2", "0.26.0+build.1")).toBe(0);
     expect(compareVersions("bad", "0.26.0")).toBeNull();
   });
+
+  it("orders calendar releases after the 0.x line and by date, point release, and RC", () => {
+    expect(compareVersions("26.09", "0.31.0")).toBe(1);
+    expect(compareVersions("26.10", "26.09.3")).toBe(1);
+    expect(compareVersions("26.10.1", "26.10")).toBe(1);
+    expect(compareVersions("26.10", "26.10-rc.2")).toBe(1);
+    expect(compareVersions("26.10-rc.2", "26.10-rc.1")).toBe(1);
+    expect(compareVersions("27.01", "26.12")).toBe(1);
+  });
 });
 
 describe("parseMinor", () => {
   it("extracts the minor version", () => {
     expect(parseMinor("0.29.1")).toBe(29);
     expect(parseMinor("v0.26.2")).toBe(26);
+    expect(parseMinor("26.09")).toBe(9);
     expect(parseMinor("canary")).toBeNull();
   });
 });
@@ -42,6 +60,14 @@ describe("isSupportedVersion", () => {
     expect(isSupportedVersion("0.32.5")).toBe(true);
   });
 
+  it("accepts calendar releases, point releases, and release candidates", () => {
+    expect(isSupportedVersion("26.10")).toBe(true);
+    expect(isSupportedVersion("26.10.1")).toBe(true);
+    expect(isSupportedVersion("26.10-rc.1")).toBe(true);
+    expect(isSupportedVersion("26.10.2-rc.1")).toBe(true);
+    expect(isSupportedVersion("27.04")).toBe(true);
+  });
+
   it("rejects releases before 0.26.x, non-RC prereleases, and unaudited majors", () => {
     expect(isSupportedVersion("0.25.99")).toBe(false);
     expect(isSupportedVersion("0.26.0-rc.1")).toBe(false);
@@ -49,6 +75,15 @@ describe("isSupportedVersion", () => {
     expect(isSupportedVersion("0.30.0-beta.1")).toBe(false);
     expect(isSupportedVersion("1.0.0")).toBe(false);
     expect(isSupportedVersion("garbage")).toBe(false);
+  });
+
+  it("rejects strings outside the calendar release format", () => {
+    expect(isSupportedVersion("26.9")).toBe(false);
+    expect(isSupportedVersion("26.10.0")).toBe(false);
+    expect(isSupportedVersion("v26.10")).toBe(false);
+    expect(isSupportedVersion("26.10-beta.1")).toBe(false);
+    expect(isSupportedVersion("dev")).toBe(false);
+    expect(isSupportedVersion("manual-abc1234")).toBe(false);
   });
 });
 

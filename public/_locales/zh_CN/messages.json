@@ -696,7 +696,7 @@
     "message": "不受支持的 Memos 版本"
   },
   "errorUnsupportedWhy": {
-    "message": "此剪藏工具需要 Memos $VERSION$ 或更新的 0.x 稳定版本，才能与其使用的 API 匹配。",
+    "message": "此剪藏工具需要 Memos $VERSION$ 或更新的稳定版本，才能与其使用的 API 匹配。",
     "placeholders": {
       "version": {
         "content": "$1",
@@ -705,7 +705,7 @@
     }
   },
   "errorUnsupportedFix": {
-    "message": "请将 Memos 实例更新到 $VERSION$ 或更新的 0.x 稳定版本，然后重新连接。",
+    "message": "请将 Memos 实例更新到 $VERSION$ 或更新的稳定版本，然后重新连接。",
     "placeholders": {
       "version": {
         "content": "$1",

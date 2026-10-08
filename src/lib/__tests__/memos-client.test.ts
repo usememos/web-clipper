@@ -11,14 +11,14 @@ import {
   normalizeInstanceUrl,
 } from "@/lib/memos-client";
 import { isSupportedVersion, OPENAPI_SNAPSHOT_VERSIONS } from "@/lib/versions";
-import { testCreds as creds, jsonResponse } from "@/test/fixtures";
+import { testCreds as creds, jsonResponse, testCreds } from "@/test/fixtures";
 
 describe("getInstanceProfile", () => {
   it("returns the version string", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ version: "0.29.1" }));
     const profile = await getInstanceProfile(creds, { fetchImpl });
     expect(profile.version).toBe("0.29.1");
-    expect(fetchImpl).toHaveBeenCalledWith("https://memos.example.com/api/v1/instance/profile", expect.objectContaining({ method: "GET" }));
+    expect(fetchImpl).toHaveBeenCalledWith("https://memos.example.com/api/instance/profile", expect.objectContaining({ method: "GET" }));
   });
 
   it("throws unauthorized on 401", async () => {
@@ -36,7 +36,7 @@ describe("getCurrentUser", () => {
   it("validates the token and returns the authenticated resource name", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ user: { name: "users/steven" } }));
     await expect(getCurrentUser(creds, { fetchImpl })).resolves.toEqual({ name: "users/steven" });
-    expect(fetchImpl).toHaveBeenCalledWith("https://memos.example.com/api/v1/auth/me", expect.objectContaining({ method: "GET" }));
+    expect(fetchImpl).toHaveBeenCalledWith("https://memos.example.com/api/auth/me", expect.objectContaining({ method: "GET" }));
   });
 
   it("rejects a malformed auth response", async () => {
@@ -51,7 +51,7 @@ describe("createMemo", () => {
     const memo = await createMemo(creds, { content: "hello", visibility: "PRIVATE" }, { fetchImpl });
     expect(memo.name).toBe("memos/42");
     const [url, init] = fetchImpl.mock.calls[0]!;
-    expect(url).toBe("https://memos.example.com/api/v1/memos");
+    expect(url).toBe("https://memos.example.com/api/memos");
     expect(init.method).toBe("POST");
     expect(init.headers.Authorization).toBe("Bearer tok123");
     expect(JSON.parse(init.body)).toEqual({ content: "hello", visibility: "PRIVATE" });
@@ -74,7 +74,7 @@ describe("createMemo", () => {
     await createMemo(creds, { content: "hello", visibility: "PRIVATE", memoId: "save-123" }, { fetchImpl });
 
     const [url, init] = fetchImpl.mock.calls[0]!;
-    expect(url).toBe("https://memos.example.com/api/v1/memos?memoId=save-123");
+    expect(url).toBe("https://memos.example.com/api/memos?memoId=save-123");
     expect(JSON.parse(init.body)).toEqual({ content: "hello", visibility: "PRIVATE" });
   });
 
@@ -144,7 +144,7 @@ describe("listRecentMemos", () => {
     );
     const memos = await listRecentMemos(creds, 20, "users/steven", { fetchImpl });
     expect(memos).toHaveLength(1);
-    expect(fetchImpl.mock.calls[0]![0]).toContain("/api/v1/memos?pageSize=20&orderBy=create_time+desc");
+    expect(fetchImpl.mock.calls[0]![0]).toContain("/api/memos?pageSize=20&orderBy=create_time+desc");
     expect(fetchImpl.mock.calls[0]![0]).not.toContain("filter=");
   });
 
@@ -254,7 +254,7 @@ describe("attachments", () => {
     const att = await createAttachment(creds, { filename: "x.png", type: "image/png", content: "AAAA" }, { fetchImpl });
     expect(att.name).toBe("attachments/9");
     const [url, init] = fetchImpl.mock.calls[0]!;
-    expect(url).toBe("https://memos.example.com/api/v1/attachments");
+    expect(url).toBe("https://memos.example.com/api/attachments");
     expect(JSON.parse(init.body)).toEqual({ filename: "x.png", type: "image/png", content: "AAAA" });
   });
 
@@ -266,8 +266,75 @@ describe("attachments", () => {
   });
 });
 
+describe("API prefix detection", () => {
+  // Each test uses its own instance URL: the detected prefix is remembered per instance for the module's lifetime.
+  const instance = (host: string) => ({ ...testCreds, instanceUrl: `https://${host}.example.com` });
+
+  it("falls back to /api/v1 on servers that predate the unversioned API, then goes straight there", async () => {
+    const legacy = instance("legacy");
+    const fetchImpl = vi.fn(async (url: RequestInfo | URL) =>
+      String(url).includes("/api/v1/") ? jsonResponse({ name: "memos/1" }) : jsonResponse({ message: "Not Found" }, 404),
+    );
+
+    await expect(createMemo(legacy, { content: "a", visibility: "PRIVATE" }, { fetchImpl })).resolves.toMatchObject({ name: "memos/1" });
+    await createMemo(legacy, { content: "b", visibility: "PRIVATE" }, { fetchImpl });
+
+    expect(fetchImpl.mock.calls.map(([url]) => String(url))).toEqual([
+      "https://legacy.example.com/api/memos",
+      "https://legacy.example.com/api/v1/memos",
+      "https://legacy.example.com/api/v1/memos",
+    ]);
+  });
+
+  it("treats the SPA's HTML fallback page as a missing route", async () => {
+    const spa = instance("spa");
+    const fetchImpl = vi.fn(async (url: RequestInfo | URL) =>
+      String(url).includes("/api/v1/")
+        ? jsonResponse({ version: "0.26.0" })
+        : new Response("<!doctype html>", { status: 200, headers: { "content-type": "text/html; charset=utf-8" } }),
+    );
+
+    await expect(getInstanceProfile(spa, { fetchImpl })).resolves.toEqual({ version: "0.26.0" });
+    expect(fetchImpl).toHaveBeenLastCalledWith("https://spa.example.com/api/v1/instance/profile", expect.anything());
+  });
+
+  it("switches back to /api when an upgraded server answers /api/v1 with 410 Gone", async () => {
+    const upgraded = instance("upgraded");
+    const fetchImpl = vi.fn(async (url: RequestInfo | URL) =>
+      String(url).includes("/api/v1/") ? jsonResponse({ user: { name: "users/1" } }) : jsonResponse({}, 404),
+    );
+    await getCurrentUser(upgraded, { fetchImpl }); // learns /api/v1
+
+    fetchImpl.mockClear();
+    fetchImpl.mockImplementation(async (url: RequestInfo | URL) =>
+      String(url).includes("/api/v1/") ? jsonResponse({ code: 12 }, 410) : jsonResponse({ name: "attachments/2" }),
+    );
+    await expect(createAttachment(upgraded, { filename: "x.png", type: "image/png", content: "AAAA" }, { fetchImpl })).resolves.toEqual({
+      name: "attachments/2",
+    });
+    expect(fetchImpl.mock.calls.map(([url]) => String(url))).toEqual([
+      "https://upgraded.example.com/api/v1/attachments",
+      "https://upgraded.example.com/api/attachments",
+    ]);
+  });
+
+  it("retries only once when the route is missing under both prefixes", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({}, 404));
+    await expect(getCurrentUser(instance("nowhere"), { fetchImpl })).rejects.toMatchObject({ kind: "bad-response" });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not retry other failures under the legacy prefix", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({}, 401));
+    await expect(getCurrentUser(instance("denied"), { fetchImpl })).rejects.toMatchObject({ kind: "unauthorized" });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("published OpenAPI compatibility", () => {
+  // Every published snapshot predates the unversioned API, so these servers answer only under /api/v1.
   it.each(OPENAPI_SNAPSHOT_VERSIONS)("uses the shared %s contract for every required capability", async (version) => {
+    const creds = { ...testCreds, instanceUrl: `https://memos-${version}.example.com` };
     const fetchImpl = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
       const value = String(url);
       if (value.endsWith("/api/v1/instance/profile")) return jsonResponse({ version });

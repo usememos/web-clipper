@@ -188,9 +188,9 @@ Changing or blurring a field may show format help, but live network verification
 
 The options page sends `CONNECT_DIRECT` to the background. The background must verify the sender is `/src/options/index.html`, then:
 
-1. Fetch `GET /api/v1/instance/profile` with the candidate Bearer token.
+1. Fetch `GET /api/instance/profile` with the candidate Bearer token, falling back to `/api/v1` on instances that predate the unversioned API.
 2. Validate the response shape and supported Memos version using the existing version policy.
-3. Fetch `GET /api/v1/auth/me` with the same token.
+3. Fetch `GET /api/auth/me` with the same token.
 4. Validate and sanitize the returned Memos user.
 5. Persist the direct record and cached version.
 6. Make direct the active source, clear the inactive OAuth session, reconcile popup state, and broadcast a connection change.
@@ -390,7 +390,7 @@ This order avoids building a direct form on top of code paths that still assume 
 - Reject unsupported schemes, embedded credentials, query, fragment, blank host, and blank token.
 - Parse every versioned storage variant and reject malformed direct records.
 - Resolve only the explicitly active source and prove there is no fallback.
-- Sanitize `/api/v1/auth/me` output and reject malformed user data.
+- Sanitize `/api/auth/me` output and reject malformed user data.
 - Confirm direct state and runtime responses contain no `accessToken` property.
 - Map direct versus usememos.com recovery copy correctly.
 

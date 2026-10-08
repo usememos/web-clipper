@@ -117,7 +117,7 @@ describe("background — SAVE_MEMO message", () => {
     });
 
     expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/abc" });
-    expect(fetchMock).toHaveBeenCalledWith("https://memos.example.com/api/v1/memos", expect.objectContaining({ method: "POST" }));
+    expect(fetchMock).toHaveBeenCalledWith("https://memos.example.com/api/memos", expect.objectContaining({ method: "POST" }));
     vi.unstubAllGlobals();
   });
 
@@ -196,7 +196,7 @@ describe("background — SAVE_MEMO message", () => {
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://new.example.com/api/v1/memos",
+      "https://new.example.com/api/memos",
       expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Bearer new-token" }) }),
     );
     vi.unstubAllGlobals();
@@ -208,8 +208,8 @@ describe("background — SAVE_MEMO message", () => {
       if (u === "https://cdn.example.com/x.png") {
         return Promise.resolve(new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/png" } }));
       }
-      if (u.endsWith("/api/v1/attachments")) return Promise.resolve(jsonResponse({ name: "attachments/9" }));
-      if (u.endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      if (u.endsWith("/api/attachments")) return Promise.resolve(jsonResponse({ name: "attachments/9" }));
+      if (u.endsWith("/api/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
       return Promise.resolve(new Response(null, { status: 404 }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -224,7 +224,7 @@ describe("background — SAVE_MEMO message", () => {
 
     expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/xy" });
     const memoPost = fetchMock.mock.calls.find(
-      ([u, init]) => String(u).endsWith("/api/v1/memos") && (init as { method: string }).method === "POST",
+      ([u, init]) => String(u).endsWith("/api/memos") && (init as { method: string }).method === "POST",
     );
     expect(JSON.parse((memoPost![1] as { body: string }).body).attachments).toEqual([{ name: "attachments/9" }]);
     vi.unstubAllGlobals();
@@ -234,7 +234,7 @@ describe("background — SAVE_MEMO message", () => {
     const fetchMock = vi.fn((url: unknown, _init?: unknown) => {
       const u = String(url);
       if (u === "https://cdn.example.com/broken.png") return Promise.resolve(new Response(null, { status: 404 }));
-      if (u.endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      if (u.endsWith("/api/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
       return Promise.resolve(new Response(null, { status: 404 }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -255,7 +255,7 @@ describe("background — SAVE_MEMO message", () => {
     const privateImage = "https://127.0.0.1/admin.png";
     const mappedLoopbackImage = "https://[::ffff:127.0.0.1]/admin.png";
     const fetchMock = vi.fn((url: unknown) => {
-      if (String(url).endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      if (String(url).endsWith("/api/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
       return Promise.resolve(new Response(null, { status: 404 }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -283,7 +283,7 @@ describe("background — SAVE_MEMO message", () => {
           }),
         );
       }
-      if (value.endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      if (value.endsWith("/api/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
       return Promise.resolve(new Response(null, { status: 404 }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -297,7 +297,7 @@ describe("background — SAVE_MEMO message", () => {
     });
 
     expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/xy", failedImages: 1 });
-    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/v1/attachments"))).toBe(false);
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/attachments"))).toBe(false);
     vi.unstubAllGlobals();
   });
 
@@ -307,7 +307,7 @@ describe("background — SAVE_MEMO message", () => {
       if (value === "https://cdn.example.com/active.svg") {
         return Promise.resolve(new Response("<svg><script>alert(1)</script></svg>", { headers: { "content-type": "image/svg+xml" } }));
       }
-      if (value.endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      if (value.endsWith("/api/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
       return Promise.resolve(new Response(null, { status: 404 }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -321,7 +321,7 @@ describe("background — SAVE_MEMO message", () => {
     });
 
     expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/xy", failedImages: 1 });
-    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/v1/attachments"))).toBe(false);
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/attachments"))).toBe(false);
     vi.unstubAllGlobals();
   });
 
@@ -354,10 +354,10 @@ describe("background — SAVE_MEMO message", () => {
     const startedAt = Date.now();
     let postCount = 0;
     const fetchMock = vi.fn((url: unknown, init?: RequestInit) => {
-      if (init?.method === "GET" && String(url).endsWith("/api/v1/auth/me")) {
+      if (init?.method === "GET" && String(url).endsWith("/api/auth/me")) {
         return Promise.resolve(jsonResponse({ user: { name: "users/steven" } }));
       }
-      if (init?.method === "GET" && String(url).includes("/api/v1/memos?")) {
+      if (init?.method === "GET" && String(url).includes("/api/memos?")) {
         return Promise.resolve(
           jsonResponse({
             memos: [
@@ -373,7 +373,7 @@ describe("background — SAVE_MEMO message", () => {
           }),
         );
       }
-      if (init?.method === "POST" && String(url).includes("/api/v1/memos?memoId=")) {
+      if (init?.method === "POST" && String(url).includes("/api/memos?memoId=")) {
         postCount += 1;
         return Promise.reject(Object.assign(new Error("response lost"), { name: "TimeoutError" }));
       }
@@ -491,8 +491,8 @@ describe("background — direct connection", () => {
   it("verifies, stores, and returns a sanitized direct connection", async () => {
     mockUser = null;
     const fetchMock = vi.fn((url: unknown) => {
-      if (String(url).endsWith("/api/v1/instance/profile")) return Promise.resolve(jsonResponse({ version: "0.29.1" }));
-      if (String(url).endsWith("/api/v1/auth/me")) {
+      if (String(url).endsWith("/api/instance/profile")) return Promise.resolve(jsonResponse({ version: "0.29.1" }));
+      if (String(url).endsWith("/api/auth/me")) {
         return Promise.resolve(jsonResponse({ user: { name: "users/steven", displayName: "Steven" } }));
       }
       return Promise.resolve(new Response(null, { status: 404 }));
@@ -585,7 +585,7 @@ describe("background — direct connection", () => {
 
     expect(result).toEqual({ ok: true, webUrl: "https://memos.example.com/memos/abc" });
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://memos.example.com/api/v1/memos",
+      "https://memos.example.com/api/memos",
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({ Authorization: `Bearer ${testCreds.accessToken}` }),
@@ -598,8 +598,8 @@ describe("background — direct connection", () => {
     mockUser = null;
     seedDirectConnection();
     const fetchMock = vi.fn((url: unknown) => {
-      if (String(url).endsWith("/api/v1/instance/profile")) return Promise.resolve(jsonResponse({ version: "0.29.1" }));
-      if (String(url).endsWith("/api/v1/auth/me")) return Promise.resolve(jsonResponse({}, 401));
+      if (String(url).endsWith("/api/instance/profile")) return Promise.resolve(jsonResponse({ version: "0.29.1" }));
+      if (String(url).endsWith("/api/auth/me")) return Promise.resolve(jsonResponse({}, 401));
       return Promise.resolve(new Response(null, { status: 404 }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -612,7 +612,7 @@ describe("background — direct connection", () => {
       verificationError: "unauthorized",
       isUsingCachedVersion: false,
     });
-    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/v1/auth/me"))).toBe(true);
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/api/auth/me"))).toBe(true);
     vi.unstubAllGlobals();
   });
 
@@ -623,7 +623,7 @@ describe("background — direct connection", () => {
       "fetch",
       vi.fn((url: unknown) =>
         Promise.resolve(
-          String(url).endsWith("/api/v1/instance/profile")
+          String(url).endsWith("/api/instance/profile")
             ? jsonResponse({ version: "0.29.1" })
             : jsonResponse({ user: { name: "users/steven", displayName: "Steven" } }),
         ),
@@ -655,7 +655,7 @@ describe("background — direct connection", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn((url: unknown) => {
-        if (String(url).endsWith("/api/v1/instance/profile")) {
+        if (String(url).endsWith("/api/instance/profile")) {
           markProfileStarted();
           return profileResponse;
         }
@@ -834,8 +834,8 @@ describe("background — context menu quick save", () => {
       if (u === "https://cdn.example.com/x.png") {
         return Promise.resolve(new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/png" } }));
       }
-      if (u.endsWith("/api/v1/attachments")) return Promise.resolve(jsonResponse({ name: "attachments/9" }));
-      if (u.endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      if (u.endsWith("/api/attachments")) return Promise.resolve(jsonResponse({ name: "attachments/9" }));
+      if (u.endsWith("/api/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
       return Promise.resolve(new Response(null, { status: 404 }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -847,11 +847,11 @@ describe("background — context menu quick save", () => {
 
     // The memo body is the text (image is not inline), and the image is associated atomically.
     const memoPost = fetchMock.mock.calls.find(
-      ([u, init]) => String(u).endsWith("/api/v1/memos") && (init as { method: string }).method === "POST",
+      ([u, init]) => String(u).endsWith("/api/memos") && (init as { method: string }).method === "POST",
     );
     expect(JSON.parse((memoPost![1] as { body: string }).body).content).toContain("hello world");
     expect(JSON.parse((memoPost![1] as { body: string }).body).attachments).toEqual([{ name: "attachments/9" }]);
-    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/api/v1/memos/7/attachments"))).toBe(false);
+    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/api/memos/7/attachments"))).toBe(false);
     expect(browserMock.action.setBadgeText).toHaveBeenCalledWith({ text: "✓" });
     vi.unstubAllGlobals();
   });
@@ -900,8 +900,8 @@ describe("background — context menu quick save", () => {
       if (u === "https://cdn.example.com/pic.png") {
         return Promise.resolve(new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/png" } }));
       }
-      if (u.endsWith("/api/v1/attachments")) return Promise.resolve(jsonResponse({ name: "attachments/9" }));
-      if (u.endsWith("/api/v1/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
+      if (u.endsWith("/api/attachments")) return Promise.resolve(jsonResponse({ name: "attachments/9" }));
+      if (u.endsWith("/api/memos")) return Promise.resolve(jsonResponse({ name: "memos/7", uid: "xy" }));
       return Promise.resolve(new Response(null, { status: 404 }));
     });
     vi.stubGlobal("fetch", fetchMock);
@@ -912,12 +912,12 @@ describe("background — context menu quick save", () => {
     );
 
     expect(browserMock.action.setBadgeText).toHaveBeenCalledWith({ text: "✓" });
-    const attach = fetchMock.mock.calls.find(([u]) => String(u).endsWith("/api/v1/attachments"));
+    const attach = fetchMock.mock.calls.find(([u]) => String(u).endsWith("/api/attachments"));
     const attachBody = JSON.parse((attach![1] as { body: string }).body);
     expect(attachBody.type).toBe("image/png");
     expect(typeof attachBody.content).toBe("string"); // base64
     const memoPost = fetchMock.mock.calls.find(
-      ([u, init]) => String(u).endsWith("/api/v1/memos") && (init as { method: string }).method === "POST",
+      ([u, init]) => String(u).endsWith("/api/memos") && (init as { method: string }).method === "POST",
     );
     expect(JSON.parse((memoPost![1] as { body: string }).body).attachments).toEqual([{ name: "attachments/9" }]);
     vi.unstubAllGlobals();

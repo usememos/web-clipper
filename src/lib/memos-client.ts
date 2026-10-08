@@ -66,7 +66,7 @@ function currentProtocol(deps: InstanceFetchDeps): string {
 async function isReachable(instanceUrl: string, deps: InstanceFetchDeps): Promise<boolean> {
   const fetchImpl = deps.fetchImpl ?? fetch;
   try {
-    await fetchImpl(buildUrl(instanceUrl, "/api/v1/instance/profile"), {
+    await fetchImpl(buildUrl(instanceUrl, "/api/instance/profile"), {
       method: "GET",
       mode: "no-cors",
       signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
@@ -77,21 +77,33 @@ async function isReachable(instanceUrl: string, deps: InstanceFetchDeps): Promis
   }
 }
 
+/**
+ * Memos serves its REST API under `/api` since it dropped the version marker (usememos/memos#6447);
+ * earlier releases serve only `/api/v1`, and the new ones answer `/api/v1` with 410 Gone.
+ */
+type ApiPrefix = "/api" | "/api/v1";
+
+/**
+ * The prefix each instance last answered on, keyed by normalized instance URL. Memory only: after a
+ * worker restart the first request re-detects it, and a server upgrade or downgrade flips it.
+ */
+const apiPrefixByInstance = new Map<string, ApiPrefix>();
+
+/** The route does not exist under this prefix: a 404, the 410 for removed `/api/v1`, or an SPA fallback page. */
+function isMissingApiRoute(response: Response): boolean {
+  if (response.status === 404 || response.status === 410) return true;
+  return response.ok && (response.headers.get("content-type") ?? "").includes("text/html");
+}
+
 type RequestOptions = { method: "GET" | "POST"; body?: unknown };
 
-async function instanceFetchJson(
-  creds: MemosCredentials,
-  path: string,
-  options: RequestOptions,
-  deps: InstanceFetchDeps = {},
-): Promise<unknown> {
+async function instanceFetch(creds: MemosCredentials, path: string, options: RequestOptions, deps: InstanceFetchDeps): Promise<Response> {
   if (currentProtocol(deps) === "https:" && creds.instanceUrl.startsWith("http:")) {
     throw new InstanceError("mixed-content");
   }
   const fetchImpl = deps.fetchImpl ?? fetch;
-  let response: Response;
   try {
-    response = await fetchImpl(buildUrl(creds.instanceUrl, path), {
+    return await fetchImpl(buildUrl(creds.instanceUrl, path), {
       method: options.method,
       headers: {
         Authorization: `Bearer ${creds.accessToken}`,
@@ -109,10 +121,31 @@ async function instanceFetchJson(
     console.error("[memos-web-clipper] fetch threw", { path, method: options.method, errorName });
     throw new InstanceError((await isReachable(creds.instanceUrl, deps)) ? "cors" : "unreachable");
   }
+}
+
+/**
+ * Requests `path` (relative to the API root, e.g. `/memos`) under the prefix this instance last
+ * answered on, defaulting to `/api`. When the route is missing there, retries once under the other
+ * prefix; a missing route had no side effects, so a POST is safe to repeat.
+ */
+async function apiFetchJson(
+  creds: MemosCredentials,
+  path: string,
+  options: RequestOptions,
+  deps: InstanceFetchDeps = {},
+): Promise<unknown> {
+  const key = normalizeInstanceUrl(creds.instanceUrl);
+  let prefix = apiPrefixByInstance.get(key) ?? "/api";
+  let response = await instanceFetch(creds, `${prefix}${path}`, options, deps);
+  if (isMissingApiRoute(response)) {
+    prefix = prefix === "/api" ? "/api/v1" : "/api";
+    response = await instanceFetch(creds, `${prefix}${path}`, options, deps);
+  }
+  if (!isMissingApiRoute(response)) apiPrefixByInstance.set(key, prefix);
 
   if (!response.ok || response.type === "opaqueredirect" || response.status === 0) {
     console.error("[memos-web-clipper] request not ok", {
-      path,
+      path: `${prefix}${path}`,
       method: options.method,
       status: response.status,
       type: response.type,
@@ -125,7 +158,7 @@ async function instanceFetchJson(
   try {
     return JSON.parse(text);
   } catch (e) {
-    console.error("[memos-web-clipper] JSON parse failed", { path, method: options.method, error: String(e) });
+    console.error("[memos-web-clipper] JSON parse failed", { path: `${prefix}${path}`, method: options.method, error: String(e) });
     throw new InstanceError("bad-response");
   }
 }
@@ -142,9 +175,9 @@ function badResponse(): never {
   throw new InstanceError("bad-response");
 }
 
-/** Reads the instance version from `/api/v1/instance/profile` (used to gate on version at connect). */
+/** Reads the instance version from `/instance/profile` (used to gate on version at connect). */
 export async function getInstanceProfile(creds: MemosCredentials, deps?: InstanceFetchDeps): Promise<InstanceProfile> {
-  const raw = await instanceFetchJson(creds, "/api/v1/instance/profile", { method: "GET" }, deps);
+  const raw = await apiFetchJson(creds, "/instance/profile", { method: "GET" }, deps);
   if (typeof raw !== "object" || raw === null || !("version" in raw) || typeof (raw as { version?: unknown }).version !== "string") {
     return badResponse();
   }
@@ -155,7 +188,7 @@ export async function getInstanceProfile(creds: MemosCredentials, deps?: Instanc
 
 /** Validates the access token and returns the authenticated Memos resource identity. */
 export async function getCurrentUser(creds: MemosCredentials, deps?: InstanceFetchDeps): Promise<CurrentMemosUser> {
-  const raw = await instanceFetchJson(creds, "/api/v1/auth/me", { method: "GET" }, deps);
+  const raw = await apiFetchJson(creds, "/auth/me", { method: "GET" }, deps);
   if (typeof raw !== "object" || raw === null || typeof (raw as { user?: unknown }).user !== "object") return badResponse();
   const user = (raw as { user: Record<string, unknown> }).user;
   if (typeof user.name !== "string" || !user.name.trim()) return badResponse();
@@ -174,8 +207,8 @@ export async function createMemo(
   deps?: InstanceFetchDeps,
 ): Promise<CreatedMemo> {
   const { memoId, ...body } = input;
-  const path = memoId ? `/api/v1/memos?memoId=${encodeURIComponent(memoId)}` : "/api/v1/memos";
-  const raw = await instanceFetchJson(creds, path, { method: "POST", body }, deps);
+  const path = memoId ? `/memos?memoId=${encodeURIComponent(memoId)}` : "/memos";
+  const raw = await apiFetchJson(creds, path, { method: "POST", body }, deps);
   if (typeof raw !== "object" || raw === null) return badResponse();
   const obj = raw as Record<string, unknown>;
   if (typeof obj.name !== "string" || !obj.name.trim()) return badResponse();
@@ -203,7 +236,7 @@ export async function listRecentMemos(
   deps?: InstanceFetchDeps,
 ): Promise<MemoSummary[]> {
   const params = new URLSearchParams({ pageSize: String(pageSize), orderBy: "create_time desc" });
-  const raw = await instanceFetchJson(creds, `/api/v1/memos?${params}`, { method: "GET" }, deps);
+  const raw = await apiFetchJson(creds, `/memos?${params}`, { method: "GET" }, deps);
   if (typeof raw !== "object" || raw === null || !Array.isArray((raw as { memos?: unknown }).memos)) return badResponse();
 
   return (raw as { memos: unknown[] }).memos
@@ -245,7 +278,7 @@ export async function createAttachment(
   input: { filename: string; type: string; content: string },
   deps?: InstanceFetchDeps,
 ): Promise<CreatedAttachment> {
-  const raw = await instanceFetchJson(creds, "/api/v1/attachments", { method: "POST", body: input }, deps);
+  const raw = await apiFetchJson(creds, "/attachments", { method: "POST", body: input }, deps);
   if (typeof raw !== "object" || raw === null) return badResponse();
   const obj = raw as Record<string, unknown>;
   if (typeof obj.name !== "string" || !obj.name.trim()) return badResponse();

@@ -10,6 +10,7 @@ export type InstanceErrorKind =
   | "unauthorized"
   | "timeout"
   | "bad-response"
+  | "space-unavailable"
   | "unsupported-version";
 
 /** Client-side preconditions that fail before any request is made. */
@@ -37,10 +38,13 @@ export const MEMOS_UPGRADE_DOCS_URL = "https://www.usememos.com/docs/operations/
 
 export class InstanceError extends Error {
   readonly kind: InstanceErrorKind;
-  constructor(kind: InstanceErrorKind) {
+  /** The HTTP status that produced this error, when a response was received. */
+  readonly status?: number;
+  constructor(kind: InstanceErrorKind, status?: number) {
     super(kind);
     this.name = "InstanceError";
     this.kind = kind;
+    if (status !== undefined) this.status = status;
   }
 }
 
@@ -60,6 +64,14 @@ export function toSaveErrorKind(error: unknown): SaveErrorKind {
 
 export function describeSaveError(kind: SaveErrorKind, source?: ConnectionSource | null): SaveErrorDetail {
   switch (kind) {
+    case "space-unavailable":
+      return {
+        kind,
+        primaryAction: "retry",
+        title: t("errorSpaceUnavailableTitle"),
+        why: t("errorSpaceUnavailableWhy"),
+        howToFix: [t("errorSpaceUnavailableFix")],
+      };
     case "invalid-url":
       return {
         kind,

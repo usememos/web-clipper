@@ -1,19 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ClipSaveStatus } from "@/lib/clip-records";
-import type { ConnectionSource } from "@/lib/connection-config";
 import { composeMemoContent } from "@/lib/format";
+import { type DestinationConnection, writeMemoDestination } from "@/lib/memo-destination";
 import type { Visibility } from "@/lib/memos-client";
 import type { SaveResult } from "@/lib/messages";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
-import { readLastVisibility, writeLastVisibility } from "@/lib/visibility";
 import type { PageCapture } from "./page-capture";
+import { useMemoDestination } from "./use-memo-destination";
 
 /**
  * The popup's clip state. `capture` is the page capture (started at App mount, in parallel with
  * session loading); this hook composes it into the editor prefill once both the capture and the
  * user's template are available.
  */
-type SaveExpectation = { source: ConnectionSource; connectionId: string; instanceUrl: string };
 type SaveOperation = { requestId: string; startedAt: number };
 
 function newSaveOperation(): SaveOperation {
@@ -25,26 +24,17 @@ export function useClipper(
   capture: PageCapture | null,
   template: string | null,
   templateReady: boolean,
-  expectation: SaveExpectation | null,
+  expectation: DestinationConnection | null,
+  supportsSpaces = false,
 ) {
   const [content, setContent] = useState("");
-  const [visibility, setVisibility] = useState<Visibility>("PRIVATE");
+  const destination = useMemoDestination(expectation, supportsSpaces);
+  const { visibility, space, destinationKey } = destination;
   const [busy, setBusy] = useState(false);
   const [savedClip, setSavedClip] = useState<ClipSaveStatus | null>(null);
   const initialized = useRef(false);
-  const visibilityTouched = useRef(false);
   const operation = useRef<SaveOperation | null>(null);
   const images = capture?.images ?? [];
-
-  useEffect(() => {
-    let active = true;
-    void readLastVisibility().then((stored) => {
-      if (active && !visibilityTouched.current) setVisibility(stored);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (!capture || !templateReady || initialized.current) return;
@@ -97,14 +87,26 @@ export function useClipper(
     setContent(next);
   }, []);
 
-  const changeVisibility = useCallback((next: Visibility) => {
-    visibilityTouched.current = true;
-    operation.current = null;
-    setVisibility(next);
-  }, []);
+  const changeVisibility = useCallback(
+    (next: Visibility) => {
+      operation.current = null;
+      destination.changeVisibility(next);
+    },
+    [destination.changeVisibility],
+  );
+
+  const changeSpace = useCallback(
+    (next?: string) => {
+      operation.current = null;
+      destination.changeSpace(next);
+    },
+    [destination.changeSpace],
+  );
 
   const save = useCallback(async (): Promise<SaveResult> => {
     if (!expectation) return { ok: false, errorKind: "not-configured" };
+    destination.markTouched();
+    if (destination.spaceUnavailable) return { ok: false, errorKind: "space-unavailable" };
     if (!operation.current) operation.current = newSaveOperation();
     const currentOperation = operation.current;
     setBusy(true);
@@ -117,6 +119,7 @@ export function useClipper(
           type: "SAVE_MEMO",
           content,
           visibility,
+          ...(space ? { space } : {}),
           expectedSource: expectation.source,
           expectedConnectionId: expectation.connectionId,
           expectedInstanceUrl: expectation.instanceUrl,
@@ -139,14 +142,14 @@ export function useClipper(
       }
       if (result.ok) {
         operation.current = null;
-        await writeLastVisibility(visibility).catch(() => {});
+        if (destinationKey) await writeMemoDestination(destinationKey, { visibility, ...(space ? { space } : {}) }).catch(() => {});
         setSavedClip({ memoUrl: result.webUrl, savedAt: Date.now() });
       }
       return result;
     } finally {
       setBusy(false);
     }
-  }, [capture, content, expectation, images, visibility]);
+  }, [capture, content, expectation, images, visibility, space, destinationKey, destination.spaceUnavailable]);
 
   return {
     content,
@@ -157,6 +160,11 @@ export function useClipper(
     hasSource: Boolean(capture?.title || capture?.url),
     visibility,
     setVisibility: changeVisibility,
+    space,
+    setSpace: changeSpace,
+    spaces: destination.spaces,
+    spaceUnavailable: destination.spaceUnavailable,
+    reloadSpaces: destination.reloadSpaces,
     busy,
     savedClip,
     save,

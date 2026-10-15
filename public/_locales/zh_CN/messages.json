@@ -727,5 +727,25 @@
   },
   "errorBadResponseFixRedirect": {
     "message": "如果服务器会重定向，请使用最终 URL。"
-  }
+  },
+  "commonSpaceVisibility": { "message": "成员" },
+  "popupSpaceDescription": { "message": "仅此 Space 的成员可见" },
+  "popupAddToSpace": { "message": "添加到 Space" },
+  "popupChooseSpace": { "message": "选择 Space" },
+  "popupRemoveFromSpace": { "message": "从 $SPACE$ 移除", "placeholders": { "space": { "content": "$1" } } },
+  "popupSpacesLoading": { "message": "正在加载 Space…" },
+  "popupSpacesLoadError": { "message": "无法加载 Space" },
+  "popupRetry": { "message": "重试" },
+  "popupAudienceSummary": {
+    "message": "$SPACE$ · $VISIBILITY$",
+    "placeholders": { "space": { "content": "$1" }, "visibility": { "content": "$2" } }
+  },
+  "popupAudienceLabel": {
+    "message": "$LABEL$：$SUMMARY$",
+    "placeholders": { "label": { "content": "$1" }, "summary": { "content": "$2" } }
+  },
+  "errorSpaceUnavailableTitle": { "message": "Space 不可用" },
+  "errorSpaceUnavailableWhy": { "message": "此 Space 已被删除，或你已不再是其成员。" },
+  "errorSpaceUnavailableFix": { "message": "请选择其他 Space，或移除当前 Space 后保存。" },
+  "historySpace": { "message": "Space" }
 }

@@ -724,5 +724,25 @@
   },
   "errorBadResponseFixRedirect": {
     "message": "Si su servidor redirige, utilice la URL final."
-  }
+  },
+  "commonSpaceVisibility": { "message": "Miembros" },
+  "popupSpaceDescription": { "message": "Visible para los miembros de este espacio" },
+  "popupAddToSpace": { "message": "Añadir a un espacio" },
+  "popupChooseSpace": { "message": "Elegir un espacio" },
+  "popupRemoveFromSpace": { "message": "Quitar de $SPACE$", "placeholders": { "space": { "content": "$1" } } },
+  "popupSpacesLoading": { "message": "Cargando espacios…" },
+  "popupSpacesLoadError": { "message": "No se pudieron cargar los espacios" },
+  "popupRetry": { "message": "Reintentar" },
+  "popupAudienceSummary": {
+    "message": "$SPACE$ · $VISIBILITY$",
+    "placeholders": { "space": { "content": "$1" }, "visibility": { "content": "$2" } }
+  },
+  "popupAudienceLabel": {
+    "message": "$LABEL$: $SUMMARY$",
+    "placeholders": { "label": { "content": "$1" }, "summary": { "content": "$2" } }
+  },
+  "errorSpaceUnavailableTitle": { "message": "Espacio no disponible" },
+  "errorSpaceUnavailableWhy": { "message": "Este espacio se eliminó o ya no eres miembro." },
+  "errorSpaceUnavailableFix": { "message": "Elige otro espacio o elimina la asignación actual para guardar." },
+  "historySpace": { "message": "Espacio" }
 }

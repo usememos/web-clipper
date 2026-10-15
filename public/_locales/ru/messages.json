@@ -364,5 +364,25 @@
   "errorBadResponseTitle": { "message": "Неожиданный ответ" },
   "errorBadResponseWhy": { "message": "Экземпляр вернул данные, которые не являются допустимым ответом API." },
   "errorBadResponseFixApi": { "message": "Убедитесь, что URL указывает на API вашего экземпляра Memos." },
-  "errorBadResponseFixRedirect": { "message": "Если сервер перенаправляет запрос, используйте конечный URL." }
+  "errorBadResponseFixRedirect": { "message": "Если сервер перенаправляет запрос, используйте конечный URL." },
+  "commonSpaceVisibility": { "message": "Участники" },
+  "popupSpaceDescription": { "message": "Видно участникам этого пространства" },
+  "popupAddToSpace": { "message": "Добавить в пространство" },
+  "popupChooseSpace": { "message": "Выбрать пространство" },
+  "popupRemoveFromSpace": { "message": "Убрать из $SPACE$", "placeholders": { "space": { "content": "$1" } } },
+  "popupSpacesLoading": { "message": "Загрузка пространств…" },
+  "popupSpacesLoadError": { "message": "Не удалось загрузить пространства" },
+  "popupRetry": { "message": "Повторить" },
+  "popupAudienceSummary": {
+    "message": "$SPACE$ · $VISIBILITY$",
+    "placeholders": { "space": { "content": "$1" }, "visibility": { "content": "$2" } }
+  },
+  "popupAudienceLabel": {
+    "message": "$LABEL$: $SUMMARY$",
+    "placeholders": { "label": { "content": "$1" }, "summary": { "content": "$2" } }
+  },
+  "errorSpaceUnavailableTitle": { "message": "Пространство недоступно" },
+  "errorSpaceUnavailableWhy": { "message": "Это пространство удалено или вы больше не являетесь его участником." },
+  "errorSpaceUnavailableFix": { "message": "Выберите другое пространство или уберите текущее, чтобы сохранить." },
+  "historySpace": { "message": "Пространство" }
 }

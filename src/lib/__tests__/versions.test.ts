@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compareVersions, isSupportedVersion, OPENAPI_SNAPSHOT_VERSIONS, parseMinor, parseVersion } from "@/lib/versions";
+import { compareVersions, isSupportedVersion, OPENAPI_SNAPSHOT_VERSIONS, parseMinor, parseVersion, supportsSpaces } from "@/lib/versions";
 
 describe("parseVersion", () => {
   it("parses release prefixes and suffixes without accepting partial versions", () => {
@@ -90,5 +90,14 @@ describe("isSupportedVersion", () => {
 describe("OPENAPI_SNAPSHOT_VERSIONS", () => {
   it("keeps immutable documentation snapshots separate from the supported series floor", () => {
     expect(OPENAPI_SNAPSHOT_VERSIONS).toEqual(["0.30.0", "0.29.1", "0.28.0", "0.27.1", "0.26.2"]);
+  });
+});
+
+describe("supportsSpaces", () => {
+  it.each(["0.31.0-rc.1", "v0.31.0", "0.31.1", "26.10", "26.10-rc.1"])("enables Spaces on %s", (version) => {
+    expect(supportsSpaces(version)).toBe(true);
+  });
+  it.each(["0.26.0", "0.30.9", "dev", ""])("does not enable Spaces on %s", (version) => {
+    expect(supportsSpaces(version)).toBe(false);
   });
 });

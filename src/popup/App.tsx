@@ -1,29 +1,18 @@
 import { Tooltip } from "@base-ui/react/tooltip";
-import {
-  CheckCircle2Icon,
-  EarthIcon,
-  ExternalLinkIcon,
-  GlobeIcon,
-  HistoryIcon,
-  LockIcon,
-  PaperclipIcon,
-  SettingsIcon,
-  TriangleAlertIcon,
-  UsersRoundIcon,
-} from "lucide-react";
+import { CheckCircle2Icon, ExternalLinkIcon, GlobeIcon, HistoryIcon, PaperclipIcon, SettingsIcon, TriangleAlertIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
 import { AccountBadge } from "@/components/account-badge";
 import { AppBrand } from "@/components/app-brand";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { describeSaveError, type SaveErrorDetail } from "@/lib/errors";
 import { formatDateTime, t, tp } from "@/lib/i18n";
-import type { Visibility } from "@/lib/memos-client";
 import type { PopupIdentity, PopupState } from "@/lib/popup-state";
+import { supportsSpaces } from "@/lib/versions";
+import { AudienceMenu } from "./audience-menu";
 import { usePageCapture } from "./page-capture";
 import { useClipper } from "./use-clipper";
 import { usePopupState } from "./use-popup-state";
@@ -251,32 +240,6 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
     confirmationTimer.current = null;
     setJustSaved(false);
   };
-  const visibilityOptions = {
-    PRIVATE: {
-      label: t("commonPrivate"),
-      description: t("popupPrivateDescription"),
-      icon: LockIcon,
-    },
-    PROTECTED: {
-      label: t("commonProtected"),
-      description: t("popupProtectedDescription"),
-      icon: UsersRoundIcon,
-    },
-    PUBLIC: {
-      label: t("commonPublic"),
-      description: t("popupPublicDescription"),
-      icon: EarthIcon,
-    },
-  } satisfies Record<Visibility, { label: string; description: string; icon: typeof LockIcon }>;
-  const selectedVisibility = visibilityOptions[c.visibility];
-  const SelectedVisibilityIcon = selectedVisibility.icon;
-  const visibilityValues = Object.keys(visibilityOptions) as Visibility[];
-  const visibilityItems = {
-    PRIVATE: visibilityOptions.PRIVATE.label,
-    PROTECTED: visibilityOptions.PROTECTED.label,
-    PUBLIC: visibilityOptions.PUBLIC.label,
-  };
-
   const onSave = async () => {
     clearSavedConfirmation();
     setFailedImageCount(null);
@@ -323,6 +286,11 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
           placeholder={t("popupEmptyCapturePlaceholder")}
         />
         <CaptureNotice reason={c.captureFallbackReason} hasSelection={c.hasSelection} hasSource={c.hasSource} />
+        {c.spaceUnavailable ? (
+          <p role="status" className="text-xs text-destructive">
+            {t("errorSpaceUnavailableFix")}
+          </p>
+        ) : null}
         {blocked ? <ReconciliationBar state={blocked} /> : null}
         {error && <ErrorBar error={error} busy={c.busy} onRetry={onSave} />}
         {failedImageCount ? (
@@ -364,37 +332,27 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
           </div>
         ) : null}
         <div className="flex items-center gap-2">
-          <Select
-            items={visibilityItems}
-            value={c.visibility}
-            onValueChange={(value) => {
+          <AudienceMenu
+            visibility={c.visibility}
+            space={c.space}
+            spaces={c.spaces}
+            supportsSpaces={supportsSpaces(state.version)}
+            disabled={c.busy || !!blocked}
+            onVisibilityChange={(value) => {
               clearSavedConfirmation();
-              c.setVisibility(value as Visibility);
+              setError(null);
+              c.setVisibility(value);
             }}
-          >
-            <SelectTrigger aria-label={t("popupVisibility")} className="w-32 justify-start bg-muted/60 hover:bg-muted">
-              <SelectedVisibilityIcon aria-hidden="true" className="text-muted-foreground" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent side="top" sideOffset={4} align="start" alignItemWithTrigger={false} className="min-w-64 p-1">
-              {visibilityValues.map((visibility) => {
-                const option = visibilityOptions[visibility];
-                const VisibilityIcon = option.icon;
-                return (
-                  <SelectItem key={visibility} value={visibility} className="items-start py-1.5 pe-8 ps-2">
-                    <VisibilityIcon aria-hidden="true" className="size-4 text-muted-foreground" />
-                    <span className="flex min-w-0 flex-col items-start">
-                      <span className="text-[13px] font-medium leading-4 text-foreground">{option.label}</span>
-                      <span className="text-[11px] leading-4 text-muted-foreground">{option.description}</span>
-                    </span>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
+            onSpaceChange={(space) => {
+              clearSavedConfirmation();
+              setError(null);
+              c.setSpace(space);
+            }}
+            onRetry={c.reloadSpaces}
+          />
           <Button
             className={`min-w-0 flex-1 overflow-hidden ${justSaved ? "disabled:opacity-100" : ""}`}
-            disabled={c.busy || justSaved || !!blocked || !c.content.trim()}
+            disabled={c.busy || justSaved || !!blocked || c.spaceUnavailable || !c.content.trim()}
             onClick={onSave}
             title={saveButtonLabel}
           >
@@ -415,10 +373,23 @@ export function App() {
   const templateReady = state !== null && state.status !== "signed-out";
   const template = state && state.status !== "signed-out" ? state.template : null;
   const expectation =
-    state?.status === "ready" ? { source: state.source, connectionId: state.identity.userId, instanceUrl: state.instanceUrl } : null;
+    state?.status === "ready"
+      ? {
+          source: state.source,
+          connectionId: state.identity.userId,
+          instanceUrl: state.instanceUrl,
+          accountId: state.identity.memosUserName,
+        }
+      : null;
   // This hook stays mounted while cached auth is reconciled, so a gate transition cannot erase
   // edits made during the optimistic window.
-  const clipper = useClipper(capture, template, templateReady, expectation);
+  const clipper = useClipper(
+    capture,
+    template,
+    templateReady,
+    expectation,
+    Boolean(state?.status === "ready" && supportsSpaces(state.version)),
+  );
 
   if (!state) {
     return (

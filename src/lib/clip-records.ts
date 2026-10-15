@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill";
 import type { VerifiedMemosUser } from "./connection-config";
-import { type MemosCredentials, normalizeInstanceUrl, type Visibility } from "./memos-client";
+import { isSpaceName, isVisibility, type MemosCredentials, normalizeInstanceUrl, type Visibility } from "./memos-client";
 
 export const CLIP_RECORDS_KEY = "clipRecordsV1";
 
@@ -19,6 +19,9 @@ export type ClipRecord = {
   selection?: ClipSelection;
   memoContent: string;
   visibility: Visibility;
+  space?: string;
+  /** The Space's title at save time; the resource name stays the identity. */
+  spaceTitle?: string;
   memoName: string;
   memoUrl: string;
   savedAt: number;
@@ -59,10 +62,6 @@ function queueStorageMutation<T>(operation: () => Promise<T>): Promise<T> {
   return result;
 }
 
-function isVisibility(value: unknown): value is Visibility {
-  return value === "PRIVATE" || value === "PROTECTED" || value === "PUBLIC";
-}
-
 function isClipRecord(value: unknown): value is ClipRecord {
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
@@ -77,6 +76,8 @@ function isClipRecord(value: unknown): value is ClipRecord {
     typeof record.sourceTitle !== "string" ||
     typeof record.memoContent !== "string" ||
     !isVisibility(record.visibility) ||
+    (record.space !== undefined && !isSpaceName(record.space)) ||
+    (record.spaceTitle !== undefined && typeof record.spaceTitle !== "string") ||
     typeof record.memoName !== "string" ||
     typeof record.memoUrl !== "string" ||
     typeof record.savedAt !== "number" ||
@@ -159,6 +160,8 @@ export async function recordSuccessfulClip(input: {
   memoContent: string;
   visibility: Visibility;
   memoUrl: string;
+  space?: string;
+  spaceTitle?: string;
   savedAt?: number;
 }): Promise<void> {
   if (!input.capture.sourceUrl.trim()) return;
@@ -175,6 +178,8 @@ export async function recordSuccessfulClip(input: {
     ...(hasSelection ? { selection: { markdown: selectionMarkdown, imageCount: input.capture.imageCount } } : {}),
     memoContent: input.memoContent,
     visibility: input.visibility,
+    ...(input.space ? { space: input.space } : {}),
+    ...(input.space && input.spaceTitle ? { spaceTitle: input.spaceTitle } : {}),
     // Popup saves send recordId as the server's memoId, while memoUrl may use a
     // different public UID. Do not infer the API resource name from the web URL.
     memoName: `memos/${input.recordId}`,

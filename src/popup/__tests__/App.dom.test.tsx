@@ -31,6 +31,7 @@ function wireSaveResult(
     const type = (msg as { type: string }).type;
     if (type === "GET_POPUP_STATE") return popupState;
     if (type === "GET_CLIP_STATUS") return savedClip;
+    if (type === "LIST_SPACES") return { ok: true, spaces: [{ name: "spaces/team", title: "Team", icon: { emoji: "💎" } }] };
     if (type === "SAVE_MEMO") return result;
     return undefined;
   });
@@ -138,13 +139,13 @@ describe("App — signed-in, connected", () => {
 
     expect(await screen.findByRole("button", { name: "Memosに保存" })).toBeEnabled();
     expect(screen.getByRole("textbox", { name: "メモの内容" })).toBeInTheDocument();
-    expect(screen.getByRole("combobox")).toHaveTextContent("非公開");
+    expect(screen.getByRole("button", { name: /非公開/ })).toHaveTextContent("非公開");
   });
 
   it("displays the selected visibility in title case", async () => {
     renderWithUser(<App />);
 
-    const selector = await screen.findByRole("combobox", { name: "Visibility" });
+    const selector = await screen.findByRole("button", { name: "Visibility: Private" });
     expect(selector).toHaveTextContent("Private");
     expect(selector).not.toHaveTextContent("PRIVATE");
     expect(selector.querySelector("svg")).toBeInTheDocument();
@@ -155,20 +156,20 @@ describe("App — signed-in, connected", () => {
     await waitFor(() =>
       expect(screen.getByRole<HTMLTextAreaElement>("textbox", { name: /memo content/i }).value).toContain("Captured body"),
     );
-    await user.click(await screen.findByRole("combobox", { name: "Visibility" }));
+    await user.click(await screen.findByRole("button", { name: "Visibility: Private" }));
 
     for (const [label, description] of [
       ["Private", "Only visible to you"],
       ["Protected", "Visible to signed-in users"],
       ["Public", "Visible to everyone"],
     ]) {
-      const option = await screen.findByRole("option", { name: new RegExp(`${label}.*${description}`, "i") });
+      const option = await screen.findByRole("menuitemradio", { name: new RegExp(`${label}.*${description}`, "i") });
       expect(option).toBeInTheDocument();
       expect(option.querySelector("svg")).toBeInTheDocument();
     }
 
-    await user.click(screen.getByRole("option", { name: /Protected.*Visible to signed-in users/i }));
-    expect(screen.getByRole("combobox", { name: "Visibility" })).toHaveTextContent("Protected");
+    await user.click(screen.getByRole("menuitemradio", { name: /Protected.*Visible to signed-in users/i }));
+    expect(screen.getByRole("button", { name: "Visibility: Protected" })).toHaveTextContent("Protected");
   });
 
   it("renders from the durable snapshot while live auth reconciliation is still pending", async () => {
@@ -311,5 +312,63 @@ describe("App — signed-in, connected", () => {
 
     await user.type(screen.getByRole("textbox", { name: /memo content/i }), " edited");
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+});
+
+describe("App — Spaces", () => {
+  beforeEach(() => wireSaveResult(undefined, { ...readyState, version: "0.31.0" }));
+
+  it("selects a Space through the submenu, offers Space visibility, and removes it by selecting it again", async () => {
+    const { user } = renderWithUser(<App />);
+    await user.click(await screen.findByRole("button", { name: "Visibility: Private" }));
+    expect(screen.queryByRole("menuitemradio", { name: /Members/ })).not.toBeInTheDocument();
+    (await screen.findByRole("menuitem", { name: /Add to space/i })).focus();
+    await user.keyboard("{ArrowRight}");
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "Team" })).toHaveFocus());
+    await user.keyboard("{Enter}");
+    const trigger = await screen.findByRole("button", { name: "Visibility: Team · Private" });
+    expect(trigger).toHaveTextContent("Team");
+    await user.click(trigger);
+    await user.click(await screen.findByRole("menuitemradio", { name: /Members/ }));
+    await user.click(await screen.findByRole("button", { name: "Visibility: Team · Members" }));
+    (await screen.findByRole("menuitem", { name: "Team" })).focus();
+    await user.keyboard("{ArrowRight}");
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "Remove from Team" })).toHaveFocus());
+    await user.keyboard("{Enter}");
+    expect(await screen.findByRole("button", { name: "Visibility: Private" })).toBeInTheDocument();
+  });
+
+  it("opens the Space submenu with the keyboard and returns focus after selection", async () => {
+    const { user } = renderWithUser(<App />);
+    const trigger = await screen.findByRole("button", { name: "Visibility: Private" });
+    trigger.focus();
+    await user.keyboard("{Enter}");
+    await screen.findByRole("menu");
+    await user.keyboard("{End}");
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: /Add to space/i })).toHaveFocus());
+    await user.keyboard("{ArrowRight}");
+    const team = await screen.findByRole("menuitem", { name: "Team" });
+    await waitFor(() => expect(team).toHaveFocus());
+    await user.keyboard("{Enter}");
+    expect(await screen.findByRole("button", { name: "Visibility: Team · Private" })).toHaveFocus();
+  });
+
+  it("shows a retry action for a failed list instead of treating it as an empty list", async () => {
+    let fail = true;
+    browserMock.runtime.sendMessage.mockImplementation(async (msg: unknown) => {
+      const type = (msg as { type: string }).type;
+      if (type === "GET_POPUP_STATE") return { ...readyState, version: "0.31.0" };
+      if (type === "LIST_SPACES")
+        return fail ? { ok: false, errorKind: "timeout" } : { ok: true, spaces: [{ name: "spaces/team", title: "Team" }] };
+      return null;
+    });
+    const { user } = renderWithUser(<App />);
+    await user.click(await screen.findByRole("button", { name: "Visibility: Private" }));
+    (await screen.findByRole("menuitem", { name: /Add to space/i })).focus();
+    await user.keyboard("{ArrowRight}");
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: /Couldn’t load Spaces.*Retry/i })).toHaveFocus());
+    fail = false;
+    await user.keyboard("{Enter}");
+    expect(await screen.findByRole("menuitem", { name: "Team" })).toBeInTheDocument();
   });
 });

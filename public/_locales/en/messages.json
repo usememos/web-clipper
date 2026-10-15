@@ -334,5 +334,25 @@
   "errorBadResponseTitle": { "message": "Unexpected response" },
   "errorBadResponseWhy": { "message": "The instance returned something that isn't a valid API response." },
   "errorBadResponseFixApi": { "message": "Confirm the URL points at your Memos API." },
-  "errorBadResponseFixRedirect": { "message": "If your server redirects, use the final URL." }
+  "errorBadResponseFixRedirect": { "message": "If your server redirects, use the final URL." },
+  "commonSpaceVisibility": { "message": "Members" },
+  "popupSpaceDescription": { "message": "Visible to members of this Space" },
+  "popupAddToSpace": { "message": "Add to space" },
+  "popupChooseSpace": { "message": "Choose a Space" },
+  "popupRemoveFromSpace": { "message": "Remove from $SPACE$", "placeholders": { "space": { "content": "$1" } } },
+  "popupSpacesLoading": { "message": "Loading Spaces…" },
+  "popupSpacesLoadError": { "message": "Couldn’t load Spaces" },
+  "popupRetry": { "message": "Retry" },
+  "popupAudienceSummary": {
+    "message": "$SPACE$ · $VISIBILITY$",
+    "placeholders": { "space": { "content": "$1" }, "visibility": { "content": "$2" } }
+  },
+  "popupAudienceLabel": {
+    "message": "$LABEL$: $SUMMARY$",
+    "placeholders": { "label": { "content": "$1" }, "summary": { "content": "$2" } }
+  },
+  "errorSpaceUnavailableTitle": { "message": "Space unavailable" },
+  "errorSpaceUnavailableWhy": { "message": "This Space was deleted or you no longer belong to it." },
+  "errorSpaceUnavailableFix": { "message": "Choose another Space or remove the current Space to save." },
+  "historySpace": { "message": "Space" }
 }

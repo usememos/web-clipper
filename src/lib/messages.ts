@@ -2,7 +2,7 @@ import type { OAuthIdentity } from "@/auth/oauth-session";
 import type { ClipCaptureInput } from "./clip-records";
 import type { ConnectionSource } from "./connection-config";
 import type { SaveErrorKind } from "./errors";
-import type { Visibility } from "./memos-client";
+import type { SpaceSummary, Visibility } from "./memos-client";
 import type { PopupState } from "./popup-state";
 
 export type CapturePayload = {
@@ -39,6 +39,12 @@ export type Request =
   | { type: "GET_CONNECTION_STATE"; refresh?: boolean; source?: "active" | "usememos" }
   | { type: "GET_POPUP_STATE" }
   | {
+      type: "LIST_SPACES";
+      expectedSource: ConnectionSource;
+      expectedConnectionId: string;
+      expectedInstanceUrl: string;
+    }
+  | {
       type: "GET_CLIP_STATUS";
       sourceUrl: string;
       expectedSource: ConnectionSource;
@@ -52,6 +58,7 @@ export type Request =
       type: "SAVE_MEMO";
       content: string;
       visibility: Visibility;
+      space?: string;
       images?: string[];
       expectedSource: ConnectionSource;
       expectedConnectionId: string;
@@ -65,6 +72,8 @@ export type Request =
     };
 
 export type PopupStateResult = PopupState;
+
+export type SpacesResult = { ok: true; spaces: SpaceSummary[] } | { ok: false; errorKind: SaveErrorKind };
 
 export type AuthUserResult = OAuthIdentity | null;
 

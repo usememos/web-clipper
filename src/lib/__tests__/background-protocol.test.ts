@@ -18,6 +18,19 @@ describe("background protocol", () => {
       refresh: true,
     });
     expect(parseBackgroundRequest(save)).toEqual(save);
+    expect(parseBackgroundRequest({ ...save, visibility: "SPACE", space: "spaces/team" })).toEqual({
+      ...save,
+      visibility: "SPACE",
+      space: "spaces/team",
+    });
+    const list = {
+      type: "LIST_SPACES",
+      expectedSource: save.expectedSource,
+      expectedConnectionId: save.expectedConnectionId,
+      expectedInstanceUrl: save.expectedInstanceUrl,
+    };
+    expect(parseBackgroundRequest(list)).toEqual(list);
+    expect(isTrustedBackgroundRequest(parseBackgroundRequest(list)!, { id: "ext", url: "https://example.com" }, "ext")).toBe(false);
     expect(
       parseBackgroundRequest({
         ...save,
@@ -66,6 +79,9 @@ describe("background protocol", () => {
       expectedInstanceUrl: "https://x",
     },
     { ...save, visibility: "SECRET" },
+    { ...save, visibility: "SPACE" },
+    { ...save, space: "spaces/../../users" },
+    { type: "LIST_SPACES" },
     { ...save, expectedSource: "other" },
     { ...save, expectedConnectionId: "" },
     { ...save, images: ["ok", 2] },

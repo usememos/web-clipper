@@ -9,6 +9,7 @@ import {
   createAttachment,
   createMemo,
   getCurrentUser,
+  getSpace,
   listRecentMemos,
   type MemosCredentials,
   memoWebUrl,
@@ -39,8 +40,17 @@ export async function clearMemoSaveAttempts(): Promise<void> {
   await browser.storage.local.remove(SAVE_ATTEMPTS_KEY);
 }
 
-function saveFingerprint(content: string, visibility: Visibility, expected: SaveExpectation, images: string[]): string {
-  const value = [content, visibility, expected.source, expected.connectionId, expected.instanceUrl, ...images].join("\u0000");
+function saveFingerprint(content: string, visibility: Visibility, expected: SaveExpectation, images: string[], space?: string): string {
+  const value = [
+    content,
+    visibility,
+    expected.source,
+    expected.connectionId,
+    expected.instanceUrl,
+    // A fixed slot: an optional entry would make (no Space, images=[X, …]) hash like (Space=X, images=[…]).
+    space ?? "",
+    ...images,
+  ].join("\u0000");
   let hash = 0x811c9dc5;
   for (let index = 0; index < value.length; index += 1) {
     hash ^= value.charCodeAt(index);
@@ -74,6 +84,7 @@ export async function savePopupMemo(
   expected: SaveExpectation,
   operation: SaveOperation = { requestId: `legacy_${Date.now()}_${Math.random().toString(36).slice(2)}`, startedAt: Date.now() },
   clip?: ClipCaptureInput,
+  space?: string,
 ): Promise<SaveResult> {
   let connection: Awaited<ReturnType<typeof resolveActiveConnection>>;
   try {
@@ -94,7 +105,8 @@ export async function savePopupMemo(
   const running = inFlight.get(operation.requestId);
   if (running) return running;
 
-  const save = savePopupMemoOnce(content, visibility, images, expected, operation, credentials)
+  const placement: SpacePlacement = {};
+  const save = savePopupMemoOnce(content, visibility, images, expected, operation, credentials, space, placement)
     .then(async (result) => {
       if (result.ok && clip) {
         try {
@@ -104,6 +116,8 @@ export async function savePopupMemo(
             recordId: operation.requestId,
             memoContent: content,
             visibility,
+            ...(space ? { space } : {}),
+            ...(placement.title ? { spaceTitle: placement.title } : {}),
             memoUrl: result.webUrl,
           });
         } catch (error) {
@@ -120,6 +134,9 @@ export async function savePopupMemo(
   return save;
 }
 
+/** Filled in once the Space is verified, so the local history can show its title instead of its id. */
+type SpacePlacement = { title?: string };
+
 async function savePopupMemoOnce(
   content: string,
   visibility: Visibility,
@@ -127,8 +144,10 @@ async function savePopupMemoOnce(
   expected: SaveExpectation,
   operation: SaveOperation,
   credentials: MemosCredentials,
+  space: string | undefined,
+  placement: SpacePlacement,
 ): Promise<SaveResult> {
-  const fingerprint = saveFingerprint(content, visibility, expected, images);
+  const fingerprint = saveFingerprint(content, visibility, expected, images, space);
   const previous = (await readAttempts())[operation.requestId];
   if (previous && previous.fingerprint !== fingerprint) return { ok: false, errorKind: "bad-response" };
   if (previous?.result) return previous.result;
@@ -143,6 +162,7 @@ async function savePopupMemoOnce(
         (memo) =>
           memo.content === content &&
           memo.visibility === visibility &&
+          memo.space === space &&
           Date.parse(memo.createTime) >= operation.startedAt - RECONCILIATION_CLOCK_SKEW_MS,
       );
       if (match) {
@@ -160,6 +180,15 @@ async function savePopupMemoOnce(
     }
   }
 
+  // Validate placement before uploading images; a removed Space never changes the destination.
+  if (space) {
+    try {
+      placement.title = (await getSpace(credentials, space)).title;
+    } catch (error) {
+      return { ok: false, errorKind: toSaveErrorKind(error) };
+    }
+  }
+
   let attempt: AttemptRecord = previous ?? { fingerprint, startedAt: operation.startedAt };
   await writeAttempt(operation.requestId, attempt);
 
@@ -173,7 +202,7 @@ async function savePopupMemoOnce(
     await writeAttempt(operation.requestId, attempt);
   }
 
-  const result = await createMemoWithAttachments(content, names, credentials, visibility, operation.serverMemoId);
+  const result = await createMemoWithAttachments(content, names, credentials, visibility, operation.serverMemoId, space);
   if (result.ok) {
     const success = failed > 0 ? { ...result, failedImages: failed } : result;
     await writeAttempt(operation.requestId, { ...attempt, result: success });
@@ -359,11 +388,13 @@ async function createMemoWithAttachments(
   credentials: MemosCredentials,
   visibility: Visibility,
   memoId?: string,
+  space?: string,
 ): Promise<SaveResult> {
   try {
     const memo = await createMemo(credentials, {
       content,
       visibility,
+      ...(space ? { space } : {}),
       ...(memoId ? { memoId } : {}),
       ...(attachmentNames.length ? { attachments: attachmentNames.map((name) => ({ name })) } : {}),
     });

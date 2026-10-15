@@ -1,7 +1,18 @@
 import { InstanceError } from "./errors";
 
 export type MemosCredentials = { instanceUrl: string; accessToken: string };
-export type Visibility = "PRIVATE" | "PROTECTED" | "PUBLIC";
+export type Visibility = "PRIVATE" | "PROTECTED" | "PUBLIC" | "SPACE";
+
+export function isVisibility(value: unknown): value is Visibility {
+  return value === "PRIVATE" || value === "PROTECTED" || value === "PUBLIC" || value === "SPACE";
+}
+
+export function isSpaceName(value: unknown): value is string {
+  return typeof value === "string" && /^spaces\/[a-zA-Z0-9]([a-zA-Z0-9-]{0,34}[a-zA-Z0-9])?$/.test(value);
+}
+
+/** Only emoji icons are rendered; a Space with a Lucide icon falls back to the generic mark. */
+export type SpaceSummary = { name: string; title: string; icon?: { emoji: string } };
 
 export const INSTANCE_REQUEST_TIMEOUT_MS = 8000;
 
@@ -150,8 +161,8 @@ async function apiFetchJson(
       status: response.status,
       type: response.type,
     });
-    if (response.status === 401 || response.status === 403) throw new InstanceError("unauthorized");
-    throw new InstanceError("bad-response");
+    if (response.status === 401 || response.status === 403) throw new InstanceError("unauthorized", response.status);
+    throw new InstanceError("bad-response", response.status);
   }
   const text = await response.text();
   if (!text) return null; // some endpoints (e.g. SetMemoAttachments) return an empty body
@@ -201,14 +212,65 @@ export async function getCurrentUser(creds: MemosCredentials, deps?: InstanceFet
 
 export type CreatedMemo = { name: string; uid?: string };
 
+function parseSpace(raw: unknown): SpaceSummary {
+  if (!raw || typeof raw !== "object") return badResponse();
+  const space = raw as Record<string, unknown>;
+  if (!isSpaceName(space.name) || typeof space.title !== "string" || !space.title.trim()) return badResponse();
+  const emoji = (space.icon as { emoji?: unknown } | undefined)?.emoji;
+  return { name: space.name, title: space.title, ...(typeof emoji === "string" && emoji ? { icon: { emoji } } : {}) };
+}
+
+/** Rethrows a response that says the Space is gone or closed to this user as `space-unavailable`. */
+function rethrowMissingSpace(error: unknown, statuses: number[]): never {
+  if (error instanceof InstanceError && error.status !== undefined && statuses.includes(error.status)) {
+    throw new InstanceError("space-unavailable", error.status);
+  }
+  throw error;
+}
+
+/** List every Space the authenticated user belongs to, including paginated results. */
+export async function listSpaces(creds: MemosCredentials, deps?: InstanceFetchDeps): Promise<SpaceSummary[]> {
+  const spaces = new Map<string, SpaceSummary>();
+  const seenTokens = new Set<string>();
+  let token = "";
+  do {
+    const params = new URLSearchParams({ pageSize: "100", ...(token ? { pageToken: token } : {}) });
+    const raw = await apiFetchJson(creds, `/spaces?${params}`, { method: "GET" }, deps);
+    if (!raw || typeof raw !== "object") return badResponse();
+    const page = raw as { spaces?: unknown; nextPageToken?: unknown };
+    if (page.spaces !== undefined && !Array.isArray(page.spaces)) return badResponse();
+    for (const value of (page.spaces ?? []) as unknown[]) {
+      const space = parseSpace(value);
+      spaces.set(space.name, space);
+    }
+    if (page.nextPageToken !== undefined && typeof page.nextPageToken !== "string") return badResponse();
+    token = (page.nextPageToken as string | undefined) ?? "";
+    if (token && seenTokens.has(token)) return badResponse();
+    seenTokens.add(token);
+  } while (token);
+  return [...spaces.values()];
+}
+
+export async function getSpace(creds: MemosCredentials, name: string, deps?: InstanceFetchDeps): Promise<SpaceSummary> {
+  if (!isSpaceName(name)) throw new InstanceError("space-unavailable");
+  const raw = await apiFetchJson(creds, `/${name}`, { method: "GET" }, deps).catch((error) => rethrowMissingSpace(error, [403, 404]));
+  const space = parseSpace(raw);
+  if (space.name !== name) return badResponse();
+  return space;
+}
+
 export async function createMemo(
   creds: MemosCredentials,
-  input: { content: string; visibility: Visibility; memoId?: string; attachments?: Array<{ name: string }> },
+  input: { content: string; visibility: Visibility; space?: string; memoId?: string; attachments?: Array<{ name: string }> },
   deps?: InstanceFetchDeps,
 ): Promise<CreatedMemo> {
   const { memoId, ...body } = input;
   const path = memoId ? `/memos?memoId=${encodeURIComponent(memoId)}` : "/memos";
-  const raw = await apiFetchJson(creds, path, { method: "POST", body }, deps);
+  // The Space was verified just before this call, so only a 404 (deleted in between) is attributed
+  // to it; a 403 here is a token or permission problem and keeps its `unauthorized` meaning.
+  const raw = await apiFetchJson(creds, path, { method: "POST", body }, deps).catch((error) =>
+    rethrowMissingSpace(error, input.space ? [404] : []),
+  );
   if (typeof raw !== "object" || raw === null) return badResponse();
   const obj = raw as Record<string, unknown>;
   if (typeof obj.name !== "string" || !obj.name.trim()) return badResponse();
@@ -219,15 +281,13 @@ export type MemoSummary = CreatedMemo & {
   creator: string;
   content: string;
   visibility: Visibility;
+  space?: string;
   createTime: string;
 };
 
-const CLIPPER_VISIBILITIES = new Set<string>(["PRIVATE", "PROTECTED", "PUBLIC"]);
-
 /**
- * Newest memos used to reconcile a POST whose response may have been lost. Memos with a
- * visibility the clipper never creates (e.g. `SPACE`, added in Memos 0.31) cannot be a lost
- * clip, so they are skipped rather than failing the whole list.
+ * Newest memos used to reconcile a POST whose response may have been lost.
+ * Unknown future visibility values cannot be a lost clip, so they are skipped.
  */
 export async function listRecentMemos(
   creds: MemosCredentials,
@@ -255,7 +315,8 @@ export async function listRecentMemos(
       ) {
         return badResponse();
       }
-      if (!CLIPPER_VISIBILITIES.has(memo.visibility)) return [];
+      if (!isVisibility(memo.visibility)) return [];
+      if (memo.space !== undefined && !isSpaceName(memo.space)) return badResponse();
       return [
         {
           name: memo.name,
@@ -263,6 +324,7 @@ export async function listRecentMemos(
           creator: memo.creator,
           content: memo.content,
           visibility: memo.visibility as Visibility,
+          ...(memo.space ? { space: memo.space as string } : {}),
           createTime: memo.createTime,
         },
       ];

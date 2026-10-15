@@ -1,6 +1,6 @@
 import type { ClipCaptureInput } from "./clip-records";
 import type { ConnectionSource } from "./connection-config";
-import type { Visibility } from "./memos-client";
+import { isSpaceName, isVisibility } from "./memos-client";
 import type { Request } from "./messages";
 
 export type BackgroundRequest = Extract<
@@ -8,6 +8,7 @@ export type BackgroundRequest = Extract<
   {
     type:
       | "GET_POPUP_STATE"
+      | "LIST_SPACES"
       | "OPEN_SIGN_IN"
       | "SIGN_OUT"
       | "SELECT_USEMEMOS_SOURCE"
@@ -23,7 +24,6 @@ export type BackgroundRequest = Extract<
 >;
 export type RuntimeSender = { id?: string; url?: string };
 
-const VISIBILITIES = new Set<Visibility>(["PRIVATE", "PROTECTED", "PUBLIC"]);
 const MAX_REMOTE_IMAGE_URL_CHARS = 8_192;
 const MAX_DATA_IMAGE_URL_CHARS = 14 * 1024 * 1024;
 const MAX_TOTAL_IMAGE_SOURCE_CHARS = 16 * 1024 * 1024;
@@ -114,9 +114,15 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
       ...expected,
     };
   }
+  if (request.type === "LIST_SPACES") {
+    const expected = parseExpectedConnection(request);
+    return expected ? { type: "LIST_SPACES", ...expected } : null;
+  }
   if (request.type !== "SAVE_MEMO") return null;
 
-  if (typeof request.content !== "string" || !VISIBILITIES.has(request.visibility as Visibility)) return null;
+  if (typeof request.content !== "string" || !isVisibility(request.visibility)) return null;
+  if (request.space !== undefined && !isSpaceName(request.space)) return null;
+  if (request.visibility === "SPACE" && !request.space) return null;
   const expected = parseExpectedConnection(request);
   if (!expected) return null;
   if (
@@ -149,7 +155,8 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
   return {
     type: "SAVE_MEMO",
     content: request.content,
-    visibility: request.visibility as Visibility,
+    visibility: request.visibility,
+    ...(request.space ? { space: request.space as string } : {}),
     ...expected,
     ...(clip ? { clip } : {}),
     ...(request.images ? { images: request.images as string[] } : {}),

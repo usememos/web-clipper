@@ -727,5 +727,25 @@
   },
   "errorBadResponseFixRedirect": {
     "message": "サーバーでリダイレクトする場合は、最終的な URL を使用してください。"
-  }
+  },
+  "commonSpaceVisibility": { "message": "メンバー" },
+  "popupSpaceDescription": { "message": "このスペースのメンバーに表示" },
+  "popupAddToSpace": { "message": "スペースに追加" },
+  "popupChooseSpace": { "message": "スペースを選択" },
+  "popupRemoveFromSpace": { "message": "$SPACE$ から削除", "placeholders": { "space": { "content": "$1" } } },
+  "popupSpacesLoading": { "message": "スペースを読み込み中…" },
+  "popupSpacesLoadError": { "message": "スペースを読み込めませんでした" },
+  "popupRetry": { "message": "再試行" },
+  "popupAudienceSummary": {
+    "message": "$SPACE$・$VISIBILITY$",
+    "placeholders": { "space": { "content": "$1" }, "visibility": { "content": "$2" } }
+  },
+  "popupAudienceLabel": {
+    "message": "$LABEL$：$SUMMARY$",
+    "placeholders": { "label": { "content": "$1" }, "summary": { "content": "$2" } }
+  },
+  "errorSpaceUnavailableTitle": { "message": "スペースを利用できません" },
+  "errorSpaceUnavailableWhy": { "message": "このスペースは削除されたか、メンバーではなくなりました。" },
+  "errorSpaceUnavailableFix": { "message": "別のスペースを選ぶか、現在のスペースの指定を解除して保存してください。" },
+  "historySpace": { "message": "スペース" }
 }

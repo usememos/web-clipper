@@ -6,7 +6,7 @@ import { type SaveErrorKind, toSaveErrorKind } from "@/lib/errors";
 import { checkVersion, resolveVersion } from "@/lib/instance-version";
 import { getCurrentUser, memosUserDisplayName } from "@/lib/memos-client";
 import type { ConnectionStateResult, PopupStateResult } from "@/lib/messages";
-import { writePopupState } from "@/lib/popup-state";
+import { type PopupIdentity, writePopupState } from "@/lib/popup-state";
 import { readClipTemplate } from "@/lib/template-settings";
 import { isSupportedVersion } from "@/lib/versions";
 
@@ -31,11 +31,11 @@ async function getPopupState(signedInUser?: OAuthUser): Promise<PopupStateResult
     return state;
   }
 
-  let identity: { userId: string; displayName: string; imageUrl?: string };
+  let identity: PopupIdentity;
   let credentials: ReturnType<typeof readCredentials>;
   if (context.source === "direct") {
     const { connection } = context;
-    identity = { userId: connection.connectionId, displayName: memosUserDisplayName(connection.user) };
+    identity = { userId: connection.connectionId, displayName: memosUserDisplayName(connection.user), memosUserName: connection.user.name };
     credentials = connection.credentials;
   } else {
     const { user } = context;

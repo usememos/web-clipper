@@ -7,6 +7,8 @@ export type PopupIdentity = {
   userId: string;
   displayName: string;
   imageUrl?: string;
+  /** Stable Memos identity for direct-connection preferences, independent of token rotation. */
+  memosUserName?: string;
 };
 
 type SignedInPopupState = {
@@ -30,6 +32,7 @@ function isPopupState(value: unknown): value is PopupState {
   if (state.status !== "disconnected" && state.status !== "ready" && state.status !== "unsupported") return false;
   const identity = state.identity as Record<string, unknown> | undefined;
   if (!identity || typeof identity.userId !== "string" || typeof identity.displayName !== "string") return false;
+  if (identity.memosUserName !== undefined && typeof identity.memosUserName !== "string") return false;
   if (state.source !== "direct" && state.source !== "usememos") return false;
   if (state.template !== null && typeof state.template !== "string") return false;
   if (state.status === "disconnected") return true;

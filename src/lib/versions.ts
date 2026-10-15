@@ -59,6 +59,12 @@ export function compareVersions(left: string, right: string): number | null {
   return compareSemVer(a, b);
 }
 
+/** Spaces shipped with the 0.31 series and remain available in calendar releases. */
+export function supportsSpaces(version: string): boolean {
+  const comparison = compareVersions(version, "0.31.0-0");
+  return comparison !== null && comparison >= 0;
+}
+
 /**
  * The 0.26 snapshot documents the complete 0.26.x series. Accept stable Memos releases from
  * 0.26.0 onward within the audited 0.x line, plus release candidates for a newer compatible

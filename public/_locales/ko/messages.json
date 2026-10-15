@@ -336,5 +336,25 @@
   "errorBadResponseTitle": { "message": "예기치 않은 응답" },
   "errorBadResponseWhy": { "message": "인스턴스에서 유효한 API 응답이 아닌 내용을 반환했습니다." },
   "errorBadResponseFixApi": { "message": "URL이 Memos API를 가리키는지 확인하세요." },
-  "errorBadResponseFixRedirect": { "message": "서버가 리디렉션하는 경우 최종 URL을 사용하세요." }
+  "errorBadResponseFixRedirect": { "message": "서버가 리디렉션하는 경우 최종 URL을 사용하세요." },
+  "commonSpaceVisibility": { "message": "멤버" },
+  "popupSpaceDescription": { "message": "이 스페이스의 멤버에게만 공개" },
+  "popupAddToSpace": { "message": "스페이스에 추가" },
+  "popupChooseSpace": { "message": "스페이스 선택" },
+  "popupRemoveFromSpace": { "message": "$SPACE$에서 제거", "placeholders": { "space": { "content": "$1" } } },
+  "popupSpacesLoading": { "message": "스페이스 불러오는 중…" },
+  "popupSpacesLoadError": { "message": "스페이스를 불러오지 못했습니다" },
+  "popupRetry": { "message": "다시 시도" },
+  "popupAudienceSummary": {
+    "message": "$SPACE$ · $VISIBILITY$",
+    "placeholders": { "space": { "content": "$1" }, "visibility": { "content": "$2" } }
+  },
+  "popupAudienceLabel": {
+    "message": "$LABEL$: $SUMMARY$",
+    "placeholders": { "label": { "content": "$1" }, "summary": { "content": "$2" } }
+  },
+  "errorSpaceUnavailableTitle": { "message": "스페이스를 사용할 수 없음" },
+  "errorSpaceUnavailableWhy": { "message": "이 스페이스가 삭제되었거나 더 이상 멤버가 아닙니다." },
+  "errorSpaceUnavailableFix": { "message": "다른 스페이스를 선택하거나 현재 스페이스를 해제한 후 저장하세요." },
+  "historySpace": { "message": "스페이스" }
 }

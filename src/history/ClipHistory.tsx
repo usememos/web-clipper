@@ -31,7 +31,15 @@ function preview(record: ClipRecord): string {
 }
 
 function visibilityLabel(visibility: ClipRecord["visibility"]): string {
-  return t(visibility === "PRIVATE" ? "commonPrivate" : visibility === "PROTECTED" ? "commonProtected" : "commonPublic");
+  return t(
+    visibility === "PRIVATE"
+      ? "commonPrivate"
+      : visibility === "PROTECTED"
+        ? "commonProtected"
+        : visibility === "SPACE"
+          ? "commonSpaceVisibility"
+          : "commonPublic",
+  );
 }
 
 function recordMatches(record: ClipRecord, query: string): boolean {
@@ -103,6 +111,7 @@ function ClipDetail({ record }: { record: ClipRecord }) {
                 <DetailRow label={t("historySourceUrl")} value={record.sourceUrl} />
                 <DetailRow label={t("historyDestination")} value={record.instanceUrl} />
                 <DetailRow label={t("popupVisibility")} value={visibilityLabel(record.visibility)} />
+                {record.space ? <DetailRow label={t("historySpace")} value={record.spaceTitle ?? record.space} /> : null}
                 <DetailRow label={t("historySavedAt")} value={formatDateTime(record.savedAt, FULL_TIMESTAMP)} />
               </dl>
             </section>

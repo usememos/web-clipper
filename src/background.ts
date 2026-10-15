@@ -16,11 +16,11 @@ import type { ConnectionSource } from "@/lib/connection-config";
 import { ClientError, describeSaveError, InstanceError, type SaveErrorKind, toSaveErrorKind } from "@/lib/errors";
 import { applyLocalePreference, getTextDirection, initializeLocalePreference, LOCALE_PREFERENCE_KEY, t, tp } from "@/lib/i18n";
 import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
-import { memosUserDisplayName } from "@/lib/memos-client";
-import type { ConnectionStateResult, Request, SaveResult, SelectionClip } from "@/lib/messages";
+import { listSpaces, memosUserDisplayName } from "@/lib/memos-client";
+import type { ConnectionStateResult, Request, SaveResult, SelectionClip, SpacesResult } from "@/lib/messages";
 import { clearPopupState } from "@/lib/popup-state";
 import { readClipTemplate } from "@/lib/template-settings";
-import { isSupportedVersion } from "@/lib/versions";
+import { isSupportedVersion, supportsSpaces } from "@/lib/versions";
 
 type RestrictableStorageArea = typeof browser.storage.local & {
   setAccessLevel?: (options: { accessLevel: "TRUSTED_CONTEXTS" }) => Promise<void>;
@@ -92,6 +92,27 @@ browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) 
   const req = parseBackgroundRequest(message);
   if (!req || !isTrustedBackgroundRequest(req, sender, browser.runtime.id)) return undefined;
   if (req.type === "GET_POPUP_STATE") return reconcilePopupState();
+  if (req.type === "LIST_SPACES") {
+    return (async (): Promise<SpacesResult> => {
+      try {
+        const connection = await resolveActiveConnection();
+        if (!connection) return { ok: false, errorKind: "not-configured" };
+        if (
+          connection.source !== req.expectedSource ||
+          connection.connectionId !== req.expectedConnectionId ||
+          connection.credentials.instanceUrl !== req.expectedInstanceUrl
+        ) {
+          return { ok: false, errorKind: "auth-changed" };
+        }
+        const version = await resolveVersion(connection.credentials);
+        if (!version) return { ok: false, errorKind: "bad-response" };
+        if (!supportsSpaces(version)) return { ok: true, spaces: [] };
+        return { ok: true, spaces: await listSpaces(connection.credentials) };
+      } catch (error) {
+        return { ok: false, errorKind: toSaveErrorKind(error) };
+      }
+    })();
+  }
   if (req.type === "LIST_CLIP_RECORDS") return listClipRecords();
   if (req.type === "GET_CLIP_STATUS") {
     return (async () => {
@@ -144,6 +165,7 @@ browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) 
         ...(req.saveRequestId || req.clip ? { serverMemoId: requestId } : {}),
       },
       req.clip,
+      req.space,
     );
   }
   if (req.type === "OPEN_SIGN_IN") return openSignInFlow();

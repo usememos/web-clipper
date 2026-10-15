@@ -102,6 +102,119 @@ describe("background — storage isolation", () => {
   });
 });
 
+describe("background — Space destinations", () => {
+  beforeEach(() => {
+    ready();
+    seedVersion("0.31.0");
+  });
+
+  it("lists Spaces using background credentials and rejects a changed connection", async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => jsonResponse({ spaces: [{ name: "spaces/team", title: "Team" }] }));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(emitRuntime({ type: "LIST_SPACES", ...expected })).resolves.toEqual({
+      ok: true,
+      spaces: [{ name: "spaces/team", title: "Team" }],
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/spaces?"),
+      expect.objectContaining({ headers: expect.objectContaining({ Authorization: "Bearer tok123" }) }),
+    );
+    fetchMock.mockClear();
+    await expect(emitRuntime({ type: "LIST_SPACES", ...expected, expectedConnectionId: "other" })).resolves.toEqual({
+      ok: false,
+      errorKind: "auth-changed",
+    });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not request Spaces from servers older than 0.31", async () => {
+    seedVersion("0.30.0");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(emitRuntime({ type: "LIST_SPACES", ...expected })).resolves.toEqual({ ok: true, spaces: [] });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("saves Space placement and visibility together and records the destination", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockImplementation(async (url: unknown) =>
+        String(url).endsWith("/spaces/team")
+          ? jsonResponse({ name: "spaces/team", title: "Team" })
+          : jsonResponse({ name: "memos/space-save" }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+    const result = await emitRuntime({
+      type: "SAVE_MEMO",
+      content: "hello",
+      visibility: "SPACE",
+      space: "spaces/team",
+      ...expected,
+      saveRequestId: "space-save",
+      clip: { sourceUrl: "https://example.com", sourceTitle: "Example", imageCount: 0 },
+    });
+    expect(result).toMatchObject({ ok: true });
+    const post = fetchMock.mock.calls.find(([, init]) => init?.method === "POST");
+    expect(JSON.parse(post![1].body)).toEqual({ content: "hello", visibility: "SPACE", space: "spaces/team" });
+    const records = (await emitRuntime({ type: "LIST_CLIP_RECORDS" }, optionsSender)) as Array<{ space: string; visibility: string }>;
+    expect(records[0]).toMatchObject({ space: "spaces/team", spaceTitle: "Team", visibility: "SPACE" });
+  });
+
+  it("does not upload images or create a memo when the selected Space is no longer accessible", async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => jsonResponse({}, 403));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(
+      emitRuntime({
+        type: "SAVE_MEMO",
+        content: "hello",
+        visibility: "PRIVATE",
+        space: "spaces/team",
+        images: ["https://cdn.example.com/a.png"],
+        ...expected,
+      }),
+    ).resolves.toEqual({ ok: false, errorKind: "space-unavailable" });
+    expect(fetchMock.mock.calls.every(([, init]) => init?.method === "GET")).toBe(true);
+  });
+
+  it("does not reconcile a matching memo from a different Space", async () => {
+    const startedAt = Date.now();
+    let posts = 0;
+    const fetchMock = vi.fn().mockImplementation(async (url: unknown, init?: RequestInit) => {
+      if (String(url).endsWith("/spaces/team")) return jsonResponse({ name: "spaces/team", title: "Team" });
+      if (String(url).endsWith("/auth/me")) return jsonResponse({ user: { name: "users/steven" } });
+      if (init?.method === "GET")
+        return jsonResponse({
+          memos: [
+            {
+              name: "memos/wrong",
+              creator: "users/steven",
+              content: "hello",
+              visibility: "SPACE",
+              space: "spaces/other",
+              createTime: new Date(startedAt).toISOString(),
+            },
+          ],
+        });
+      posts++;
+      if (posts === 1) throw Object.assign(new Error("lost"), { name: "TimeoutError" });
+      return jsonResponse({ name: "memos/right" });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const request = {
+      type: "SAVE_MEMO",
+      content: "hello",
+      visibility: "SPACE",
+      space: "spaces/team",
+      saveRequestId: "space-retry",
+      saveStartedAt: startedAt,
+      ...expected,
+    };
+    await expect(emitRuntime(request)).resolves.toEqual({ ok: false, errorKind: "timeout" });
+    await expect(emitRuntime(request)).resolves.toEqual({ ok: true, webUrl: "https://memos.example.com/memos/right" });
+    expect(posts).toBe(2);
+  });
+});
+
 describe("background — SAVE_MEMO message", () => {
   beforeEach(ready);
 

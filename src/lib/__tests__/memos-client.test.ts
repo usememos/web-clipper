@@ -5,8 +5,10 @@ import {
   createMemo,
   getCurrentUser,
   getInstanceProfile,
+  getSpace,
   isValidInstanceUrl,
   listRecentMemos,
+  listSpaces,
   memoWebUrl,
   normalizeInstanceUrl,
 } from "@/lib/memos-client";
@@ -46,6 +48,11 @@ describe("getCurrentUser", () => {
 });
 
 describe("createMemo", () => {
+  it("sends placement and Space visibility together", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/1" }));
+    await createMemo(creds, { content: "hello", visibility: "SPACE", space: "spaces/team" }, { fetchImpl });
+    expect(JSON.parse(fetchImpl.mock.calls[0]![1]!.body)).toEqual({ content: "hello", visibility: "SPACE", space: "spaces/team" });
+  });
   it("POSTs content + visibility and returns the created memo", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/42", uid: "abc" }));
     const memo = await createMemo(creds, { content: "hello", visibility: "PRIVATE" }, { fetchImpl });
@@ -126,6 +133,55 @@ describe("createMemo", () => {
   });
 });
 
+describe("Spaces", () => {
+  it("loads all pages and keeps Space icons", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        jsonResponse({ spaces: [{ name: "spaces/team", title: "Team", icon: { emoji: "💎" } }], nextPageToken: "next" }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ spaces: [{ name: "spaces/work", title: "Work" }] }));
+    await expect(listSpaces(creds, { fetchImpl })).resolves.toEqual([
+      { name: "spaces/team", title: "Team", icon: { emoji: "💎" } },
+      { name: "spaces/work", title: "Work" },
+    ]);
+    expect(fetchImpl.mock.calls[1]![0]).toContain("/spaces?pageSize=100&pageToken=next");
+  });
+
+  it("accepts the omitted empty protobuf list and rejects malformed pages", async () => {
+    await expect(listSpaces(creds, { fetchImpl: vi.fn().mockResolvedValue(jsonResponse({})) })).resolves.toEqual([]);
+    await expect(listSpaces(creds, { fetchImpl: vi.fn().mockResolvedValue(jsonResponse({ spaces: [{}] })) })).rejects.toMatchObject({
+      kind: "bad-response",
+    });
+    await expect(
+      listSpaces(creds, { fetchImpl: vi.fn().mockImplementation(async () => jsonResponse({ nextPageToken: "loop" })) }),
+    ).rejects.toMatchObject({ kind: "bad-response" });
+  });
+
+  it.each([403, 404])("reports a missing or inaccessible Space (%s)", async (status) => {
+    await expect(
+      getSpace(creds, "spaces/team", { fetchImpl: vi.fn().mockImplementation(async () => jsonResponse({}, status)) }),
+    ).rejects.toMatchObject({ kind: "space-unavailable", status });
+  });
+
+  it("attributes only a 404 on the memo POST to the Space; a 403 stays an auth problem", async () => {
+    const input = { content: "hello", visibility: "SPACE" as const, space: "spaces/team" };
+    await expect(
+      createMemo(creds, input, { fetchImpl: vi.fn().mockImplementation(async () => jsonResponse({}, 404)) }),
+    ).rejects.toMatchObject({ kind: "space-unavailable" });
+    await expect(
+      createMemo(creds, input, { fetchImpl: vi.fn().mockImplementation(async () => jsonResponse({}, 403)) }),
+    ).rejects.toMatchObject({ kind: "unauthorized" });
+    await expect(
+      createMemo(
+        creds,
+        { content: "hello", visibility: "PRIVATE" },
+        { fetchImpl: vi.fn().mockImplementation(async () => jsonResponse({}, 404)) },
+      ),
+    ).rejects.toMatchObject({ kind: "bad-response" });
+  });
+});
+
 describe("listRecentMemos", () => {
   it("requests newest memos and validates reconciliation fields", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
@@ -175,7 +231,7 @@ describe("listRecentMemos", () => {
     ]);
   });
 
-  it("skips memos with visibilities the clipper never creates (Memos 0.31 SPACE)", async () => {
+  it("retains Space visibility and placement for reconciliation", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
       jsonResponse({
         memos: [
@@ -199,6 +255,7 @@ describe("listRecentMemos", () => {
     );
 
     await expect(listRecentMemos(creds, 20, "users/steven", { fetchImpl })).resolves.toEqual([
+      expect.objectContaining({ name: "memos/space", visibility: "SPACE", space: "spaces/team" }),
       expect.objectContaining({ name: "memos/mine", visibility: "PRIVATE" }),
     ]);
   });

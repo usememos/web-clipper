@@ -1,10 +1,11 @@
 import browser from "webextension-polyfill";
 import type { BackgroundRequest } from "./background-protocol";
 import type { ClipRecord, ClipSaveStatus } from "./clip-records";
-import type { AuthUserResult, ConnectionActionResult, ConnectionStateResult, PopupStateResult, SaveResult } from "./messages";
+import type { AuthUserResult, ConnectionActionResult, ConnectionStateResult, PopupStateResult, SaveResult, SpacesResult } from "./messages";
 
 type BackgroundResponses = {
   GET_POPUP_STATE: PopupStateResult;
+  LIST_SPACES: SpacesResult;
   GET_AUTH_USER: AuthUserResult;
   GET_CONNECTION_STATE: ConnectionStateResult;
   GET_CLIP_STATUS: ClipSaveStatus | null;

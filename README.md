@@ -32,6 +32,7 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 - Upload selected images as Memos attachments.
 - Review and edit every clip before saving.
 - Save as Private, Protected, or Public.
+- Choose a Space and optionally limit visibility to its members on Memos 0.31 or later. The popup remembers your last successful Space and visibility for each connection.
 - Customize the clip format with a local template.
 - Quick-save selected text or images from the context menu.
 - Browse and search clips saved locally from the popup.
@@ -53,7 +54,7 @@ Pages with no article to extract, such as dashboards, search results, and feeds,
    - **usememos.com (Recommended):** sign in, then connect an instance. Your connection information is available after signing in on another device.
    - **Direct connection:** enter your Memos instance URL and a personal access token. No usememos.com account is required, and the connection stays in this browser.
 2. Open the extension on a page.
-3. Review the captured content, choose its visibility, and save.
+3. Review the captured content, choose its visibility and optional Space from the same menu, and save.
 
 Open **Saved clips** from the popup or extension settings to review previous saves and reopen either the source page or its Memo.
 

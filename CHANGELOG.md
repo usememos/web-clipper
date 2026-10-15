@@ -1,11 +1,16 @@
 # Changelog
 
-## [0.4.3](https://github.com/usememos/web-clipper/compare/v0.4.1...v0.4.3) (2026-10-08)
+## [0.5.0](https://github.com/usememos/web-clipper/compare/v0.4.1...v0.5.0) (2026-10-15)
+
+### Features
+
+- Save clips to a Memos Space and optionally limit visibility to its members on Memos 0.31 or later. The popup remembers the last successful Space and visibility for each connection.
 
 ### Improvements
 
 - Connect to Memos instances using the new unversioned `/api` routes while retaining support for older `/api/v1` instances.
 - Recognize Memos calendar versions, including release candidates, when checking instance compatibility.
+- Keep visibility descriptions on one line in the popup menu and show the Space title in saved-clip details.
 
 ### Bug Fixes
 

@@ -27,7 +27,6 @@ import { UserBadge } from "@/components/user-badge";
 import { WEB_APP_URL } from "@/config/env";
 import { useClipTemplate } from "@/hooks/use-clip-template";
 import { useMemosConnection } from "@/hooks/use-memos-connection";
-import type { SaveErrorKind } from "@/lib/errors";
 import {
   getLocalePreference,
   LOCALE_AUTONYMS,
@@ -38,6 +37,7 @@ import {
   updateLocalePreference,
 } from "@/lib/i18n";
 import { isValidInstanceUrl, normalizeInstanceUrl, requiresInsecureHttpConfirmation } from "@/lib/memos-client";
+import type { ConnectionActionResult } from "@/lib/messages";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
 import { ErrorNotice, StepRow } from "./connection-controls";
@@ -196,7 +196,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
   const [accessToken, setAccessToken] = useState("");
   const [showToken, setShowToken] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [errorKind, setErrorKind] = useState<SaveErrorKind | null>(null);
+  const [connectionError, setConnectionError] = useState<Extract<ConnectionActionResult, { ok: false }> | null>(null);
   const [fieldError, setFieldError] = useState<"url" | "token" | null>(null);
   const [confirmHttp, setConfirmHttp] = useState(false);
 
@@ -206,7 +206,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
 
   const connect = async (allowInsecureHttp = false) => {
     setFieldError(null);
-    setErrorKind(null);
+    setConnectionError(null);
     if (!validUrl) {
       setFieldError("url");
       return;
@@ -230,7 +230,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
     }).catch(() => ({ ok: false as const, errorKind: "extension-error" as const }));
     setBusy(false);
     if (!result.ok) {
-      setErrorKind(result.errorKind);
+      setConnectionError(result);
       return;
     }
     setAccessToken("");
@@ -260,7 +260,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
           onChange={(event) => {
             setInstanceUrl(event.target.value);
             setFieldError(null);
-            setErrorKind(null);
+            setConnectionError(null);
           }}
           placeholder="https://memos.example.com"
           className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -297,7 +297,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
             onChange={(event) => {
               setAccessToken(event.target.value);
               setFieldError(null);
-              setErrorKind(null);
+              setConnectionError(null);
             }}
             className="h-9 w-full rounded-lg border border-input bg-background px-3 pe-10 font-mono text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             aria-invalid={fieldError === "token" || undefined}
@@ -338,7 +338,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
           </AlertDescription>
         </Alert>
       ) : null}
-      {errorKind ? <ErrorNotice kind={errorKind} source="direct" /> : null}
+      {connectionError ? <ErrorNotice kind={connectionError.errorKind} version={connectionError.version} source="direct" /> : null}
       <Button disabled={busy} onClick={() => void connect(false)}>
         {busy ? <Spinner /> : <KeyRoundIcon />}
         {busy ? t("optionsTestingConnection") : t("optionsTestAndSave")}
@@ -354,7 +354,7 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
   const { error: authError, isLoaded, isSignedIn, reload, user } = useAuth();
   const candidate = useMemosConnection("usememos");
   const [signInErrorKey, setSignInErrorKey] = useState<"optionsRefreshConnectionError" | "optionsSignInError" | null>(null);
-  const [activationError, setActivationError] = useState<SaveErrorKind | null>(null);
+  const [activationError, setActivationError] = useState<Extract<ConnectionActionResult, { ok: false }> | null>(null);
   const [busy, setBusy] = useState(false);
   const [pendingSetup, setPendingSetup] = useState(readPendingSetup);
   const [setupReturnedWithoutConnection, setSetupReturnedWithoutConnection] = useState(false);
@@ -372,7 +372,7 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
       setPendingSetup(false);
       onConnected();
     } else {
-      setActivationError(result.errorKind);
+      setActivationError(result);
     }
     return result;
   }, [onConnected]);
@@ -475,7 +475,9 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
                   {t("optionsSavedConnectionIncomplete")}
                 </p>
               ) : null}
-              {candidate.status === "unsupported" ? <ErrorNotice kind="unsupported-version" source="usememos" /> : null}
+              {candidate.status === "unsupported" ? (
+                <ErrorNotice kind="unsupported-version" version={candidate.version} source="usememos" />
+              ) : null}
               {candidate.status === "error" && candidate.verificationError ? (
                 <ErrorNotice kind={candidate.verificationError} source="usememos" />
               ) : null}
@@ -513,7 +515,7 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
           {signInErrorKey ? t(signInErrorKey) : authError}
         </p>
       ) : null}
-      {activationError ? <ErrorNotice kind={activationError} source="usememos" /> : null}
+      {activationError ? <ErrorNotice kind={activationError.errorKind} version={activationError.version} source="usememos" /> : null}
       {user && replacing ? <p className="text-xs text-muted-foreground">{t("optionsCurrentConnectionActive")}</p> : null}
     </div>
   );
@@ -630,10 +632,10 @@ export function Options() {
     }
   };
 
-  const sub = ready && host ? t("optionsConnectedToHost", host) : t("optionsSetupClipper");
+  const sub = ready && host && !active.verificationError ? t("optionsConnectedToHost", host) : t("optionsSetupClipper");
   const connectionTitle =
     ready && !effectiveView
-      ? t("optionsMemosConnected")
+      ? t(active.verificationError ? "optionsConnectToMemos" : "optionsMemosConnected")
       : effectiveView === "choice"
         ? t("optionsChooseHowToConnect")
         : t("optionsConnectToMemos");
@@ -649,7 +651,7 @@ export function Options() {
         ) : null}
         <StepRow
           n={1}
-          state={ready && !effectiveView ? "done" : "active"}
+          state={ready && !effectiveView && !active.verificationError ? "done" : "active"}
           title={connectionTitle}
           summary={ready && !effectiveView ? undefined : <span>{t("optionsConnectionSummary")}</span>}
         >
@@ -676,7 +678,7 @@ export function Options() {
             />
           )}
         </StepRow>
-        <LocalTemplateStep enabled={ready} />
+        <LocalTemplateStep enabled={ready && active.verificationError !== "unauthorized"} />
       </div>
     </div>
   );

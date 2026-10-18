@@ -17,10 +17,13 @@ const MIN_SUPPORTED_VERSION = "0.26.0";
 export const MIN_SUPPORTED_VERSION_LABEL = "0.26.x";
 
 /**
- * Memos releases after 0.31 use calendar versions: `YY.MM[.N][-rc.N]` (e.g. 26.10, 26.10.1,
- * 26.10-rc.1). Mirrors `parse_release_tag` in usememos/memos scripts/release_version.sh.
+ * Memos releases after 0.31 use calendar versions: `YY.MM.N[-rc.K]`, including N = 0.
+ * Keep accepting earlier `YY.MM[-rc.K]` versions too.
  */
-const CALVER_PATTERN = /^([1-9][0-9])\.(0[1-9]|1[0-2])(?:\.([1-9][0-9]*))?(?:-rc\.([1-9][0-9]*))?$/;
+const CALVER_PATTERN = /^([1-9][0-9])\.(0[1-9]|1[0-2])(?:\.(0|[1-9][0-9]*))?(?:-rc\.([1-9][0-9]*))?$/;
+
+/** Development builds use the UTC commit date and short revision: `YY.MM.D-dev.<sha7>`. */
+const CALVER_DEV_PATTERN = /^([1-9][0-9])\.(0[1-9]|1[0-2])\.(0|[1-9][0-9]*)-dev\.([0-9a-f]{7})$/;
 
 /**
  * Maps a calendar version onto SemVer (26.09-rc.1 → 26.9.0-rc.1) so both schemes share one
@@ -28,13 +31,19 @@ const CALVER_PATTERN = /^([1-9][0-9])\.(0[1-9]|1[0-2])(?:\.([1-9][0-9]*))?(?:-rc
  * through unchanged.
  */
 function toSemVer(version: string): string {
+  const development = CALVER_DEV_PATTERN.exec(version);
+  if (development) {
+    const [, year, month, day, revision] = development;
+    // Keep numeric revisions with leading zeros valid as SemVer identifiers.
+    return `${year}.${Number(month)}.${day}-dev.g${revision}`;
+  }
   const match = CALVER_PATTERN.exec(version);
   if (!match) return version;
   const [, year, month, point = "0", rc] = match;
   return `${year}.${Number(month)}.${point}${rc ? `-rc.${rc}` : ""}`;
 }
 
-/** Parses a SemVer (leading `v` permitted) or calendar Memos release string. */
+/** Parses a SemVer (leading `v` permitted) or calendar Memos release/development string. */
 export function parseVersion(version: string): MemosVersion | null {
   const parsed = parseSemVer(toSemVer(version));
   if (!parsed) return null;
@@ -68,12 +77,12 @@ export function supportsSpaces(version: string): boolean {
 /**
  * The 0.26 snapshot documents the complete 0.26.x series. Accept stable Memos releases from
  * 0.26.0 onward within the audited 0.x line, plus release candidates for a newer compatible
- * 0.x release. Calendar releases and their release candidates continue that line; Memos calls
- * out breaking changes in upgrade notes rather than in the version number. Other prereleases
- * and SemVer majors require a fresh contract audit.
+ * 0.x release. Calendar releases, release candidates, and dated development builds continue
+ * that line; Memos calls out breaking changes in upgrade notes rather than in the version
+ * number. Other prereleases and SemVer majors require a fresh contract audit.
  */
 export function isSupportedVersion(version: string): boolean {
-  if (CALVER_PATTERN.test(version)) return true;
+  if (CALVER_PATTERN.test(version) || CALVER_DEV_PATTERN.test(version)) return true;
   const parsed = parseVersion(version);
   const precedence = compareVersions(version, MIN_SUPPORTED_VERSION);
   const isRelease = parsed?.prerelease.length === 0;

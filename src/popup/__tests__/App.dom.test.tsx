@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { ClipSaveStatus } from "@/lib/clip-records";
 import { POPUP_STATE_KEY, type PopupState } from "@/lib/popup-state";
 import { App } from "@/popup/App";
+import { AudienceMenu } from "@/popup/audience-menu";
 import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { act, renderWithUser, screen, waitFor } from "@/test/render";
 import japaneseMessages from "../../../public/_locales/ja/messages.json" with { type: "json" };
@@ -267,17 +268,16 @@ describe("App — signed-in, connected", () => {
     expect(screen.getByRole("link", { name: "Open memo" })).toBeInTheDocument();
   });
 
-  it("shows a persistent error with the why and a settings action when the save fails", async () => {
+  it("shows a persistent error with a settings action when the token is rejected", async () => {
     wireSaveResult({ ok: false, errorKind: "unauthorized" });
     const { user } = renderWithUser(<App />);
     const saveBtn = await screen.findByRole("button", { name: /save to memos/i });
     await waitFor(() => expect(saveBtn).toBeEnabled());
     await user.click(saveBtn);
 
-    // Title + why + fix, as an alert that stays put (not an auto-dismissing toast).
+    // Keep the actionable error visible until the connection is repaired.
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Access token rejected");
-    expect(alert).toHaveTextContent(/token is invalid or expired/i);
     expect(alert).toHaveTextContent(/sign in to usememos\.com and reconnect/i);
 
     // The fix is a button: unauthorized lives in settings.
@@ -318,6 +318,41 @@ describe("App — signed-in, connected", () => {
 describe("App — Spaces", () => {
   beforeEach(() => wireSaveResult(undefined, { ...readyState, version: "0.31.0" }));
 
+  it.each(["spaces", "save"] as const)("shows a persistent authentication alert after %s rejects the token", async (failure) => {
+    const state = {
+      ...readyState,
+      source: "direct" as const,
+      identity: { ...identity, memosUserName: "users/steven" },
+      version: "26.10.18-dev.3bea6df",
+    };
+    wireSaveResult({ ok: false, errorKind: "unauthorized" }, state);
+    if (failure === "spaces") {
+      browserMock.runtime.sendMessage.mockImplementation(async (message: unknown) => {
+        const type = (message as { type: string }).type;
+        if (type === "GET_POPUP_STATE") return state;
+        if (type === "LIST_SPACES") return { ok: false, errorKind: "unauthorized" };
+        return null;
+      });
+    }
+    const { user } = renderWithUser(<App />);
+    const editor = await screen.findByRole<HTMLTextAreaElement>("textbox", { name: "Memo content" });
+    if (failure === "save") {
+      await waitFor(() => expect(editor.value).toContain("Captured body"));
+      await user.click(screen.getByRole("button", { name: "Save to Memos" }));
+    }
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Access token rejected");
+    expect(alert).toHaveTextContent("Replace the token in extension settings.");
+    expect(screen.getByRole("button", { name: "Save to Memos" })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "Try again" })).not.toBeInTheDocument();
+
+    await user.type(editor, " My draft");
+    expect(screen.getByRole("alert")).toHaveTextContent("Access token rejected");
+    expect(editor.value).toContain("My draft");
+    await user.click(screen.getByRole("button", { name: "Open settings" }));
+    await waitFor(() => expect(browserMock.runtime.openOptionsPage).toHaveBeenCalledOnce());
+  });
+
   it("selects a Space through the submenu, offers Space visibility, and removes it by selecting it again", async () => {
     const { user } = renderWithUser(<App />);
     await user.click(await screen.findByRole("button", { name: "Visibility: Private" }));
@@ -351,6 +386,31 @@ describe("App — Spaces", () => {
     await waitFor(() => expect(team).toHaveFocus());
     await user.keyboard("{Enter}");
     expect(await screen.findByRole("button", { name: "Visibility: Team · Private" })).toHaveFocus();
+  });
+
+  it("opens settings when the Space list reports a rejected token", async () => {
+    const { user } = renderWithUser(
+      <AudienceMenu
+        visibility="PRIVATE"
+        onVisibilityChange={() => {}}
+        onSpaceChange={() => {}}
+        spaces={{ status: "error", items: [], errorKind: "unauthorized" }}
+        supportsSpaces
+        onRetry={() => {}}
+        onOpenSettings={() => void browserMock.runtime.openOptionsPage()}
+      />,
+    );
+    const trigger = await screen.findByRole("button", { name: "Visibility: Private" });
+    act(() => trigger.focus());
+    await user.keyboard("{Enter}");
+    const submenu = await screen.findByRole("menuitem", { name: /Add to space/i });
+    act(() => submenu.focus());
+    await user.keyboard("{ArrowRight}");
+    const repair = await screen.findByRole("menuitem", { name: /Access token rejected.*Open settings/i });
+    expect(screen.queryByText("Retry")).not.toBeInTheDocument();
+    act(() => repair.focus());
+    await user.keyboard("{Enter}");
+    await waitFor(() => expect(browserMock.runtime.openOptionsPage).toHaveBeenCalledOnce());
   });
 
   it("shows a retry action for a failed list instead of treating it as an empty list", async () => {

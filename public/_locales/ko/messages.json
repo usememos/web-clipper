@@ -321,6 +321,15 @@
   "errorTimeoutWhy": { "message": "서버가 제한 시간 내에 응답하지 않았습니다." },
   "errorTimeoutFixOnline": { "message": "서버가 온라인 상태이며 과부하가 아닌지 확인하세요." },
   "errorTimeoutFixRetry": { "message": "잠시 후 다시 시도하세요." },
+  "errorUnsupportedRunningVersion": {
+    "message": "인스턴스에서 $VERSION$ 버전을 사용 중입니다.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": { "message": "지원되지 않는 Memos 버전" },
   "errorUnsupportedWhy": {
     "message": "이 클리퍼가 사용하는 API와 호환하려면 Memos $VERSION$ 또는 그보다 최신인 안정적인 릴리스가 필요합니다.",

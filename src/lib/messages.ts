@@ -90,7 +90,7 @@ export type ConnectionStateResult = {
   isUsingCachedVersion: boolean;
 };
 
-export type ConnectionActionResult = { ok: true; state: ConnectionStateResult } | { ok: false; errorKind: SaveErrorKind };
+export type ConnectionActionResult = { ok: true; state: ConnectionStateResult } | { ok: false; errorKind: SaveErrorKind; version?: string };
 
 export type SaveResult =
   // failedImages: how many captured images could not be uploaded — surfaced so success is never silently partial.

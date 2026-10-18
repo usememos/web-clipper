@@ -31,6 +31,14 @@ describe("useClipper", () => {
     wireRuntime();
   });
 
+  it("preserves a Space-list authentication failure for the recovery action", async () => {
+    wireRuntime({ LIST_SPACES: { ok: false, errorKind: "unauthorized" } });
+    const { result } = renderHook(() => useClipper(capture, null, true, expectation, true));
+    await waitFor(() => expect(result.current.spaces).toMatchObject({ status: "error", errorKind: "unauthorized", items: [] }));
+    await act(async () => expect(await result.current.save()).toEqual({ ok: false, errorKind: "unauthorized" }));
+    expect(browserMock.runtime.sendMessage.mock.calls.some(([message]) => (message as { type: string }).type === "SAVE_MEMO")).toBe(false);
+  });
+
   it("prefills the editor with the rendered template: quoted selection, description, linked title", async () => {
     const { result } = renderHook(() => useReadyClipper());
     await waitFor(() => expect(result.current.content).toContain("> # Hello"));

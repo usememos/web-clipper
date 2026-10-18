@@ -692,6 +692,15 @@
   "errorTimeoutFixRetry": {
     "message": "请稍后重试。"
   },
+  "errorUnsupportedRunningVersion": {
+    "message": "你的实例正在运行 $VERSION$。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": {
     "message": "不受支持的 Memos 版本"
   },

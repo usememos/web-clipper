@@ -692,6 +692,15 @@
   "errorTimeoutFixRetry": {
     "message": "しばらくしてから、もう一度お試しください。"
   },
+  "errorUnsupportedRunningVersion": {
+    "message": "インスタンスのバージョンは $VERSION$ です。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": {
     "message": "未対応のMemosバージョン"
   },

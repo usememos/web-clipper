@@ -689,6 +689,15 @@
   "errorTimeoutFixRetry": {
     "message": "Veuillez réessayer ultérieurement."
   },
+  "errorUnsupportedRunningVersion": {
+    "message": "Votre instance exécute $VERSION$.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": {
     "message": "Version Memos non prise en charge."
   },

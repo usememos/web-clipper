@@ -1,11 +1,11 @@
 import { Menu } from "@base-ui/react/menu";
 import {
+  AstroidIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   EarthIcon,
   LockIcon,
-  OrbitIcon,
   PlusIcon,
   UserLockIcon,
   UsersRoundIcon,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { ComponentProps } from "react";
 import { Button } from "@/components/ui/button";
+import type { SaveErrorKind } from "@/lib/errors";
 import { t } from "@/lib/i18n";
 import type { SpaceSummary, Visibility } from "@/lib/memos-client";
 import { cn } from "@/lib/utils";
@@ -25,7 +26,7 @@ const POPUP =
 function SpaceMark({ space }: { space?: SpaceSummary }) {
   return (
     <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-[5px] bg-muted text-sm">
-      {space?.icon?.emoji || <OrbitIcon className="size-3.5 text-muted-foreground" />}
+      {space?.icon?.emoji || <AstroidIcon className="size-3.5 text-muted-foreground" strokeWidth={1.8} />}
     </span>
   );
 }
@@ -35,9 +36,10 @@ type Props = {
   space?: string;
   onVisibilityChange: (value: Visibility) => void;
   onSpaceChange: (space?: string) => void;
-  spaces: { status: "loading" | "ready" | "error"; items: SpaceSummary[] };
+  spaces: { status: "loading" | "ready" | "error"; items: SpaceSummary[]; errorKind?: SaveErrorKind };
   supportsSpaces: boolean;
   onRetry: () => void;
+  onOpenSettings: () => void;
   disabled?: boolean;
 };
 
@@ -45,7 +47,17 @@ function MenuPopup({ className, ...props }: ComponentProps<typeof Menu.Popup>) {
   return <Menu.Popup className={cn(POPUP, className)} {...props} />;
 }
 
-export function AudienceMenu({ visibility, space, onVisibilityChange, onSpaceChange, spaces, supportsSpaces, onRetry, disabled }: Props) {
+export function AudienceMenu({
+  visibility,
+  space,
+  onVisibilityChange,
+  onSpaceChange,
+  spaces,
+  supportsSpaces,
+  onRetry,
+  onOpenSettings,
+  disabled,
+}: Props) {
   const options = {
     PRIVATE: { label: t("commonPrivate"), description: t("popupPrivateDescription"), icon: LockIcon },
     PROTECTED: { label: t("commonProtected"), description: t("popupProtectedDescription"), icon: UsersRoundIcon },
@@ -63,6 +75,7 @@ export function AudienceMenu({ visibility, space, onVisibilityChange, onSpaceCha
   const choices = space && !selectedSpace ? [{ name: space, title: destination ?? space }, ...spaces.items] : spaces.items;
   const showSpace = supportsSpaces && (Boolean(space) || spaces.status !== "ready" || spaces.items.length > 0);
   const values: Visibility[] = ["PRIVATE", ...(supportsSpaces && space ? ["SPACE" as const] : []), "PROTECTED", "PUBLIC"];
+  const tokenRejected = spaces.errorKind === "unauthorized";
 
   return (
     <Menu.Root>
@@ -175,9 +188,15 @@ export function AudienceMenu({ visibility, space, onVisibilityChange, onSpaceCha
                           </Menu.Item>
                         )}
                         {spaces.status === "error" && (
-                          <Menu.Item className={ITEM} closeOnClick={false} onClick={onRetry}>
-                            <span className="flex-1 text-destructive">{t("popupSpacesLoadError")}</span>
-                            <span className="text-muted-foreground">{t("popupRetry")}</span>
+                          <Menu.Item
+                            className={cn(ITEM, tokenRejected && "flex-col items-start")}
+                            closeOnClick={tokenRejected}
+                            onClick={tokenRejected ? onOpenSettings : onRetry}
+                          >
+                            <span className="flex-1 text-destructive">
+                              {t(tokenRejected ? "errorUnauthorizedTitle" : "popupSpacesLoadError")}
+                            </span>
+                            <span className="text-muted-foreground">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
                           </Menu.Item>
                         )}
                       </MenuPopup>

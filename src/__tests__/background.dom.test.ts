@@ -218,6 +218,18 @@ describe("background — Space destinations", () => {
 describe("background — SAVE_MEMO message", () => {
   beforeEach(ready);
 
+  it("saves from a calendar development build", async () => {
+    seedVersion("26.10.18-dev.3bea6df");
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/42" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(emitRuntime({ type: "SAVE_MEMO", content: "hello", visibility: "PRIVATE", ...expected })).resolves.toEqual({
+      ok: true,
+      webUrl: "https://memos.example.com/memos/42",
+    });
+    expect(fetchMock).toHaveBeenCalledWith("https://memos.example.com/api/memos", expect.objectContaining({ method: "POST" }));
+  });
+
   it("creates a memo and returns its web url when permitted", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/42", uid: "abc" }));
     vi.stubGlobal("fetch", fetchMock);
@@ -549,6 +561,14 @@ describe("background — SAVE_MEMO message", () => {
 describe("background — popup state", () => {
   beforeEach(ready);
 
+  it("treats a cached calendar development build as ready", async () => {
+    seedVersion("26.10.18-dev.3bea6df");
+    await expect(emitRuntime({ type: "GET_POPUP_STATE" })).resolves.toMatchObject({
+      status: "ready",
+      version: "26.10.18-dev.3bea6df",
+    });
+  });
+
   it("returns and caches only non-secret display state", async () => {
     const result = await emitRuntime({ type: "GET_POPUP_STATE" });
 
@@ -601,10 +621,14 @@ describe("background — sanitized options protocol", () => {
 });
 
 describe("background — direct connection", () => {
-  it("verifies, stores, and returns a sanitized direct connection", async () => {
+  it.each([
+    "0.29.1",
+    "26.10.0",
+    "26.10.18-dev.3bea6df",
+  ])("verifies, stores, and returns a sanitized direct connection on %s", async (version) => {
     mockUser = null;
     const fetchMock = vi.fn((url: unknown) => {
-      if (String(url).endsWith("/api/instance/profile")) return Promise.resolve(jsonResponse({ version: "0.29.1" }));
+      if (String(url).endsWith("/api/instance/profile")) return Promise.resolve(jsonResponse({ version }));
       if (String(url).endsWith("/api/auth/me")) {
         return Promise.resolve(jsonResponse({ user: { name: "users/steven", displayName: "Steven" } }));
       }
@@ -641,6 +665,24 @@ describe("background — direct connection", () => {
     });
     expect(oauthMocks.clearOAuthSession).toHaveBeenCalledOnce();
     vi.unstubAllGlobals();
+  });
+
+  it.each([
+    "CONNECT_DIRECT",
+    "ACTIVATE_USEMEMOS_CONNECTION",
+  ] as const)("returns the unsupported version from %s without saving it", async (type) => {
+    ready();
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ version: "0.25.9" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await emitRuntime({ type, instanceUrl: testCreds.instanceUrl, accessToken: testCreds.accessToken }, optionsSender);
+
+    expect(result).toEqual({ ok: false, errorKind: "unsupported-version", version: "0.25.9" });
+    expect(fetchMock).toHaveBeenCalledOnce();
+    await expect(browserMock.storage.local.get(CONNECTION_CONFIG_KEY)).resolves.toEqual({});
+    await expect(browserMock.storage.local.get(VERSION_CACHE_KEY)).resolves.toEqual({
+      [VERSION_CACHE_KEY]: { instanceUrl: testCreds.instanceUrl, version: "0.29.1" },
+    });
   });
 
   it("does not persist credentials when token verification fails", async () => {
@@ -707,9 +749,13 @@ describe("background — direct connection", () => {
     vi.unstubAllGlobals();
   });
 
-  it("checks the stored PAT identity as well as the instance version", async () => {
-    mockUser = null;
-    seedDirectConnection();
+  it.each(["direct", "usememos"] as const)("checks the stored %s PAT identity as well as the instance version", async (source) => {
+    if (source === "direct") {
+      mockUser = null;
+      seedDirectConnection();
+    } else {
+      ready();
+    }
     const fetchMock = vi.fn((url: unknown) => {
       if (String(url).endsWith("/api/instance/profile")) return Promise.resolve(jsonResponse({ version: "0.29.1" }));
       if (String(url).endsWith("/api/auth/me")) return Promise.resolve(jsonResponse({}, 401));
@@ -720,7 +766,7 @@ describe("background — direct connection", () => {
     const result = await emitRuntime({ type: "GET_CONNECTION_STATE", refresh: true }, optionsSender);
 
     expect(result).toMatchObject({
-      source: "direct",
+      source,
       status: "ready",
       verificationError: "unauthorized",
       isUsingCachedVersion: false,

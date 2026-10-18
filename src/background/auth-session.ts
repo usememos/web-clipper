@@ -113,9 +113,10 @@ export async function getOptionsConnectionState(
 
   const result = await checkVersion(credentials, { refresh });
   let verificationError: SaveErrorKind | null = result.errorKind;
-  if (source === "direct" && refresh && !verificationError && result.version && isSupportedVersion(result.version)) {
+  if (refresh && !verificationError && result.version && isSupportedVersion(result.version)) {
     try {
-      displayName = memosUserDisplayName(await getCurrentUser(credentials));
+      const user = await getCurrentUser(credentials);
+      if (source === "direct") displayName = memosUserDisplayName(user);
     } catch (error) {
       verificationError = toSaveErrorKind(error);
     }

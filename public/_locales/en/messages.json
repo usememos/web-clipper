@@ -319,6 +319,15 @@
   "errorTimeoutWhy": { "message": "The server didn't respond in time." },
   "errorTimeoutFixOnline": { "message": "Check the server is online and not overloaded." },
   "errorTimeoutFixRetry": { "message": "Try again in a moment." },
+  "errorUnsupportedRunningVersion": {
+    "message": "Your instance is running $VERSION$.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": { "message": "Unsupported Memos version" },
   "errorUnsupportedWhy": {
     "message": "This clipper needs Memos $VERSION$ or a newer stable release to match the API it uses.",

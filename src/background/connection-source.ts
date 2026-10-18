@@ -10,7 +10,7 @@ import {
   type StoredConnectionConfig,
   type VerifiedMemosUser,
 } from "@/lib/connection-config";
-import { ClientError, InstanceError } from "@/lib/errors";
+import { ClientError, InstanceError, UnsupportedVersionError } from "@/lib/errors";
 import { VERSION_CACHE_KEY } from "@/lib/instance-version";
 import {
   getCurrentUser,
@@ -120,7 +120,7 @@ export async function resolveActiveConnection(): Promise<ResolvedConnection | nu
 
 async function verifyCredentials(credentials: MemosCredentials): Promise<{ version: string; user: VerifiedMemosUser }> {
   const profile = await getInstanceProfile(credentials);
-  if (!isSupportedVersion(profile.version)) throw new InstanceError("unsupported-version");
+  if (!isSupportedVersion(profile.version)) throw new UnsupportedVersionError(profile.version);
   const user = await getCurrentUser(credentials);
   return { version: profile.version, user };
 }

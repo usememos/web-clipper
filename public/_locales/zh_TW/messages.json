@@ -692,6 +692,15 @@
   "errorTimeoutFixRetry": {
     "message": "請稍後重試。"
   },
+  "errorUnsupportedRunningVersion": {
+    "message": "您的執行個體正在執行 $VERSION$。",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": {
     "message": "不支援的 Memos 版本"
   },

@@ -14,9 +14,16 @@ describe("parseVersion", () => {
   it("parses calendar versions onto the same shape", () => {
     expect(parseVersion("26.10")).toEqual({ major: 26, minor: 10, patch: 0, prerelease: [] });
     expect(parseVersion("26.09.1")).toEqual({ major: 26, minor: 9, patch: 1, prerelease: [] });
+    expect(parseVersion("26.09.0")).toEqual({ major: 26, minor: 9, patch: 0, prerelease: [] });
     expect(parseVersion("26.10-rc.1")).toEqual({ major: 26, minor: 10, patch: 0, prerelease: ["rc", "1"] });
     expect(parseVersion("26.9")).toBeNull();
     expect(parseVersion("26.13")).toBeNull();
+  });
+
+  it("parses calendar development builds, including zero-padded months", () => {
+    expect(parseVersion("26.10.18-dev.3bea6df")).toEqual({ major: 26, minor: 10, patch: 18, prerelease: ["dev", "g3bea6df"] });
+    expect(parseVersion("26.09.8-dev.abcdef0")).toEqual({ major: 26, minor: 9, patch: 8, prerelease: ["dev", "gabcdef0"] });
+    expect(parseVersion("26.09.8-dev.0123456")).toEqual({ major: 26, minor: 9, patch: 8, prerelease: ["dev", "g0123456"] });
   });
 });
 
@@ -35,6 +42,8 @@ describe("compareVersions", () => {
     expect(compareVersions("26.10", "26.10-rc.2")).toBe(1);
     expect(compareVersions("26.10-rc.2", "26.10-rc.1")).toBe(1);
     expect(compareVersions("27.01", "26.12")).toBe(1);
+    expect(compareVersions("26.09.8-dev.abcdef0", "0.31.0")).toBe(1);
+    expect(compareVersions("26.09.8-dev.abcdef0", "26.09.8")).toBe(-1);
   });
 });
 
@@ -63,9 +72,19 @@ describe("isSupportedVersion", () => {
   it("accepts calendar releases, point releases, and release candidates", () => {
     expect(isSupportedVersion("26.10")).toBe(true);
     expect(isSupportedVersion("26.10.1")).toBe(true);
+    expect(isSupportedVersion("26.10.0")).toBe(true);
+    expect(isSupportedVersion("26.09.0-rc.1")).toBe(true);
     expect(isSupportedVersion("26.10-rc.1")).toBe(true);
     expect(isSupportedVersion("26.10.2-rc.1")).toBe(true);
     expect(isSupportedVersion("27.04")).toBe(true);
+  });
+
+  it.each([
+    "26.10.18-dev.3bea6df",
+    "26.09.8-dev.abcdef0",
+    "26.09.8-dev.0123456",
+  ])("accepts the calendar development build %s", (version) => {
+    expect(isSupportedVersion(version)).toBe(true);
   });
 
   it("rejects releases before 0.26.x, non-RC prereleases, and unaudited majors", () => {
@@ -79,12 +98,20 @@ describe("isSupportedVersion", () => {
 
   it("rejects strings outside the calendar release format", () => {
     expect(isSupportedVersion("26.9")).toBe(false);
-    expect(isSupportedVersion("26.10.0")).toBe(false);
     expect(isSupportedVersion("v26.10")).toBe(false);
     expect(isSupportedVersion("26.10-beta.1")).toBe(false);
     expect(isSupportedVersion("dev")).toBe(false);
     expect(isSupportedVersion("manual-abc1234")).toBe(false);
   });
+
+  it.each([
+    "26.13.18-dev.3bea6df",
+    "26.9.8-dev.abcdef0",
+    "26.09-dev.abcdef0",
+    "26.09.08-dev.abcdef0",
+    "26.09.8-dev.1",
+    "26.09.8-dev.abcdefg",
+  ])("rejects malformed calendar development build %s", (version) => expect(isSupportedVersion(version)).toBe(false));
 });
 
 describe("OPENAPI_SNAPSHOT_VERSIONS", () => {
@@ -94,7 +121,16 @@ describe("OPENAPI_SNAPSHOT_VERSIONS", () => {
 });
 
 describe("supportsSpaces", () => {
-  it.each(["0.31.0-rc.1", "v0.31.0", "0.31.1", "26.10", "26.10-rc.1"])("enables Spaces on %s", (version) => {
+  it.each([
+    "0.31.0-rc.1",
+    "v0.31.0",
+    "0.31.1",
+    "26.10",
+    "26.10-rc.1",
+    "26.10.18-dev.3bea6df",
+    "26.09.8-dev.abcdef0",
+    "26.09.8-dev.0123456",
+  ])("enables Spaces on %s", (version) => {
     expect(supportsSpaces(version)).toBe(true);
   });
   it.each(["0.26.0", "0.30.9", "dev", ""])("does not enable Spaces on %s", (version) => {

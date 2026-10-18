@@ -13,7 +13,7 @@ import { clearMemoSaveAttempts, savePopupMemo, saveSelectionClip } from "@/backg
 import { isTrustedBackgroundRequest, parseBackgroundRequest, type RuntimeSender } from "@/lib/background-protocol";
 import { findLatestClipStatus, listClipRecords } from "@/lib/clip-records";
 import type { ConnectionSource } from "@/lib/connection-config";
-import { ClientError, describeSaveError, InstanceError, type SaveErrorKind, toSaveErrorKind } from "@/lib/errors";
+import { ClientError, describeSaveError, InstanceError, type SaveErrorKind, toSaveErrorKind, UnsupportedVersionError } from "@/lib/errors";
 import { applyLocalePreference, getTextDirection, initializeLocalePreference, LOCALE_PREFERENCE_KEY, t, tp } from "@/lib/i18n";
 import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
 import { listSpaces, memosUserDisplayName } from "@/lib/memos-client";
@@ -82,7 +82,11 @@ async function activateConnection(verify: () => Promise<VerifiedConnection>) {
   try {
     connection = await verify();
   } catch (error) {
-    return { ok: false, errorKind: toSaveErrorKind(error) } as const;
+    return {
+      ok: false,
+      errorKind: toSaveErrorKind(error),
+      ...(error instanceof UnsupportedVersionError ? { version: error.version } : {}),
+    } as const;
   }
   await finishConnectionActivation(connection);
   return { ok: true, state: stateFromVerifiedConnection(connection) } as const;

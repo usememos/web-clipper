@@ -689,6 +689,15 @@
   "errorTimeoutFixRetry": {
     "message": "Versuchen Sie es in Kürze erneut."
   },
+  "errorUnsupportedRunningVersion": {
+    "message": "Ihre Instanz läuft unter $VERSION$.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": {
     "message": "Nicht unterstützte Version Memos"
   },

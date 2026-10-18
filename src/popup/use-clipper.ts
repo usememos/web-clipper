@@ -29,6 +29,7 @@ export function useClipper(
 ) {
   const [content, setContent] = useState("");
   const destination = useMemoDestination(expectation, supportsSpaces);
+  const tokenRejected = destination.spaces.status === "error" && destination.spaces.errorKind === "unauthorized";
   const { visibility, space, destinationKey } = destination;
   const [busy, setBusy] = useState(false);
   const [savedClip, setSavedClip] = useState<ClipSaveStatus | null>(null);
@@ -105,6 +106,7 @@ export function useClipper(
 
   const save = useCallback(async (): Promise<SaveResult> => {
     if (!expectation) return { ok: false, errorKind: "not-configured" };
+    if (tokenRejected) return { ok: false, errorKind: "unauthorized" };
     destination.markTouched();
     if (destination.spaceUnavailable) return { ok: false, errorKind: "space-unavailable" };
     if (!operation.current) operation.current = newSaveOperation();
@@ -149,7 +151,7 @@ export function useClipper(
     } finally {
       setBusy(false);
     }
-  }, [capture, content, expectation, images, visibility, space, destinationKey, destination.spaceUnavailable]);
+  }, [capture, content, expectation, images, visibility, space, destinationKey, destination.spaceUnavailable, tokenRejected]);
 
   return {
     content,
@@ -163,6 +165,7 @@ export function useClipper(
     space,
     setSpace: changeSpace,
     spaces: destination.spaces,
+    tokenRejected,
     spaceUnavailable: destination.spaceUnavailable,
     reloadSpaces: destination.reloadSpaces,
     busy,

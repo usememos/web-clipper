@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { SaveErrorKind } from "@/lib/errors";
 import { type DestinationConnection, destinationStorageKey, type MemoDestination, readMemoDestination } from "@/lib/memo-destination";
 import type { SpaceSummary, Visibility } from "@/lib/memos-client";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 
-type SpaceList = { key: string | null; status: "loading" | "ready" | "error"; items: SpaceSummary[] };
+type SpaceList = { key: string | null; status: "loading" | "ready" | "error"; items: SpaceSummary[]; errorKind?: SaveErrorKind };
 
 export function useMemoDestination(connection: DestinationConnection | null, supportsSpaces: boolean) {
   const key = connection ? destinationStorageKey(connection) : null;
@@ -50,10 +51,15 @@ export function useMemoDestination(connection: DestinationConnection | null, sup
         expectedInstanceUrl: instanceUrl,
       })
         .then((result) => {
-          if (active) setSpaceList(result?.ok ? { key, status: "ready", items: result.spaces } : { key, status: "error", items: [] });
+          if (active)
+            setSpaceList(
+              result?.ok
+                ? { key, status: "ready", items: result.spaces }
+                : { key, status: "error", items: [], errorKind: result?.errorKind ?? "extension-error" },
+            );
         })
         .catch(() => {
-          if (active) setSpaceList({ key, status: "error", items: [] });
+          if (active) setSpaceList({ key, status: "error", items: [], errorKind: "extension-error" });
         });
     }
     return () => {

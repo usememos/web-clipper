@@ -173,6 +173,34 @@ describe("Options connection methods", () => {
     );
   });
 
+  it.each(["0.25.9", null])("shows the unsupported direct version when available (%s)", async (version) => {
+    browserMock.runtime.sendMessage.mockResolvedValueOnce({ ok: false, errorKind: "unsupported-version", ...(version ? { version } : {}) });
+    const { user } = renderWithUser(<Options />);
+    await user.click(screen.getByRole("button", { name: "Connect directly" }));
+    await user.type(screen.getByLabelText("Instance URL"), "https://memos.example.com");
+    await user.type(screen.getByLabelText("Access token"), "test-token");
+    await user.click(screen.getByRole("button", { name: /test and save/i }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Unsupported Memos version");
+    if (version) expect(alert).toHaveTextContent(`Your instance is running ${version}.`);
+    else expect(alert).not.toHaveTextContent("Your instance is running");
+    expect(within(alert).getByRole("link", { name: "How to upgrade Memos" })).toBeInTheDocument();
+
+    browserMock.runtime.sendMessage.mockResolvedValueOnce({ ok: false, errorKind: "unauthorized" });
+    await user.click(screen.getByRole("button", { name: /test and save/i }));
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Access token rejected"));
+    expect(screen.getByRole("alert")).not.toHaveTextContent("Your instance is running");
+  });
+
+  it("shows the unsupported version from the usememos.com connection", () => {
+    setMockOAuthUser(oauthUserWithMemos());
+    active = baseConn({ source: "usememos" });
+    cloud = baseConn({ source: "usememos", status: "unsupported", version: "0.25.9" });
+    renderWithUser(<Options />);
+    expect(screen.getByRole("alert")).toHaveTextContent("Your instance is running 0.25.9.");
+  });
+
   it("shows source-aware direct token recovery", async () => {
     browserMock.runtime.sendMessage.mockResolvedValueOnce({ ok: false, errorKind: "unauthorized" });
     const { user } = renderWithUser(<Options />);
@@ -271,6 +299,22 @@ describe("Options connection methods", () => {
     await user.click(screen.getByRole("button", { name: /save template/i }));
 
     await waitFor(() => expect(browserMock.storage.local.set).toHaveBeenCalledWith({ [CLIP_TEMPLATE_KEY]: "Saved locally" }));
+  });
+
+  it("keeps the rejected connection available for repair without claiming it is connected", async () => {
+    active = readyConn("direct");
+    active.verificationError = "unauthorized";
+    const { user } = renderWithUser(<Options />);
+
+    expect(screen.queryByText("Memos connected")).not.toBeInTheDocument();
+    expect(screen.getByText("Connect to Memos")).toBeInTheDocument();
+    expect(screen.getByText("Access token rejected")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Template")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Change connection" }));
+    await user.click(screen.getByRole("button", { name: "Connect directly" }));
+    expect(screen.getByLabelText("Instance URL")).toHaveValue("https://memos.example.com");
+    expect(screen.getByLabelText("Access token")).toHaveValue("");
   });
 
   it("keeps cached diagnostics visible during a live direct timeout", () => {

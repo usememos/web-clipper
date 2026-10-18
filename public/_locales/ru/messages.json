@@ -353,6 +353,15 @@
   "errorTimeoutWhy": { "message": "Сервер не ответил вовремя." },
   "errorTimeoutFixOnline": { "message": "Убедитесь, что сервер работает и не перегружен." },
   "errorTimeoutFixRetry": { "message": "Повторите попытку через несколько секунд." },
+  "errorUnsupportedRunningVersion": {
+    "message": "В вашем экземпляре используется версия $VERSION$.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": { "message": "Неподдерживаемая версия Memos" },
   "errorUnsupportedWhy": {
     "message": "Для этого расширения требуется Memos $VERSION$ или более новый стабильный выпуск, совместимый с используемым API.",

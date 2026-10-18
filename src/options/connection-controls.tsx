@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { ConnectionSource } from "@/lib/connection-config";
 import { describeSaveError, type SaveErrorKind } from "@/lib/errors";
+import { t } from "@/lib/i18n";
 
 type StepState = "done" | "active" | "locked";
 
@@ -55,7 +56,17 @@ export function StepRow({
   );
 }
 
-export function ErrorNotice({ kind, source, className }: { kind: SaveErrorKind; source?: ConnectionSource | null; className?: string }) {
+export function ErrorNotice({
+  kind,
+  source,
+  version,
+  className,
+}: {
+  kind: SaveErrorKind;
+  source?: ConnectionSource | null;
+  version?: string | null;
+  className?: string;
+}) {
   const detail = describeSaveError(kind, source);
   const danger = kind !== "unsupported-version";
   return (
@@ -63,6 +74,7 @@ export function ErrorNotice({ kind, source, className }: { kind: SaveErrorKind; 
       <TriangleAlertIcon />
       <AlertTitle>{detail.title}</AlertTitle>
       <AlertDescription>
+        {kind === "unsupported-version" && version ? <p className="break-words">{t("errorUnsupportedRunningVersion", version)}</p> : null}
         <p>{detail.why}</p>
         <ul className="list-disc ps-4">
           {detail.howToFix.map((step) => (

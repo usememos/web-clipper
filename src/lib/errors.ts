@@ -48,6 +48,12 @@ export class InstanceError extends Error {
   }
 }
 
+export class UnsupportedVersionError extends InstanceError {
+  constructor(readonly version: string) {
+    super("unsupported-version");
+  }
+}
+
 export class ClientError extends Error {
   readonly kind: ClientErrorKind;
   constructor(kind: ClientErrorKind) {

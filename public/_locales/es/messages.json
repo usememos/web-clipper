@@ -689,6 +689,15 @@
   "errorTimeoutFixRetry": {
     "message": "Inténtalo de nuevo en un momento."
   },
+  "errorUnsupportedRunningVersion": {
+    "message": "Su instancia está ejecutando $VERSION$.",
+    "placeholders": {
+      "version": {
+        "content": "$1",
+        "example": "0.25.0"
+      }
+    }
+  },
   "errorUnsupportedTitle": {
     "message": "Versión Memos no compatible"
   },

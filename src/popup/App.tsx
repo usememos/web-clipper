@@ -144,11 +144,12 @@ function GatePrompt({
  */
 function ErrorBar({ error, busy, onRetry }: { error: SaveErrorDetail; busy: boolean; onRetry: () => void }) {
   return (
-    <Alert variant="destructive">
+    <Alert variant="destructive" className="shrink-0">
       <TriangleAlertIcon />
       <AlertTitle>{error.title}</AlertTitle>
       <AlertDescription>
-        {error.why} {error.howToFix[0]}
+        {error.kind !== "unauthorized" ? `${error.why} ` : null}
+        {error.howToFix[0]}
         {error.learnMore ? (
           <>
             {" "}
@@ -164,9 +165,11 @@ function ErrorBar({ error, busy, onRetry }: { error: SaveErrorDetail; busy: bool
             {t("commonOpenSettings")}
           </Button>
         )}
-        <Button size="xs" variant={error.primaryAction === "settings" ? "ghost" : "default"} disabled={busy} onClick={onRetry}>
-          {busy ? t("commonRetrying") : t("commonTryAgain")}
-        </Button>
+        {error.kind !== "unauthorized" ? (
+          <Button size="xs" variant={error.primaryAction === "settings" ? "ghost" : "default"} disabled={busy} onClick={onRetry}>
+            {busy ? t("commonRetrying") : t("commonTryAgain")}
+          </Button>
+        ) : null}
       </div>
     </Alert>
   );
@@ -227,6 +230,13 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
   const [failedImageCount, setFailedImageCount] = useState<number | null>(null);
   const [justSaved, setJustSaved] = useState(false);
   const confirmationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectionError = c.tokenRejected ? describeSaveError("unauthorized", state.source) : error?.kind === "unauthorized" ? error : null;
+
+  useEffect(() => {
+    setError(null);
+  }, [state.source, state.identity.userId, state.instanceUrl]);
+
+  const clearRecoverableError = () => setError((current) => (current?.kind === "unauthorized" ? current : null));
 
   useEffect(
     () => () => {
@@ -269,7 +279,8 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
   return (
     <Frame>
       <Header left={<IdentityBadge identity={state.identity} />} instanceUrl={state.instanceUrl} />
-      <div className="flex flex-1 flex-col gap-2.5 p-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-2.5 p-3">
+        {connectionError && <ErrorBar error={connectionError} busy={c.busy} onRetry={onSave} />}
         <Textarea
           aria-label={t("popupMemoContent")}
           // field-sizing-fixed overrides the component's default `field-sizing-content` (which would
@@ -281,7 +292,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
           onChange={(e) => {
             clearSavedConfirmation();
             c.setContent(e.target.value);
-            setError(null);
+            clearRecoverableError();
           }}
           placeholder={t("popupEmptyCapturePlaceholder")}
         />
@@ -292,7 +303,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
           </p>
         ) : null}
         {blocked ? <ReconciliationBar state={blocked} /> : null}
-        {error && <ErrorBar error={error} busy={c.busy} onRetry={onSave} />}
+        {error && !connectionError && <ErrorBar error={error} busy={c.busy} onRetry={onSave} />}
         {failedImageCount ? (
           <div
             role="status"
@@ -340,19 +351,20 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
             disabled={c.busy || !!blocked}
             onVisibilityChange={(value) => {
               clearSavedConfirmation();
-              setError(null);
+              clearRecoverableError();
               c.setVisibility(value);
             }}
             onSpaceChange={(space) => {
               clearSavedConfirmation();
-              setError(null);
+              clearRecoverableError();
               c.setSpace(space);
             }}
             onRetry={c.reloadSpaces}
+            onOpenSettings={() => void browser.runtime.openOptionsPage()}
           />
           <Button
             className={`min-w-0 flex-1 overflow-hidden ${justSaved ? "disabled:opacity-100" : ""}`}
-            disabled={c.busy || justSaved || !!blocked || c.spaceUnavailable || !c.content.trim()}
+            disabled={c.busy || justSaved || !!blocked || !!connectionError || c.spaceUnavailable || !c.content.trim()}
             onClick={onSave}
             title={saveButtonLabel}
           >

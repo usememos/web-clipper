@@ -1,6 +1,6 @@
 # Chrome Web Store listing — Memos Web Clipper
 
-Last updated: 2026-10-18. Brand changes are local and unreleased.
+Last updated: 2026-10-18. Version 0.5.1 is prepared locally and has not been submitted.
 
 ## Store listing
 
@@ -49,6 +49,6 @@ Brand sources and regeneration are documented in [assets/brand/README.md](assets
 
 | Version | Date | Changes | Status |
 | --- | --- | --- | --- |
-| Unreleased | 2026-10-18 | Official bird icons on transparent backgrounds, serif Memos lockup, aligned extension descriptions in all locales, three store screenshots, both promo tile sizes, compatibility with current Memos calendar releases and development builds, detected versions in unsupported-version connection errors, the Astroid default Space icon, and a persistent popup error with saving disabled when an access token is rejected | Local changes; not submitted |
+| 0.5.1 | 2026-10-18 | Official bird icons on transparent backgrounds, serif Memos lockup, aligned extension descriptions in all locales, three store screenshots, both promo tile sizes, compatibility with current Memos calendar releases and development builds, detected versions in unsupported-version connection errors, the Astroid default Space icon, and a persistent popup error with saving disabled when an access token is rejected | Prepared locally; not submitted |
 
 This document records the brand-related listing changes. Existing publisher details, distribution settings, permission justifications, and privacy disclosures remain in the store dashboard.

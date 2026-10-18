@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.1](https://github.com/usememos/web-clipper/compare/v0.5.0...v0.5.1) (2026-10-18)
+
+### Improvements
+
+- Use the official Memos bird icons and wordmark across the extension, with updated store graphics and localized descriptions.
+- Match the default Space icon to Memos with the Astroid mark.
+
+### Bug Fixes
+
+- Accept current Memos calendar releases ending in `.0` and dated development builds such as `26.10.18-dev.3bea6df`.
+- Show the detected server version when a connection is rejected as unsupported.
+- Show a persistent access-token error in the popup, keep drafts editable, and disable saving until the connection is repaired.
+- Validate saved tokens for both connection methods and stop showing a completed connection check when verification fails.
+
 ## [0.5.0](https://github.com/usememos/web-clipper/compare/v0.4.1...v0.5.0) (2026-10-15)
 
 ### Features

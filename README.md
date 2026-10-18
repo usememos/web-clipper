@@ -1,6 +1,13 @@
+<p>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/brand/lockup-on-dark.svg">
+    <img src="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/brand/lockup.svg" alt="Memos" width="180">
+  </picture>
+</p>
+
 # Memos Web Clipper
 
-Save pages, selections, and images directly to your Memos instance. Available for Chromium-based browsers and Firefox.
+Save pages, selections, and images to your memos from Chrome or Firefox, as Markdown with a link to the source.
 
 ## Install
 
@@ -56,7 +63,7 @@ Pages with no article to extract, such as dashboards, search results, and feeds,
 2. Open the extension on a page.
 3. Review the captured content, choose its visibility and optional Space from the same menu, and save.
 
-Open **Saved clips** from the popup or extension settings to review previous saves and reopen either the source page or its Memo.
+Open **Saved clips** from the popup or extension settings to review previous saves and reopen either the source page or its memo.
 
 For a direct connection, create a PAT in your Memos user settings at `/setting#access-token`. The clipper tests the instance URL, supported Memos version, and token before saving the connection. The saved token is never displayed again in the extension UI.
 
@@ -66,7 +73,7 @@ Browser-owned pages, such as extension stores and internal browser URLs, may blo
 
 ## Local history
 
-Successful saves made from the popup are recorded in the extension's local browser storage. A record includes the source page, captured selection, final memo content, visibility, destination, Memo link, and save time. This lets the popup recognize a previously saved page without querying Memos.
+Successful saves made from the popup are recorded in the extension's local browser storage. A record includes the source page, captured selection, final memo content, visibility, destination, memo link, and save time. This lets the popup recognize a previously saved page without querying Memos.
 
 History stays in the current browser profile and is not synced through usememos.com. Context-menu quick saves are not added to this history.
 
@@ -75,3 +82,7 @@ History stays in the current browser profile and is not synced through usememos.
 - Chromium-based browsers that support Chrome extensions, including Google Chrome, Microsoft Edge, Brave, and Arc
 - Mozilla Firefox 142 or later
 - Memos 0.26.0 or later, including calendar-versioned releases such as 26.10
+
+## Brand assets
+
+Logo and wordmark usage follows the [Memos brand guidance](https://github.com/usememos/.github/blob/main/BRAND.md). Local sources and regeneration instructions are in [assets/brand/README.md](assets/brand/README.md).

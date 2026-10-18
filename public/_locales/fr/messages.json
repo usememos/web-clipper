@@ -3,7 +3,7 @@
     "message": "Memos Web Clipper"
   },
   "extensionDescription": {
-    "message": "Enregistrez des pages web dans votre instance Memos."
+    "message": "Enregistrez pages, sélections et images depuis Chrome ou Firefox dans vos memos, en Markdown avec un lien vers la source."
   },
   "actionTitle": {
     "message": "Enregistrer dans Memos"

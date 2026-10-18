@@ -1,7 +1,7 @@
 {
   "extensionName": { "message": "Memos Web Clipper", "description": "Extension name shown by the browser." },
   "extensionDescription": {
-    "message": "웹페이지를 Memos 인스턴스에 저장합니다.",
+    "message": "Chrome이나 Firefox의 페이지, 선택한 텍스트와 이미지를 원본 링크가 있는 Markdown으로 Memos에 저장합니다.",
     "description": "Extension description shown by the browser."
   },
   "actionTitle": { "message": "Memos에 저장", "description": "Toolbar button tooltip." },

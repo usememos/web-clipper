@@ -1,6 +1,8 @@
 {
   "extensionName": { "message": "Memos Web Clipper" },
-  "extensionDescription": { "message": "Сохраняйте веб-страницы в своём экземпляре Memos." },
+  "extensionDescription": {
+    "message": "Сохраняйте страницы, выделенный текст и изображения из Chrome или Firefox в Memos как Markdown со ссылкой на источник."
+  },
   "actionTitle": { "message": "Сохранить в Memos" },
   "popupDocumentTitle": { "message": "Сохранить в Memos" },
   "optionsDocumentTitle": { "message": "Memos Web Clipper — настройки" },

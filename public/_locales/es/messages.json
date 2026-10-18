@@ -3,7 +3,7 @@
     "message": "Memos Web Clipper"
   },
   "extensionDescription": {
-    "message": "Guarda páginas web en tu instancia de Memos."
+    "message": "Guarda páginas, selecciones e imágenes de Chrome o Firefox en tus memos, como Markdown con un enlace a la fuente."
   },
   "actionTitle": {
     "message": "Guardar en Memos"

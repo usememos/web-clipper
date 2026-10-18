@@ -2,12 +2,14 @@
   "name": "@usememos/web-clipper",
   "version": "0.5.0",
   "private": true,
-  "description": "Browser extension for clipping web content to Memos.",
+  "description": "Save pages, selections, and images to your memos from Chrome or Firefox, as Markdown with a link to the source.",
   "engines": {
     "node": ">=20.9.0"
   },
   "scripts": {
     "dev": "vite",
+    "brand:generate": "node scripts/generate-brand.mjs",
+    "store:preview": "vite --config tools/store/vite.config.ts",
     "validate:locales": "node scripts/validate-locales.mjs",
     "build": "pnpm validate:locales && tsc --noEmit && vite build",
     "package": "pnpm build && node scripts/package.mjs all",
@@ -42,6 +44,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.1",
     "@crxjs/vite-plugin": "^2.7.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/vite": "^4.3.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

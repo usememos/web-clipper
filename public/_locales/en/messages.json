@@ -1,7 +1,7 @@
 {
   "extensionName": { "message": "Memos Web Clipper", "description": "Extension name shown by the browser." },
   "extensionDescription": {
-    "message": "Clip web pages to your Memos instance.",
+    "message": "Save pages, selections, and images to your memos from Chrome or Firefox, as Markdown with a link to the source.",
     "description": "Extension description shown by the browser."
   },
   "actionTitle": { "message": "Clip to Memos", "description": "Toolbar button tooltip." },

@@ -4,7 +4,7 @@
     "description": "Extension name shown by the browser."
   },
   "extensionDescription": {
-    "message": "將網頁剪藏到您的 Memos 執行個體。",
+    "message": "將 Chrome 或 Firefox 中的網頁、選取文字和圖片存入你的 Memos，以 Markdown 保留內容和來源連結。",
     "description": "Extension description shown by the browser."
   },
   "actionTitle": {

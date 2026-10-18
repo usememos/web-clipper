@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Memos Web Clipper — store asset set</title>
+    <style>
+      @font-face { font-family: Geist; src: url("/node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2") format("woff2"); }
+      * { box-sizing: border-box; }
+      html,body { margin: 0; width: 1280px; height: 800px; overflow: clip; }
+      body { font-family: Geist, sans-serif; background: #eceee7; color: #252722; }
+      main { position: fixed; inset: 0; width: 1280px; height: 800px; padding: 34px 32px; }
+      h1 { margin: 0; font-size: 24px; font-weight: 550; letter-spacing: -.035em; }
+      .screenshots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 32px; }
+      figure { margin: 0; min-width: 0; }
+      .screenshots img { display: block; width: 100%; aspect-ratio: 1.6; border: 1px solid #dde0d5; }
+      figcaption { margin-top: 12px; font-size: 14px; color: #74796b; }
+      .promo-row { display: flex; align-items: center; gap: 40px; margin-top: 58px; }
+      .store-icon { width: 128px; text-align: center; }
+      .store-icon img { width: 128px; height: 128px; }
+      .small { width: 440px; }
+      .small img { display: block; width: 440px; height: 280px; border: 1px solid #dde0d5; }
+      .marquee { width: 568px; }
+      .marquee img { display: block; width: 568px; height: 227.2px; border: 1px solid #dde0d5; }
+      .footnote { position: absolute; bottom: 24px; left: 32px; color: #858a7d; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Memos Web Clipper · Store assets</h1>
+      <div class="screenshots">
+        <figure><img src="/assets/store/screenshot-01-selection.jpg" alt="Capture a selection" /><figcaption>01 · Capture a selection — 1280 × 800</figcaption></figure>
+        <figure><img src="/assets/store/screenshot-02-review.jpg" alt="Review before saving" /><figcaption>02 · Review and visibility — 1280 × 800</figcaption></figure>
+        <figure><img src="/assets/store/screenshot-03-history.jpg" alt="Find a saved clip" /><figcaption>03 · Saved clips — 1280 × 800</figcaption></figure>
+      </div>
+      <div class="promo-row">
+        <figure class="store-icon"><img src="/assets/store/store-icon.png" alt="Memos" /><figcaption>Store icon<br />128 × 128</figcaption></figure>
+        <figure class="small"><img src="/assets/store/promo-small.jpg" alt="Small promotional tile" /><figcaption>Small promo — 440 × 280</figcaption></figure>
+        <figure class="marquee"><img src="/assets/store/promo-marquee.jpg" alt="Marquee promotional tile" /><figcaption>Marquee promo — 1400 × 560</figcaption></figure>
+      </div>
+      <div class="footnote">Current extension interface · Original sample content · Transparent store icon</div>
+    </main>
+  </body>
+</html>

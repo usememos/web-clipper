@@ -1,0 +1,73 @@
+@import "@fontsource-variable/geist";
+
+:root {
+  font-family: "Geist Variable", sans-serif;
+  color: #252722;
+  background: #f7f7f3;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+* { box-sizing: border-box; }
+html { overflow: clip; }
+body { margin: 0; overflow: clip; width: 1400px; height: 800px; }
+.artboard { position: fixed; top: 0; left: 0; overflow: hidden; background: #f7f7f3; }
+.screenshot { width: 1280px; height: 800px; }
+.brand { display: flex; align-items: center; gap: 14px; position: absolute; top: 48px; left: 56px; }
+.brand img { width: 180px; height: auto; }
+.brand span { font-size: 1.125rem; font-weight: 500; color: #62655e; padding-top: 3px; }
+.brand.compact { gap: 12px; }
+.brand.compact img { width: 146px; }
+.headline { position: absolute; top: 157px; left: 64px; }
+h1 { margin: 0; font-size: 3.875rem; font-weight: 600; letter-spacing: -0.05em; line-height: 1.04; }
+.headline p, .history-headline p { font-size: 1.3125rem; color: #686b64; line-height: 1.5; margin: 24px 0 0; letter-spacing: -0.015em; }
+.source-page { height: 100%; background: #fff; border: 1px solid #dedfd7; border-radius: 13px; overflow: hidden; box-shadow: 0 6px 20px #292b2310; }
+.source-address { height: 40px; border-bottom: 1px solid #e9eae3; display: flex; align-items: center; padding: 0 24px; font-size: 0.8125rem; color: #808479; background: #fafbf7; }
+.source-body { padding: 28px 34px; max-width: 580px; }
+.publication { font-size: 0.8125rem; color: #75796f; font-weight: 500; }
+.source-body h2 { margin: 22px 0 20px; font-size: 2.25rem; line-height: 1.06; font-weight: 550; letter-spacing: -0.045em; }
+.source-body p { font-size: 1.0625rem; line-height: 1.65; color: #6a6e64; max-width: 43ch; margin: 16px 0; }
+mark { background: #f6e6b9; color: #3a392f; padding: 3px 0; box-decoration-break: clone; }
+.selection-source { position: absolute; left: 64px; top: 395px; width: 574px; height: 338px; }
+.selection-source .source-body { padding-top: 20px; }
+.selection-source .source-body h2 { margin: 13px 0 16px; font-size: 1.875rem; }
+.selection-source .source-body h2 br { display: none; }
+.selection-source .source-body p { font-size: 1rem; line-height: 1.55; margin: 13px 0; }
+.popup-frame { width: 494px; height: 390px; border-radius: 12px; overflow: hidden; background: white; outline: 1px solid #25272216; box-shadow: 0 22px 54px #262a2320, 0 4px 9px #262a230b; }
+.popup-frame iframe { display: block; border: 0; width: 380px; height: 300px; transform: scale(1.3); transform-origin: top left; }
+.selection-popup { position: absolute; left: 716px; top: 308px; }
+.selection-arrow { position: absolute; left: 652px; top: 465px; color: #969b8f; }
+.selection-arrow svg { width: 40px; height: 40px; }
+.bottom-note { position: absolute; bottom: 37px; left: 66px; font-size: 0.875rem; color: #7c8076; }
+.review .headline { top: 162px; }
+.review-popup-position { position: absolute; left: 602px; top: 232px; }
+.review-popup { width: 589px; height: 465px; }
+.review-popup iframe { transform: scale(1.55); }
+.review-note { position: absolute; left: 68px; top: 523px; display: flex; gap: 16px; }
+.review-note p { font-size: 1.125rem; color: #767a70; line-height: 1.6; margin: 0; }
+.note-rule { width: 3px; background: #d9b759; border-radius: 2px; }
+.history-headline { position: absolute; top: 36px; left: 64px; }
+.history-headline h1 { font-size: 2.625rem; }
+.history-headline p { margin-top: 10px; font-size: 1.125rem; }
+.history-frame { position: absolute; left: 64px; top: 144px; width: 1152px; height: 608px; border: 1px solid #dddfd6; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 10px 36px #262a2310; }
+.history-frame iframe { width: 1280px; height: 675px; transform: scale(0.9); transform-origin: top left; border: 0; }
+.small-promo { width: 440px; height: 280px; background: #f2f1e9; }
+.small-promo .brand { left: 22px; top: 23px; gap: 10px; }
+.small-promo .brand img { width: 136px; }
+.small-promo .brand span { font-size: 0.9375rem; }
+.promo-quote { position: absolute; top: 109px; left: 28px; font-size: 1.5625rem; font-weight: 500; letter-spacing: -0.035em; line-height: 1.5; }
+.promo-quote span { background: #f0d895; padding: 2px 3px; box-decoration-break: clone; }
+.promo-arrow { position: absolute; top: 142px; left: 244px; width: 30px; height: 30px; color: #898c80; }
+.promo-bird { position: absolute; top: 85px; left: 284px; width: 114px; height: 114px; }
+.promo-caption { position: absolute; left: 29px; bottom: 28px; display: flex; gap: 7px; align-items: center; font-size: 0.9375rem; color: #63685b; }
+.marquee { width: 1400px; height: 560px; }
+.marquee .brand { top: 38px; left: 52px; }
+.marquee .headline { top: 174px; left: 64px; }
+.marquee h1 { font-size: 4rem; }
+.marquee .headline p { margin-top: 23px; font-size: 1.1875rem; }
+.marquee-source { position: absolute; top: 76px; left: 642px; width: 450px; height: 388px; }
+.compact-source .source-body { padding: 24px 30px; }
+.compact-source .source-body h2 { font-size: 2rem; margin: 17px 0; }
+.compact-source .source-body p { font-size: 1rem; }
+.marquee-popup { position: absolute; top: 211px; left: 939px; }
+.marquee-popup .popup-frame { width: 403px; height: 318px; }
+.marquee-popup iframe { transform: scale(1.06); }

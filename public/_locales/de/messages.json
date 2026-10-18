@@ -3,7 +3,7 @@
     "message": "Memos Web Clipper"
   },
   "extensionDescription": {
-    "message": "Webseiten in Ihrer Memos-Instanz speichern."
+    "message": "Seiten, Textauswahl und Bilder aus Chrome oder Firefox als Markdown mit Quellenlink in deinen Memos speichern."
   },
   "actionTitle": {
     "message": "In Memos speichern"

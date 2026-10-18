@@ -94,7 +94,7 @@ function OptionsHeader({
 }) {
   const localeLabel = locale === "browser" ? t("localeBrowserDefault") : LOCALE_AUTONYMS[locale];
   return (
-    <div className="mb-8 flex items-center justify-between gap-4">
+    <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <AppBrand size="md" sub={sub} />
       <div className="flex items-center gap-1">
         <a

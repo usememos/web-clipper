@@ -18,7 +18,7 @@ Wait for the interface and fonts to render. Capture the indicated rectangle from
 
 For the review image, edit the real “Memo content” textbox to the `memoContent` fixture, then open the “Visibility: Private” menu. Wait for the menu to finish opening before capturing. Other views need no interaction.
 
-Copy `public/icons/icon-128.png` unchanged to `assets/store/store-icon.png` after `pnpm brand:generate`. Preserve transparency.
+`pnpm brand:generate` writes `assets/store/store-icon.png` alongside `public/icons/icon-128.png`; the two are identical. Refresh `store-assets.zip` afterwards.
 
 Open `/tools/store/gallery.html` for a contact sheet; capture 1280 × 800 as `assets/store/preview.jpg`. It is for review, not upload. `assets/store/store-assets.zip` contains the six upload files only.
 

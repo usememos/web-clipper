@@ -32,9 +32,9 @@ Support: https://github.com/usememos/web-clipper/issues
 
 | Asset | Dimensions | Status | File |
 | --- | --- | --- | --- |
-| Store icon | 128 × 128 PNG | Ready locally; transparent background | `assets/store/store-icon.png` |
-| Extension icons | 16, 32, 48, 128 px PNG | Updated locally; transparent background | `public/icons/icon-*.png` |
-| Toolbar icons | 16, 32 px PNG | Updated locally; transparent background | `public/icons/action-*.png` |
+| Store icon | 128 × 128 PNG | Ready locally; indigo mark, transparent background | `assets/store/store-icon.png` |
+| Extension icons | 16, 32, 128 px PNG | Updated locally; indigo mark, transparent; no 48 so HiDPI chrome://extensions downsamples the 128 | `public/icons/icon-*.png` |
+| Toolbar icons | 16, 32 px PNG | Updated locally; indigo mark filling the canvas height | `public/icons/action-*.png` |
 | Screenshot 1: selection capture | 1280 × 800 JPEG | Ready locally | `assets/store/screenshot-01-selection.jpg` |
 | Screenshot 2: review and visibility | 1280 × 800 JPEG | Ready locally | `assets/store/screenshot-02-review.jpg` |
 | Screenshot 3: saved clips | 1280 × 800 JPEG | Ready locally | `assets/store/screenshot-03-history.jpg` |
@@ -49,6 +49,6 @@ Brand sources and regeneration are documented in [assets/brand/README.md](assets
 
 | Version | Date | Changes | Status |
 | --- | --- | --- | --- |
-| 0.5.1 | 2026-10-18 | Official bird icons on transparent backgrounds, serif Memos lockup, aligned extension descriptions in all locales, three store screenshots, both promo tile sizes, compatibility with current Memos calendar releases and development builds, detected versions in unsupported-version connection errors, the Astroid default Space icon, and a persistent popup error with saving disabled when an access token is rejected | Prepared locally; not submitted |
+| 0.5.1 | 2026-10-18 | Indigo bird icons that read on light and dark toolbars and stay sharp on HiDPI screens, serif Memos lockup, aligned extension descriptions in all locales, three store screenshots, both promo tile sizes, compatibility with current Memos calendar releases and development builds, detected versions in unsupported-version connection errors, the Astroid default Space icon, and a persistent popup error with saving disabled when an access token is rejected | Prepared locally; not submitted |
 
 This document records the brand-related listing changes. Existing publisher details, distribution settings, permission justifications, and privacy disclosures remain in the store dashboard.

@@ -15,10 +15,12 @@ export default defineManifest({
   // package.json is the release version's single source of truth.
   version: packageJson.version,
   description: "__MSG_extensionDescription__",
+  // No 48 px entry: chrome://extensions takes the smallest icon at or above 48 and never
+  // accounts for display scale, so a 48 px bitmap is shown upscaled on HiDPI screens.
+  // Without it Chrome downsamples the 128, which stays sharp.
   icons: {
     16: "icons/icon-16.png",
     32: "icons/icon-32.png",
-    48: "icons/icon-48.png",
     128: "icons/icon-128.png",
   },
   action: {

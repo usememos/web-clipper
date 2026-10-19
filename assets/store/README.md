@@ -4,7 +4,7 @@ Prepared 2026-10-18. Local exports; nothing has been uploaded or published.
 
 | Dashboard field | File | Dimensions |
 | --- | --- | --- |
-| Store icon | [store-icon.png](store-icon.png) | 128 × 128, transparent PNG |
+| Store icon | [store-icon.png](store-icon.png) | 128 × 128 PNG, indigo mark on a transparent background |
 | Screenshot 1 | [screenshot-01-selection.jpg](screenshot-01-selection.jpg) | 1280 × 800, opaque JPEG |
 | Screenshot 2 | [screenshot-02-review.jpg](screenshot-02-review.jpg) | 1280 × 800, opaque JPEG |
 | Screenshot 3 | [screenshot-03-history.jpg](screenshot-03-history.jpg) | 1280 × 800, opaque JPEG |

@@ -2,6 +2,12 @@
 
 Maintain the package version and `CHANGELOG.md` manually, then run the Release workflow. The workflow builds and verifies every archive, creates a draft GitHub Release, attaches all assets, and only then publishes it. This order supports GitHub release immutability without depending on browser-store review.
 
+## Browser-store release skill
+
+Use the project-local [`$release` skill](../.agents/skills/release/SKILL.md) to bump the version, run `pnpm package`, upload to the existing Chrome and Firefox listings, and submit for review. It checks each store's last verified assets and updates only changed images. It also supports preparation-only runs and resuming partial releases. Store results and asset hashes are recorded in `docs/releases/<version>.md` for the next comparison.
+
+The skill can upload verified local packages without a GitHub Release. When GitHub publication is also requested, follow the workflow below and use its artifacts. Edge store uploads require an explicit target listing.
+
 ## Repository configuration
 
 Add these public build values as Actions repository variables:

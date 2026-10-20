@@ -1,0 +1,4 @@
+interface:
+  display_name: "Release Web Clipper"
+  short_description: "Package and release Web Clipper to browser stores"
+  default_prompt: "Use $release to bump the version, package Web Clipper, upload it to Chrome and Firefox, and update changed store assets."

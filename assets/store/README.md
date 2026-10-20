@@ -1,6 +1,6 @@
 # Chrome Web Store upload assets
 
-Prepared 2026-10-18. Local exports; nothing has been uploaded or published.
+Prepared 2026-10-20. Local exports; nothing has been uploaded or published.
 
 | Dashboard field | File | Dimensions |
 | --- | --- | --- |

@@ -21,7 +21,7 @@ Versioned packages and checksums are available from [GitHub Releases](https://gi
 For Chromium-based browsers:
 
 1. Download and extract `memos-web-clipper-chromium-v<version>.zip`.
-2. Open the browser's extensions page, such as `chrome://extensions` or `edge://extensions`.
+2. Open the browser’s extensions page, such as `chrome://extensions` or `edge://extensions`.
 3. Enable **Developer mode**, choose **Load unpacked**, and select the extracted directory.
 
 Firefox stable releases require Mozilla-signed extensions, so install from Firefox Add-ons for permanent use. To test a GitHub release temporarily:
@@ -34,12 +34,12 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 
 ## Features
 
-- Capture a page's main content as Markdown, with its title, URL, and readable description.
+- Capture a page’s main content as Markdown, with its title, URL, and readable description.
 - Convert selected text, links, lists, code, and tables to Markdown.
 - Upload selected images as Memos attachments.
 - Review and edit every clip before saving.
 - Save as Private, Protected, or Public.
-- Choose a Space and optionally limit visibility to its members on Memos 0.31 or later. The popup remembers your last successful Space and visibility for each connection.
+- Choose a space and optionally limit visibility to its members on Memos 0.31 or later. The popup remembers your last successful space and visibility for each connection.
 - Customize the clip format with a local template.
 - Quick-save selected text or images from the context menu.
 - Browse and search clips saved locally from the popup.
@@ -51,9 +51,9 @@ The default template keeps the captured content first and adds a link back to th
 
 Selecting text before you clip captures exactly that selection, quoted, along with any images in it.
 
-With nothing selected, the clipper extracts the page's main content — the article body, without navigation, sidebars, or footers — and converts it to Markdown, preserving headings, lists, code blocks, and tables. Images in an extracted article are left out rather than linked, so a clip never depends on someone else's server staying up; select an image, or the region containing it, to save it as an attachment.
+With nothing selected, the clipper extracts the page’s main content — the article body, without navigation, sidebars, or footers — and converts it to Markdown, preserving headings, lists, code blocks, and tables. Images in an extracted article are left out rather than linked, so a clip never depends on someone else’s server staying up; select an image, or the region containing it, to save it as an attachment.
 
-Pages with no article to extract, such as dashboards, search results, and feeds, fall back to the page's own summary and link. The popup says which of these happened, and every clip is editable before you save it.
+Pages with no article to extract, such as dashboards, search results, and feeds, fall back to the page’s own summary and link. The popup says which of these happened, and every clip is editable before you save it.
 
 ## How to use
 
@@ -61,7 +61,7 @@ Pages with no article to extract, such as dashboards, search results, and feeds,
    - **usememos.com (Recommended):** sign in, then connect an instance. Your connection information is available after signing in on another device.
    - **Direct connection:** enter your Memos instance URL and a personal access token. No usememos.com account is required, and the connection stays in this browser.
 2. Open the extension on a page.
-3. Review the captured content, choose its visibility and optional Space from the same menu, and save.
+3. Review the captured content, choose its visibility and optional space from the same menu, and save.
 
 Open **Saved clips** from the popup or extension settings to review previous saves and reopen either the source page or its memo.
 
@@ -73,7 +73,7 @@ Browser-owned pages, such as extension stores and internal browser URLs, may blo
 
 ## Local history
 
-Successful saves made from the popup are recorded in the extension's local browser storage. A record includes the source page, captured selection, final memo content, visibility, destination, memo link, and save time. This lets the popup recognize a previously saved page without querying Memos.
+Successful saves made from the popup are recorded in the extension’s local browser storage. A record includes the source page, captured selection, final memo content, visibility, destination, memo link, and save time. This lets the popup recognize a previously saved page without querying Memos.
 
 History stays in the current browser profile and is not synced through usememos.com. Context-menu quick saves are not added to this history.
 

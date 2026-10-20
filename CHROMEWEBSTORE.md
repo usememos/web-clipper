@@ -1,6 +1,6 @@
 # Chrome Web Store listing — Memos Web Clipper
 
-Last updated: 2026-10-18. Version 0.5.1 is prepared locally and has not been submitted.
+Last updated: 2026-10-20. Version 0.5.1 is prepared locally and has not been submitted.
 
 ## Store listing
 
@@ -14,7 +14,7 @@ Save pages, selections, and images to your memos from Chrome or Firefox, as Mark
 
 Save pages, selections, and images to your memos from Chrome or Firefox, as Markdown with a link to the source.
 
-Review and edit a clip before saving. Choose its visibility and, on supported versions of Memos, a Space. Keep a local history of clips saved from the popup, search previous saves, and open the source page or saved memo again.
+Review and edit a clip before saving. Choose its visibility and, on supported versions of Memos, a space. Keep a local history of clips saved from the popup, search previous saves, and open the source page or saved memo again.
 
 Connect through usememos.com, or use your Memos address and a personal access token. Open the clipper on a page, review the content, and save. You can also save selected text or images from the right-click menu.
 
@@ -43,7 +43,7 @@ Support: https://github.com/usememos/web-clipper/issues
 
 Upload screenshots in numbered order. JPEGs are opaque; the icon preserves transparency. [Asset instructions and contact sheet](assets/store/README.md) accompany the exports; `assets/store/store-assets.zip` contains only the six upload assets. The screenshots use the current interface with original sample content and fictional destinations. Editable sources are in [tools/store/](tools/store/README.md).
 
-Brand sources and regeneration are documented in [assets/brand/README.md](assets/brand/README.md). The general Memos tagline and descriptions come from [BRAND.md](https://github.com/usememos/.github/blob/main/BRAND.md); the extension description comes from the [upstream project catalog](https://github.com/usememos/.github/blob/15485a529d2f3d25e346df5cab4099e0f1e4eac8/profile/README.md).
+Brand sources and regeneration are documented in [assets/brand/README.md](assets/brand/README.md). The Memos headline, description, and full introduction come from [BRAND.md](https://github.com/usememos/.github/blob/main/BRAND.md); the extension description comes from the [upstream project catalog](https://github.com/usememos/.github/blob/a1230e35ef01969fcb03c46744286d22bb4302fa/profile/README.md).
 
 ## Version history
 

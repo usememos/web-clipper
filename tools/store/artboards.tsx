@@ -1,7 +1,6 @@
 import { ArrowRight, Check } from "lucide-react";
 import { createRoot } from "react-dom/client";
 import lockup from "../../assets/brand/lockup.svg?url";
-import smallLockup from "../../assets/brand/lockup-small.svg?url";
 import mark from "../../assets/brand/mark.svg?url";
 import { quote } from "./fixtures";
 import "./artboards.css";
@@ -9,7 +8,7 @@ import "./artboards.css";
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <div className={`brand${compact ? " compact" : ""}`}>
-      <img src={compact ? smallLockup : lockup} alt="Memos" />
+      <img src={lockup} alt="Memos" />
       <span>Web Clipper</span>
     </div>
   );

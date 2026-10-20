@@ -52,7 +52,7 @@ mark { background: #f6e6b9; color: #3a392f; padding: 3px 0; box-decoration-break
 .history-frame iframe { width: 1280px; height: 675px; transform: scale(0.9); transform-origin: top left; border: 0; }
 .small-promo { width: 440px; height: 280px; background: #f2f1e9; }
 .small-promo .brand { left: 22px; top: 23px; gap: 10px; }
-.small-promo .brand img { width: 136px; }
+.small-promo .brand img { width: 145px; }
 .small-promo .brand span { font-size: 0.9375rem; }
 .promo-quote { position: absolute; top: 109px; left: 28px; font-size: 1.5625rem; font-weight: 500; letter-spacing: -0.035em; line-height: 1.5; }
 .promo-quote span { background: #f0d895; padding: 2px 3px; box-decoration-break: clone; }

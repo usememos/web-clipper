@@ -6,7 +6,7 @@ The frames import the production `App` and `ClipHistory` components. `ui.tsx` su
 
 ## Export
 
-Wait for the interface and fonts to render. Capture the indicated rectangle from the artboard's top-left corner as an opaque JPEG. Fixed artboards prevent focus-triggered page scrolling from moving the composition.
+Wait for the interface and fonts to render. Capture the indicated rectangle from the artboard’s top-left corner as an opaque JPEG. Fixed artboards prevent focus-triggered page scrolling from moving the composition.
 
 | Query | Rectangle | Output in `assets/store/` |
 | --- | --- | --- |
@@ -26,4 +26,4 @@ Check this workspace with `pnpm exec tsc -p tools/store/tsconfig.json` and `pnpm
 
 ## Brand
 
-Official SVGs live in `assets/brand/`; their geometry, lettering, viewBoxes, and proportions are preserved. Only the supplied lettering uses Source Serif 4. Other text uses the extension's Geist interface font. Warm white and ink follow the extension UI; amber indicates selected text.
+Official SVGs live in `assets/brand/`; their geometry, lettering, viewBoxes, and proportions are preserved. Artwork lockups use `lockup.svg` at a minimum width of 145 px, including canvas padding. Embedded extension headers keep their compact 24 or 30 px height. Only the supplied lettering uses Source Serif 4 at weight 550. Other text uses the extension’s Geist interface font. Warm white and ink follow the extension UI; amber indicates selected text.

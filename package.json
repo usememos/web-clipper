@@ -1,6 +1,6 @@
 {
   "name": "@usememos/web-clipper",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "private": true,
   "description": "Save pages, selections, and images to your memos from Chrome or Firefox, as Markdown with a link to the source.",
   "engines": {

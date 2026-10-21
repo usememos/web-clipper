@@ -1,6 +1,6 @@
 # Chrome Web Store listing — Memos Web Clipper
 
-Last updated: 2026-10-20. Version 0.5.1 is prepared locally and has not been submitted.
+Last updated: 2026-10-21. Version 0.5.3 is being prepared. Both store dashboards show 0.5.2 published; no 0.5.3 package has been uploaded yet.
 
 ## Store listing
 
@@ -32,6 +32,7 @@ Support: https://github.com/usememos/web-clipper/issues
 
 | Asset | Dimensions | Status | File |
 | --- | --- | --- | --- |
+| 0.5.3 | 2026-10-21 | Preserve confirmed HTTP connections in Firefox; show a non-blocking amber HTTP warning with clearer copy in all nine languages | Preparing; not submitted |
 | Store icon | 128 × 128 PNG | Ready locally; indigo mark, transparent background | `assets/store/store-icon.png` |
 | Extension icons | 16, 32, 128 px PNG | Updated locally; indigo mark, transparent; no 48 so HiDPI chrome://extensions downsamples the 128 | `public/icons/icon-*.png` |
 | Toolbar icons | 16, 32 px PNG | Updated locally; indigo mark filling the canvas height | `public/icons/action-*.png` |
@@ -51,4 +52,4 @@ Brand sources and regeneration are documented in [assets/brand/README.md](assets
 | --- | --- | --- | --- |
 | 0.5.1 | 2026-10-18 | Indigo bird icons that read on light and dark toolbars and stay sharp on HiDPI screens, serif Memos lockup, aligned extension descriptions in all locales, three store screenshots, both promo tile sizes, compatibility with current Memos calendar releases and development builds, detected versions in unsupported-version connection errors, the Astroid default Space icon, and a persistent popup error with saving disabled when an access token is rejected | Prepared locally; not submitted |
 
-This document records the brand-related listing changes. Existing publisher details, distribution settings, permission justifications, and privacy disclosures remain in the store dashboard.
+This document records listing and release changes. Version 0.5.3 keeps existing permissions and data handling; its explicit CSP permits the HTTP connections already supported by the app after confirmation while keeping scripts restricted to the extension. Existing publisher details, distribution settings, permission justifications, and privacy disclosures remain in the store dashboard.

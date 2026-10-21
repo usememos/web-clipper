@@ -7,7 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* Warm paper/ink neutrals with a single highlighter-amber accent. Amber marks position
-   and clipped material (active step, focus ring, template tokens, excerpt bar) — never
+   and clipped material (active step, focus ring, template tokens, excerpt bar), plus warnings — never
    errors (red) or outcomes (green), so each color keeps one job. */
 :root {
   --background: oklch(0.992 0.002 95);

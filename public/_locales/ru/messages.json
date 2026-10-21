@@ -192,6 +192,10 @@
   "optionsUnencryptedBody": {
     "message": "Токен доступа и будущие материалы будут передаваться по HTTP. Используйте HTTPS, если только это не доверенная сеть."
   },
+  "optionsHttpWarningTitle": { "message": "Подключение использует HTTP" },
+  "optionsHttpWarningBody": {
+    "message": "Токен доступа и материалы передаются без шифрования TLS. Используйте HTTPS при подключении через недоверенную сеть."
+  },
   "optionsContinueHttp": { "message": "Продолжить по HTTP" },
   "optionsTestingConnection": { "message": "Проверка подключения…" },
   "optionsTestAndSave": { "message": "Проверить и сохранить" },

@@ -165,6 +165,10 @@
   "optionsUnencryptedBody": {
     "message": "액세스 토큰과 앞으로 저장할 클립이 HTTP를 통해 전송됩니다. 신뢰할 수 있는 네트워크가 아니라면 HTTPS를 사용하세요."
   },
+  "optionsHttpWarningTitle": { "message": "HTTP 연결 사용 중" },
+  "optionsHttpWarningBody": {
+    "message": "액세스 토큰과 클립이 TLS 암호화 없이 전송됩니다. 신뢰할 수 없는 네트워크를 통해 연결할 때는 HTTPS를 사용하세요."
+  },
   "optionsContinueHttp": { "message": "HTTP로 계속" },
   "optionsTestingConnection": { "message": "연결을 테스트하는 중…" },
   "optionsTestAndSave": { "message": "테스트 후 저장" },

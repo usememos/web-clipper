@@ -316,6 +316,8 @@
   "optionsUnencryptedBody": {
     "message": "您的存取權杖與後續剪藏將通過 HTTP 傳輸。除非這是你信任的網路，否則請使用 HTTPS。"
   },
+  "optionsHttpWarningTitle": { "message": "連線使用 HTTP" },
+  "optionsHttpWarningBody": { "message": "你的存取權杖和剪藏內容在傳輸時未經 TLS 加密。透過不受信任的網路連線時，請使用 HTTPS。" },
   "optionsContinueHttp": {
     "message": "使用 HTTP 繼續"
   },

@@ -313,6 +313,10 @@
   "optionsUnencryptedBody": {
     "message": "Su token de acceso y futuros clips viajarán a través de HTTP. Utilice HTTPS a menos que esta sea una red en la que confíe."
   },
+  "optionsHttpWarningTitle": { "message": "La conexión usa HTTP" },
+  "optionsHttpWarningBody": {
+    "message": "Tu token de acceso y tus recortes se envían sin cifrado TLS. Usa HTTPS cuando te conectes a través de una red que no sea de confianza."
+  },
   "optionsContinueHttp": {
     "message": "Continuar con HTTP"
   },

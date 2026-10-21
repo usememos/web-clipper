@@ -273,6 +273,25 @@ describe("Options connection methods", () => {
     expect(within(connectedSection).queryByRole("link", { name: /open memos/i })).not.toBeInTheDocument();
     expect(within(connectedSection).queryByText("Connected")).not.toBeInTheDocument();
     expect(within(connectedSection).queryByText("This browser")).not.toBeInTheDocument();
+    expect(screen.queryByText("Connection uses HTTP")).not.toBeInTheDocument();
+  });
+
+  it("shows a non-blocking HTTP warning while keeping connection errors separate", async () => {
+    active = { ...readyConn("direct"), instanceUrl: "http://localhost:5230", verificationError: "unauthorized" };
+    const { rerender } = renderWithUser(<Options />);
+
+    const warning = screen.getByRole("status");
+    expect(warning).toHaveTextContent("Connection uses HTTP");
+    expect(warning).toHaveTextContent("Your access token and clips are sent without TLS encryption.");
+    expect(warning).not.toHaveClass("text-destructive");
+    expect(screen.getByRole("alert")).toHaveTextContent("Access token rejected");
+
+    active.verificationError = null;
+    rerender(<Options />);
+    expect(screen.getByText("Memos connected")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Template")).toBeEnabled();
+    expect(screen.getByRole("status")).toHaveTextContent("Connection uses HTTP");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("opens the same method choice when changing a ready connection", async () => {

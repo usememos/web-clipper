@@ -8,8 +8,8 @@ import { t } from "@/lib/i18n";
 type StepState = "done" | "active" | "locked";
 
 /**
- * One color per meaning: done steps are ink, the active step is the page's only amber
- * mark ("you are here"), locked steps are dashed outlines. The number is set in mono —
+ * Done steps are ink, the active step is amber ("you are here"), and locked steps
+ * are dashed outlines. The number is set in mono —
  * machine facts (step numbers, hosts, versions) share that voice across the page.
  */
 export function StepRow({
@@ -53,6 +53,16 @@ export function StepRow({
         {children ? <div className="mt-3">{children}</div> : null}
       </div>
     </div>
+  );
+}
+
+export function HttpConnectionWarning() {
+  return (
+    <Alert variant="warning" role="status">
+      <TriangleAlertIcon aria-hidden="true" />
+      <AlertTitle>{t("optionsHttpWarningTitle")}</AlertTitle>
+      <AlertDescription>{t("optionsHttpWarningBody")}</AlertDescription>
+    </Alert>
   );
 }
 

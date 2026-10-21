@@ -316,6 +316,10 @@
   "optionsUnencryptedBody": {
     "message": "アクセストークンと今後のクリップは HTTP で送信されます。信頼できるネットワーク以外では HTTPS を使用してください。"
   },
+  "optionsHttpWarningTitle": { "message": "HTTP 接続を使用しています" },
+  "optionsHttpWarningBody": {
+    "message": "アクセストークンとクリップは TLS 暗号化なしで送信されます。信頼できないネットワーク経由で接続する場合は HTTPS を使用してください。"
+  },
   "optionsContinueHttp": {
     "message": "HTTP で続行"
   },

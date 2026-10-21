@@ -316,6 +316,8 @@
   "optionsUnencryptedBody": {
     "message": "你的访问令牌和后续剪藏将通过 HTTP 传输。除非这是你信任的网络，否则请使用 HTTPS。"
   },
+  "optionsHttpWarningTitle": { "message": "连接使用 HTTP" },
+  "optionsHttpWarningBody": { "message": "你的访问令牌和剪藏内容在传输时未经 TLS 加密。通过不受信任的网络连接时，请使用 HTTPS。" },
   "optionsContinueHttp": {
     "message": "使用 HTTP 继续"
   },

@@ -313,6 +313,10 @@
   "optionsUnencryptedBody": {
     "message": "Votre jeton d'accès et vos futurs clips transiteront par HTTP. Utilisez HTTPS sauf si vous faites confiance à ce réseau."
   },
+  "optionsHttpWarningTitle": { "message": "La connexion utilise HTTP" },
+  "optionsHttpWarningBody": {
+    "message": "Votre jeton d’accès et vos captures sont envoyés sans chiffrement TLS. Utilisez HTTPS lorsque vous vous connectez via un réseau non fiable."
+  },
   "optionsContinueHttp": {
     "message": "Continuer avec HTTP."
   },

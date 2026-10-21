@@ -33,6 +33,9 @@ export default defineManifest({
   },
   options_ui: { page: "src/options/index.html", open_in_tab: true },
   background: { service_worker: "src/background.ts", type: "module" },
+  // Firefox's default MV3 policy upgrades HTTP to HTTPS, even after the user confirms
+  // a direct HTTP connection. Keep scripts local without upgrading instance requests.
+  content_security_policy: { extension_pages: "script-src 'self'; object-src 'self';" },
   // "scripting": the popup captures the page's selection via executeScript so it works even on
   // tabs whose content script is stale (opened before the extension was installed or updated).
   permissions: ["storage", "identity", "contextMenus", "activeTab", "scripting"],

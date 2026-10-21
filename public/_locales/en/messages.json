@@ -165,6 +165,10 @@
   "optionsUnencryptedBody": {
     "message": "Your access token and future clips will travel over HTTP. Use HTTPS unless this is a network you trust."
   },
+  "optionsHttpWarningTitle": { "message": "Connection uses HTTP" },
+  "optionsHttpWarningBody": {
+    "message": "Your access token and clips are sent without TLS encryption. Use HTTPS when connecting over an untrusted network."
+  },
   "optionsContinueHttp": { "message": "Continue with HTTP" },
   "optionsTestingConnection": { "message": "Testing connection…" },
   "optionsTestAndSave": { "message": "Test and save" },

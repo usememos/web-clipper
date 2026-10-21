@@ -313,6 +313,10 @@
   "optionsUnencryptedBody": {
     "message": "Ihr Zugriffstoken und zukünftige Clips werden über HTTP übertragen. Verwenden Sie HTTPS, es sei denn, Sie vertrauen diesem Netzwerk."
   },
+  "optionsHttpWarningTitle": { "message": "Verbindung verwendet HTTP" },
+  "optionsHttpWarningBody": {
+    "message": "Ihr Zugriffstoken und Ihre Clips werden ohne TLS-Verschlüsselung übertragen. Verwenden Sie HTTPS, wenn Sie sich über ein nicht vertrauenswürdiges Netzwerk verbinden."
+  },
   "optionsContinueHttp": {
     "message": "Fahren Sie mit HTTP fort."
   },

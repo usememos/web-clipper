@@ -40,7 +40,7 @@ import { isValidInstanceUrl, normalizeInstanceUrl, requiresInsecureHttpConfirmat
 import type { ConnectionActionResult } from "@/lib/messages";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
-import { ErrorNotice, StepRow } from "./connection-controls";
+import { ErrorNotice, HttpConnectionWarning, StepRow } from "./connection-controls";
 import { TemplateEditor } from "./template-editor";
 
 const SETUP_PENDING_KEY = "memosConnectionSetupStartedAt";
@@ -564,7 +564,7 @@ function ConnectedSummary({
         <p className="text-sm text-muted-foreground">{t("optionsConnectedAs", connection.displayName)}</p>
       ) : null}
       {connection.source === "direct" ? <p className="text-sm text-muted-foreground">{t("optionsTokenSaved")}</p> : null}
-      {insecureHttp ? <ErrorNotice kind="mixed-content" source={connection.source} /> : null}
+      {insecureHttp ? <HttpConnectionWarning /> : null}
       {connection.verificationError && connection.verificationError !== "mixed-content" ? (
         <ErrorNotice kind={connection.verificationError} source={connection.source} />
       ) : null}

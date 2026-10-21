@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+- Preserve confirmed HTTP connections in Firefox instead of silently upgrading them to HTTPS.
+- Show connected HTTP instances with an amber warning and clearer copy instead of an error notice.
+
 ## [0.5.1](https://github.com/usememos/web-clipper/compare/v0.5.0...v0.5.1) (2026-10-18)
 
 ### Improvements

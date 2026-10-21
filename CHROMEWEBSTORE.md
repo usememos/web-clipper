@@ -1,6 +1,6 @@
 # Chrome Web Store listing — Memos Web Clipper
 
-Last updated: 2026-10-21. Version 0.5.3 is being prepared. Both store dashboards show 0.5.2 published; no 0.5.3 package has been uploaded yet.
+Last updated: 2026-10-21. Version 0.5.3 is submitted to Chrome (pending review, automatic publication after approval) and approved/live on Firefox. See [the release record](docs/releases/0.5.3.md) for package hashes and verification.
 
 ## Store listing
 
@@ -32,7 +32,7 @@ Support: https://github.com/usememos/web-clipper/issues
 
 | Asset | Dimensions | Status | File |
 | --- | --- | --- | --- |
-| 0.5.3 | 2026-10-21 | Preserve confirmed HTTP connections in Firefox; show a non-blocking amber HTTP warning with clearer copy in all nine languages | Preparing; not submitted |
+| 0.5.3 | 2026-10-21 | Preserve confirmed HTTP connections in Firefox; show a non-blocking amber HTTP warning with clearer copy in all nine languages | Chrome pending review with automatic publication; Firefox approved/live |
 | Store icon | 128 × 128 PNG | Ready locally; indigo mark, transparent background | `assets/store/store-icon.png` |
 | Extension icons | 16, 32, 128 px PNG | Updated locally; indigo mark, transparent; no 48 so HiDPI chrome://extensions downsamples the 128 | `public/icons/icon-*.png` |
 | Toolbar icons | 16, 32 px PNG | Updated locally; indigo mark filling the canvas height | `public/icons/action-*.png` |

@@ -14,6 +14,9 @@ preparation, a local release commit, package uploads, changed listing assets, an
 submission for review. Honor narrower requests such as prepare-only or upload-only.
 Creating or editing this skill does not execute a release. Pushes and GitHub Release
 publication are separate actions; use `docs/RELEASING.md` when they are requested.
+Firefox releases include the packaged extension only. Do not prepare or upload
+a source-code archive or add reviewer build instructions unless the user explicitly
+requests them. Keep reviewer notes focused on the changes and how to test them.
 
 All project paths below are relative to the repository root. Read
 [stores.md](references/stores.md) for listing identities, asset mappings, store

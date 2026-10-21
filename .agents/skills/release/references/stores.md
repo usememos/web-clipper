@@ -35,16 +35,12 @@ Use the existing add-on's Versions area to upload the `firefox` ZIP as a new
 listed version. Wait for validation and inspect warnings. Supply release notes
 from the matching changelog entry and accurate reviewer information if required.
 
-The extension uses bundled TypeScript/React code, so provide the original source
-and reproducible build instructions following Mozilla's
-[source submission guidance](https://extensionworkshop.com/documentation/publish/source-code-submission/).
-Use source from the exact package commit, include the lockfile, Node/pnpm versions,
-and public build configuration needed to reproduce the bundle. Exclude secrets,
-dependencies, and local state. Account for `package.mjs` requiring Git metadata
-and a clean tree: a plain `git archive` cannot run `pnpm package` directly.
-Document how to reconstruct the committed checkout or build and apply the same
-Firefox manifest transformation. Verify the reviewer recipe in a clean temporary
-directory before submitting it; do not claim an untested recipe is reproducible.
+Submit the packaged extension only. Do not prepare, upload, or attach a source-code
+archive, fill the Source code field, or add source build instructions unless the
+user explicitly requests them. Reviewer notes should explain the changes and how
+to test the extension; do not claim that source code is attached or will be supplied.
+If the dashboard explicitly blocks submission because source code is required,
+report that requirement to the user before taking further action on source code.
 
 Update the icon and changed screenshots in the listing's media section. Save
 captions and screenshot order; there are no matching Chrome promo-tile fields.

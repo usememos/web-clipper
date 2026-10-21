@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import { extractArticle } from "@/lib/article";
-import { htmlToMarkdown, toQuotedMarkdown } from "@/lib/format";
+import { htmlToMarkdown } from "@/lib/format";
 import type { CapturePayload } from "@/lib/messages";
 
 /** The raw capture, template-independent — composed into the editor prefill once the template loads. */
@@ -9,7 +9,7 @@ export type PageCapture = {
   title: string;
   url: string;
   description?: string;
-  /** The selection as quoted Markdown ("" when there's no selection). */
+  /** The selection as Markdown, without an added quote wrapper ("" when there's no selection). */
   selectionMarkdown: string;
   /** The page's main content as Markdown ("" when there's a selection, or no article was found). */
   articleMarkdown: string;
@@ -202,7 +202,7 @@ async function capture(): Promise<PageCapture> {
         title = title || cap.title;
         url = url || cap.url;
         description = cap.description;
-        if (cap.selectionHtml) selectionMarkdown = toQuotedMarkdown(htmlToMarkdown(cap.selectionHtml));
+        if (cap.selectionHtml) selectionMarkdown = htmlToMarkdown(cap.selectionHtml);
         // A selection is an explicit instruction about what to capture — never second-guess it
         // with the whole article. Extraction only fills the gap when nothing was selected.
         const article = selectionMarkdown || !cap.documentHtml ? null : await extractArticle(cap.documentHtml, url || cap.url);

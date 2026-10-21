@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConnectionStateResult } from "@/lib/messages";
+import { DEFAULT_TEMPLATE } from "@/lib/template";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { Options } from "@/options/Options";
 import { oauthUserWithMemos, setMockOAuthUser } from "@/test/auth-mock";
@@ -318,6 +319,28 @@ describe("Options connection methods", () => {
     await user.click(screen.getByRole("button", { name: /save template/i }));
 
     await waitFor(() => expect(browserMock.storage.local.set).toHaveBeenCalledWith({ [CLIP_TEMPLATE_KEY]: "Saved locally" }));
+  });
+
+  it("lets the template quote prefix control the preview and persists the raw-content choice", async () => {
+    active = readyConn("direct");
+    const { user, container, unmount } = renderWithUser(<Options />);
+    const editor = await screen.findByLabelText("Template");
+    expect(editor).toHaveValue(DEFAULT_TEMPLATE);
+    expect(container.querySelectorAll("blockquote")).toHaveLength(1);
+    expect(container.querySelector("blockquote")).toHaveTextContent("The quick brown fox jumps over the lazy dog.");
+    expect(container.querySelector("blockquote")).not.toHaveTextContent("> The quick");
+
+    await user.clear(editor);
+    await user.paste("{{content}}");
+    expect(container.querySelector("blockquote")).toBeNull();
+    expect(screen.getByText("The quick brown fox jumps over the lazy dog.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /save template/i }));
+    await waitFor(() => expect(browserMock.storage.local.set).toHaveBeenCalledWith({ [CLIP_TEMPLATE_KEY]: "{{content}}" }));
+
+    unmount();
+    const reopened = renderWithUser(<Options />);
+    expect(await screen.findByLabelText("Template")).toHaveValue("{{content}}");
+    expect(reopened.container.querySelector("blockquote")).toBeNull();
   });
 
   it("keeps the rejected connection available for repair without claiming it is connected", async () => {

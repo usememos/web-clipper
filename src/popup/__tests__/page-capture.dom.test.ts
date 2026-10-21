@@ -19,12 +19,12 @@ describe("usePageCapture", () => {
     ]);
   });
 
-  it("injects into the active tab and returns the selection as quoted markdown plus metadata", async () => {
+  it("injects into the active tab and returns the selection as raw markdown plus metadata", async () => {
     const { result } = renderHook(() => usePageCapture());
     await waitFor(() => expect(result.current).not.toBeNull());
 
     expect(browserMock.scripting.executeScript).toHaveBeenCalledWith(expect.objectContaining({ target: { tabId: 7 } }));
-    expect(result.current?.selectionMarkdown).toBe("> # Hello\n>\n> Body text");
+    expect(result.current?.selectionMarkdown).toBe("# Hello\n\nBody text");
     expect(result.current?.title).toBe("Hello World");
     expect(result.current?.url).toBe("https://example.com/post");
     expect(result.current?.description).toBe("A page about greetings");

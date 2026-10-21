@@ -4,7 +4,7 @@ import { resolveActiveConnection } from "@/background/connection-source";
 import { type ClipCaptureInput, recordSuccessfulClip } from "@/lib/clip-records";
 import type { ConnectionSource } from "@/lib/connection-config";
 import { toSaveErrorKind } from "@/lib/errors";
-import { composeMemoContent, toQuotedMarkdown } from "@/lib/format";
+import { composeMemoContent } from "@/lib/format";
 import {
   createAttachment,
   createMemo,
@@ -372,7 +372,7 @@ export async function saveSelectionClip(
   const { names, failed } = await uploadImages(clip.images, credentials);
   if (!clip.markdown && names.length === 0) return { ok: false, errorKind: "bad-response" };
   const content = composeMemoContent({
-    bodyMarkdown: toQuotedMarkdown(clip.markdown),
+    bodyMarkdown: clip.markdown,
     title,
     url,
     description: clip.description,

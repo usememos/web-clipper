@@ -441,7 +441,7 @@
     "message": "Restablecer valor predeterminado"
   },
   "templateHelp": {
-    "message": "Cada clip se compone a través de esta plantilla antes de que llegue al editor. El texto sin formato, incluido #tags, se mantiene tal como está escrito."
+    "message": "Cada clip se compone a través de esta plantilla antes de que llegue al editor. El texto sin formato, incluido #tags, se mantiene tal como está escrito. Usa > {{content}} en una línea propia para citar todo el contenido, o {{content}} para conservar su formato original."
   },
   "templatePlaceholderReference": {
     "message": "Referencia del marcador de posición"
@@ -465,7 +465,7 @@
     }
   },
   "templatePreviewContent": {
-    "message": "> El zorro marrón rápido salta sobre el perro perezoso."
+    "message": "El zorro marrón rápido salta sobre el perro perezoso."
   },
   "templatePreviewTitle": {
     "message": "Ejemplo de artículo"
@@ -474,13 +474,13 @@
     "message": "Un breve resumen de la página."
   },
   "templateContentMeaning": {
-    "message": "Texto seleccionado como citado Markdown"
+    "message": "Contenido capturado en Markdown"
   },
   "templateContentSource": {
-    "message": "Tu selección en la página"
+    "message": "Texto seleccionado o artículo extraído"
   },
   "templateContentExample": {
-    "message": "> El zorro marrón rápido..."
+    "message": "El zorro marrón rápido..."
   },
   "templateDescriptionMeaning": {
     "message": "Resumen de página, hasta $COUNT$ caracteres",

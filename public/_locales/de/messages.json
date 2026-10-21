@@ -441,7 +441,7 @@
     "message": "Auf Standard zurücksetzen"
   },
   "templateHelp": {
-    "message": "Jeder Clip wird vor dem Erreichen des Editors mithilfe dieser Vorlage erstellt. Klartext – einschließlich #tags – bleibt unverändert."
+    "message": "Jeder Clip wird vor dem Erreichen des Editors mithilfe dieser Vorlage erstellt. Klartext – einschließlich #tags – bleibt unverändert. Verwende > {{content}} in einer eigenen Zeile, um den gesamten Inhalt zu zitieren, oder {{content}}, um die ursprüngliche Formatierung beizubehalten."
   },
   "templatePlaceholderReference": {
     "message": "Platzhalterreferenz"
@@ -465,7 +465,7 @@
     }
   },
   "templatePreviewContent": {
-    "message": "> Der schnelle braune Fuchs springt über den faulen Hund."
+    "message": "Der schnelle braune Fuchs springt über den faulen Hund."
   },
   "templatePreviewTitle": {
     "message": "Beispielartikel"
@@ -474,13 +474,13 @@
     "message": "Eine kurze Zusammenfassung der Seite."
   },
   "templateContentMeaning": {
-    "message": "Ausgewählter Text (Markdown)"
+    "message": "Erfasster Inhalt als Markdown"
   },
   "templateContentSource": {
-    "message": "Ihre Auswahl auf der Seite"
+    "message": "Ausgewählter Text oder extrahierter Artikel"
   },
   "templateContentExample": {
-    "message": "> Der schnelle braune Fuchs…"
+    "message": "Der schnelle braune Fuchs…"
   },
   "templateDescriptionMeaning": {
     "message": "Seitenzusammenfassung (bis zu $COUNT$ Zeichen)",

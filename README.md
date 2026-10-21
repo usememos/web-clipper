@@ -45,11 +45,11 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 - Browse and search clips saved locally from the popup.
 - See when a page was saved before, with the option to save it again.
 
-The default template keeps the captured content first and adds a link back to the source. Empty fields are removed automatically.
+The default template quotes the captured content with `> {{content}}` and adds a link back to the source. Use `{{content}}` without the `> ` prefix to preserve the original Markdown without adding a quote. A quoted placeholder must be on its own line; its prefix applies to every line of content. Empty fields are removed automatically.
 
 ## What gets captured
 
-Selecting text before you clip captures exactly that selection, quoted, along with any images in it.
+Selecting text before you clip captures exactly that selection, along with any images in it. The template controls whether the content is quoted.
 
 With nothing selected, the clipper extracts the page’s main content — the article body, without navigation, sidebars, or footers — and converts it to Markdown, preserving headings, lists, code blocks, and tables. Images in an extracted article are left out rather than linked, so a clip never depends on someone else’s server staying up; select an image, or the region containing it, to save it as an attachment.
 

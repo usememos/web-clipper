@@ -15,16 +15,6 @@ export function htmlToMarkdown(html: string): string {
   return turndown.turndown(html).trim();
 }
 
-/** Marks captured page text as quoted material: every line becomes a Markdown blockquote line. */
-export function toQuotedMarkdown(markdown: string): string {
-  const trimmed = markdown.trim();
-  if (!trimmed) return "";
-  return trimmed
-    .split("\n")
-    .map((line) => (line.trim() ? `> ${line}` : ">"))
-    .join("\n");
-}
-
 /** A long page description is context, not content — keep the memo feed-sized. (The options page documents this cap.) */
 export const DESCRIPTION_MAX_CHARS = 500;
 

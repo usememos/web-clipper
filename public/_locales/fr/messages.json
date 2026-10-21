@@ -441,7 +441,7 @@
     "message": "Réinitialisation par défaut"
   },
   "templateHelp": {
-    "message": "Chaque clip est composé à partir de ce modèle avant d’être affiché dans l’éditeur. Le texte brut, y compris #tags, est conservé tel quel."
+    "message": "Chaque clip est composé à partir de ce modèle avant d’être affiché dans l’éditeur. Le texte brut, y compris #tags, est conservé tel quel. Utilisez > {{content}} sur une ligne séparée pour citer tout le contenu, ou {{content}} pour conserver sa mise en forme d’origine."
   },
   "templatePlaceholderReference": {
     "message": "Référence d'espace réservé"
@@ -465,7 +465,7 @@
     }
   },
   "templatePreviewContent": {
-    "message": "> Le rapide renard brun saute par-dessus le chien paresseux."
+    "message": "Le rapide renard brun saute par-dessus le chien paresseux."
   },
   "templatePreviewTitle": {
     "message": "Exemple d'article"
@@ -474,13 +474,13 @@
     "message": "Bref résumé de la page."
   },
   "templateContentMeaning": {
-    "message": "Texte sélectionné tel que cité Markdown"
+    "message": "Contenu capturé en Markdown"
   },
   "templateContentSource": {
-    "message": "Votre sélection sur la page"
+    "message": "Texte sélectionné ou article extrait"
   },
   "templateContentExample": {
-    "message": "> Le rapide renard brun…"
+    "message": "Le rapide renard brun…"
   },
   "templateDescriptionMeaning": {
     "message": "Résumé de la page (jusqu’à $COUNT$ caractères)",

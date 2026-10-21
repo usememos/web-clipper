@@ -249,7 +249,7 @@
   "templateEditor": { "message": "Редактор" },
   "templateResetDefault": { "message": "Восстановить шаблон по умолчанию" },
   "templateHelp": {
-    "message": "Перед тем как попасть в редактор, каждый материал формируется по этому шаблону. Обычный текст, включая #теги, сохраняется без изменений."
+    "message": "Перед тем как попасть в редактор, каждый материал формируется по этому шаблону. Обычный текст, включая #теги, сохраняется без изменений. Используйте > {{content}} на отдельной строке, чтобы оформить всё содержимое как цитату, или {{content}}, чтобы сохранить исходное форматирование."
   },
   "templatePlaceholderReference": { "message": "Справочник по заполнителям" },
   "templateColumnPlaceholder": { "message": "Заполнитель" },
@@ -259,12 +259,12 @@
     "message": "Пример: $VALUE$",
     "placeholders": { "value": { "content": "$1", "example": "Пример статьи" } }
   },
-  "templatePreviewContent": { "message": "> Съешь ещё этих мягких французских булок, да выпей чаю." },
+  "templatePreviewContent": { "message": "Съешь ещё этих мягких французских булок, да выпей чаю." },
   "templatePreviewTitle": { "message": "Пример статьи" },
   "templatePreviewDescription": { "message": "Краткое описание страницы." },
-  "templateContentMeaning": { "message": "Выделенный текст в виде цитаты Markdown" },
-  "templateContentSource": { "message": "Выделенный вами фрагмент страницы" },
-  "templateContentExample": { "message": "> Съешь ещё этих мягких французских булок…" },
+  "templateContentMeaning": { "message": "Захваченное содержимое в Markdown" },
+  "templateContentSource": { "message": "Выделенный текст или извлечённая статья" },
+  "templateContentExample": { "message": "Съешь ещё этих мягких французских булок…" },
   "templateDescriptionMeaning": {
     "message": "Краткое описание страницы, до $COUNT$ символов",
     "placeholders": { "count": { "content": "$1", "example": "800" } }

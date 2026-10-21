@@ -442,7 +442,7 @@
     "message": "恢復預設值"
   },
   "templateHelp": {
-    "message": "每則剪藏在進入編辑器前都會通過此範本組合。包括 #tags 在內的純文字將原樣保留。"
+    "message": "每則剪藏在進入編辑器前都會通過此範本組合。包括 #tags 在內的純文字將原樣保留。 在單獨一行使用 > {{content}} 將整段內容設為引用，使用 {{content}} 則保留原始格式。"
   },
   "templatePlaceholderReference": {
     "message": "預留位置參考"
@@ -466,7 +466,7 @@
     }
   },
   "templatePreviewContent": {
-    "message": "> 敏捷的棕色狐狸跳過了懶狗。"
+    "message": "敏捷的棕色狐狸跳過了懶狗。"
   },
   "templatePreviewTitle": {
     "message": "範例文章"
@@ -475,13 +475,13 @@
     "message": "頁面的簡短摘要。"
   },
   "templateContentMeaning": {
-    "message": "以 Markdown 引用格式顯示的選取的文字"
+    "message": "Markdown 格式的剪藏內容"
   },
   "templateContentSource": {
-    "message": "您在頁面上的選取內容"
+    "message": "選取的文字或擷取的文章"
   },
   "templateContentExample": {
-    "message": "> 敏捷的棕色狐狸…"
+    "message": "敏捷的棕色狐狸…"
   },
   "templateDescriptionMeaning": {
     "message": "頁面摘要，最多 $COUNT$ 個字元",

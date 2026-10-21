@@ -220,7 +220,7 @@
   "templateEditor": { "message": "편집기" },
   "templateResetDefault": { "message": "기본값으로 재설정" },
   "templateHelp": {
-    "message": "각 클립은 편집기에 표시되기 전에 이 템플릿으로 구성됩니다. #태그를 포함한 일반 텍스트는 작성한 그대로 유지됩니다."
+    "message": "각 클립은 편집기에 표시되기 전에 이 템플릿으로 구성됩니다. #태그를 포함한 일반 텍스트는 작성한 그대로 유지됩니다. > {{content}}를 별도의 줄에 쓰면 전체 내용을 인용하고, {{content}}만 쓰면 원래 서식을 유지합니다."
   },
   "templatePlaceholderReference": { "message": "자리 표시자 안내" },
   "templateColumnPlaceholder": { "message": "자리 표시자" },
@@ -231,12 +231,12 @@
     "description": "Labels an example value for a clip-template placeholder.",
     "placeholders": { "value": { "content": "$1", "example": "Example Article" } }
   },
-  "templatePreviewContent": { "message": "> 재빠른 갈색 여우가 게으른 개를 뛰어넘습니다." },
+  "templatePreviewContent": { "message": "재빠른 갈색 여우가 게으른 개를 뛰어넘습니다." },
   "templatePreviewTitle": { "message": "예시 문서" },
   "templatePreviewDescription": { "message": "페이지에 대한 짧은 요약입니다." },
-  "templateContentMeaning": { "message": "Markdown 인용문 형식의 선택한 텍스트" },
-  "templateContentSource": { "message": "페이지에서 선택한 내용" },
-  "templateContentExample": { "message": "> 재빠른 갈색 여우가…" },
+  "templateContentMeaning": { "message": "Markdown 형식의 캡처 내용" },
+  "templateContentSource": { "message": "선택한 텍스트 또는 추출한 기사" },
+  "templateContentExample": { "message": "재빠른 갈색 여우가…" },
   "templateDescriptionMeaning": {
     "message": "최대 $COUNT$자의 페이지 요약",
     "description": "Explains the maximum length of the captured page summary.",

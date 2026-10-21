@@ -36,9 +36,29 @@ describe("renderTemplate", () => {
     expect(out).toBe("body\n\n#t");
   });
 
+  it("keeps multiline content unquoted with a plain placeholder", () => {
+    const content = "## Heading\n\n- First\n- Second\n\n> Original quote\n\n```ts\nconst x = 1;\n```";
+    expect(renderTemplate("{{content}}", { content })).toBe(content);
+  });
+
+  it("applies a template quote prefix to every expanded line", () => {
+    const content = "## Heading\n\n- First\n- Second\n\n> Original quote\n\n```ts\nconst x = 1;\n```";
+    expect(renderTemplate("> {{content}}", { content })).toBe(
+      "> ## Heading\n>\n> - First\n> - Second\n>\n> > Original quote\n>\n> ```ts\n> const x = 1;\n> ```",
+    );
+  });
+
+  it("supports nested quote prefixes and whitespace around placeholders", () => {
+    expect(renderTemplate("> > {{ content }}", { content: "First\n\nLast" })).toBe("> > First\n> >\n> > Last");
+  });
+
+  it("drops an empty quoted placeholder without leaving a quote marker", () => {
+    expect(renderTemplate("> {{content}}\n\nSource", { content: "" })).toBe("Source");
+  });
+
   it("DEFAULT_TEMPLATE renders content, description, then the source link", () => {
     const out = renderTemplate(DEFAULT_TEMPLATE, {
-      content: "> Some quote",
+      content: "Some quote",
       description: "A summary",
       title: "Title",
       url: "https://example.com/a",

@@ -444,7 +444,7 @@
     "message": "初期設定に戻す"
   },
   "templateHelp": {
-    "message": "各クリップはエディターに表示される前に、このテンプレートで構成されます。#tags を含むプレーンテキストはそのまま保持されます。"
+    "message": "各クリップはエディターに表示される前に、このテンプレートで構成されます。#tags を含むプレーンテキストはそのまま保持されます。 > {{content}} を単独の行に書くと内容全体が引用になります。{{content}} のみなら元の書式を保ちます。"
   },
   "templatePlaceholderReference": {
     "message": "プレースホルダー一覧"
@@ -468,7 +468,7 @@
     }
   },
   "templatePreviewContent": {
-    "message": "> すばやい茶色の狐がのろまな犬を飛び越える。"
+    "message": "すばやい茶色の狐がのろまな犬を飛び越える。"
   },
   "templatePreviewTitle": {
     "message": "記事の例"
@@ -477,13 +477,13 @@
     "message": "ページの短い要約です。"
   },
   "templateContentMeaning": {
-    "message": "引用 Markdown としての選択テキスト"
+    "message": "Markdown 形式のキャプチャ内容"
   },
   "templateContentSource": {
-    "message": "ページ上の選択範囲"
+    "message": "選択したテキストまたは抽出した記事"
   },
   "templateContentExample": {
-    "message": "> すばやい茶色の狐…"
+    "message": "すばやい茶色の狐…"
   },
   "templateDescriptionMeaning": {
     "message": "ページの要約（最大 $COUNT$ 文字）",

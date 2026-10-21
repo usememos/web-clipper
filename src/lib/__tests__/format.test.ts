@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { composeMemoContent, htmlToMarkdown, toQuotedMarkdown } from "@/lib/format";
+import { composeMemoContent, htmlToMarkdown } from "@/lib/format";
 
 describe("htmlToMarkdown", () => {
   it("converts basic HTML to markdown", () => {
@@ -35,19 +35,10 @@ describe("htmlToMarkdown", () => {
   });
 });
 
-describe("toQuotedMarkdown", () => {
-  it("prefixes every line, keeping blank separators as bare markers", () => {
-    expect(toQuotedMarkdown("# Hi\n\nBody text")).toBe("> # Hi\n>\n> Body text");
-  });
-  it("returns empty string for blank input", () => {
-    expect(toQuotedMarkdown("  \n ")).toBe("");
-  });
-});
-
 describe("composeMemoContent", () => {
   it("renders the default template: content, description, then source link", () => {
     const out = composeMemoContent({
-      bodyMarkdown: "> Some quote",
+      bodyMarkdown: "Some quote",
       title: "Title",
       url: "https://example.com/a",
       description: "A summary",

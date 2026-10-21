@@ -218,7 +218,7 @@
   "templateEditor": { "message": "Editor" },
   "templateResetDefault": { "message": "Reset to default" },
   "templateHelp": {
-    "message": "Every clip is composed through this template before it reaches the editor. Plain text—including #tags—is kept as written."
+    "message": "Every clip is composed through this template before it reaches the editor. Plain text—including #tags—is kept as written. Use > {{content}} on its own line to quote the whole clip, or {{content}} to keep its original formatting."
   },
   "templatePlaceholderReference": { "message": "Placeholder reference" },
   "templateColumnPlaceholder": { "message": "Placeholder" },
@@ -229,12 +229,12 @@
     "description": "Labels an example value for a clip-template placeholder.",
     "placeholders": { "value": { "content": "$1", "example": "Example Article" } }
   },
-  "templatePreviewContent": { "message": "> The quick brown fox jumps over the lazy dog." },
+  "templatePreviewContent": { "message": "The quick brown fox jumps over the lazy dog." },
   "templatePreviewTitle": { "message": "Example Article" },
   "templatePreviewDescription": { "message": "A short summary of the page." },
-  "templateContentMeaning": { "message": "Selected text as quoted Markdown" },
-  "templateContentSource": { "message": "Your selection on the page" },
-  "templateContentExample": { "message": "> The quick brown fox…" },
+  "templateContentMeaning": { "message": "Captured content as Markdown" },
+  "templateContentSource": { "message": "Selected text or extracted article" },
+  "templateContentExample": { "message": "The quick brown fox…" },
   "templateDescriptionMeaning": {
     "message": "Page summary, up to $COUNT$ characters",
     "description": "Explains the maximum length of the captured page summary.",

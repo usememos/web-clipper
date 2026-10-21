@@ -960,6 +960,28 @@ describe("background — context menu quick save", () => {
     vi.unstubAllGlobals();
   });
 
+  it.each([
+    { template: null, quoted: true },
+    { template: "{{content}}", quoted: false },
+    { template: "> {{content}}", quoted: true },
+  ])("uses template $template to control context-menu quotation", async ({ template, quoted }) => {
+    ready();
+    if (template !== null) seedStorage({ [CLIP_TEMPLATE_KEY]: template });
+    const markdown = "## Heading\n\n- Item\n\n> Original quote\n\n```\ncode\n```";
+    browserMock.tabs.sendMessage.mockImplementation(async (_id: number, msg: unknown) =>
+      (msg as { type: string }).type === "GET_SELECTION" ? { markdown, images: [] } : undefined,
+    );
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/7", uid: "xy" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+
+    const body = JSON.parse(fetchMock.mock.calls[0]![1].body);
+    const expected = quoted ? "> ## Heading\n>\n> - Item\n>\n> > Original quote\n>\n> ```\n> code\n> ```" : markdown;
+    expect(body.content).toBe(template === null ? `${expected}\n\n[Post](https://example.com/post)` : expected);
+    vi.unstubAllGlobals();
+  });
+
   it("failed save → shows an error toast in the page, no selection clear", async () => {
     ready();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({}, 401)));

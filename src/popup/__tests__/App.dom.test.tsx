@@ -98,6 +98,13 @@ describe("App — signed-in, connected", () => {
     wireSaveResult();
   });
 
+  it("uses a custom plain-content template without automatically quoting the selection", async () => {
+    wireSaveResult(undefined, { ...readyState, template: "{{content}}" });
+    renderWithUser(<App />);
+    const editor = await screen.findByRole<HTMLTextAreaElement>("textbox", { name: /memo content/i });
+    await waitFor(() => expect(editor.value).toBe("Captured body"));
+  });
+
   it("renders the user badge, the prefilled editor, visibility and save controls", async () => {
     renderWithUser(<App />);
     const editor = await screen.findByRole<HTMLTextAreaElement>("textbox", { name: /memo content/i });

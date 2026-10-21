@@ -18,6 +18,8 @@ Review and edit a clip before saving. Choose its visibility and, on supported ve
 
 Connect through usememos.com, or use your Memos address and a personal access token. Open the clipper on a page, review the content, and save. You can also save selected text or images from the right-click menu.
 
+Customize the clip template to quote captured content or keep its original Markdown formatting.
+
 Clips go to the Memos connection you choose. Saved-clip history and clip templates stay in this browser profile. Context-menu saves are private and are not added to local history.
 
 Support: https://github.com/usememos/web-clipper/issues
@@ -47,6 +49,8 @@ Upload screenshots in numbered order. JPEGs are opaque; the icon preserves trans
 Brand sources and regeneration are documented in [assets/brand/README.md](assets/brand/README.md). The Memos headline, description, and full introduction come from [BRAND.md](https://github.com/usememos/.github/blob/main/BRAND.md); the extension description comes from the [upstream project catalog](https://github.com/usememos/.github/blob/a1230e35ef01969fcb03c46744286d22bb4302fa/profile/README.md).
 
 ## Version history
+
+Unreleased: templates control quotation with `> {{content}}`; `{{content}}` preserves captured Markdown without an added quote. The template settings preview and help reflect this behavior in all nine languages. Refresh the settings screenshot if it is included in a future listing update.
 
 | Version | Date | Changes | Status |
 | --- | --- | --- | --- |

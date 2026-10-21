@@ -9,7 +9,7 @@ const capture: PageCapture = {
   title: "Hello World",
   url: "https://example.com/post",
   description: "A page about greetings",
-  selectionMarkdown: "> # Hello\n>\n> Body text",
+  selectionMarkdown: "# Hello\n\nBody text",
   articleMarkdown: "",
   images: [],
 };
@@ -45,6 +45,22 @@ describe("useClipper", () => {
     expect(result.current.content).toContain("> Body text");
     expect(result.current.content).toContain("A page about greetings");
     expect(result.current.content).toContain("[Hello World](https://example.com/post)");
+  });
+
+  it("leaves a selection unquoted when the template uses a plain content placeholder", async () => {
+    const raw = { ...capture, selectionMarkdown: "## Heading\n\n- Item\n\n> Original quote\n\n```\ncode\n```" };
+    const { result } = renderHook(() => useClipper(raw, "{{content}}", true, expectation));
+    await waitFor(() => expect(result.current.content).toBe(raw.selectionMarkdown));
+    await act(async () => void (await result.current.save()));
+    expect(browserMock.runtime.sendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "SAVE_MEMO", content: raw.selectionMarkdown }),
+    );
+  });
+
+  it("leaves an extracted article unquoted when the template uses a plain content placeholder", async () => {
+    const article = { ...capture, selectionMarkdown: "", articleMarkdown: "## Article\n\nBody text" };
+    const { result } = renderHook(() => useClipper(article, "{{content}}", true, expectation));
+    await waitFor(() => expect(result.current.content).toBe(article.articleMarkdown));
   });
 
   it("prefills a link note when the capture has no selection and no description", async () => {

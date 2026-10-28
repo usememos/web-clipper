@@ -17,6 +17,9 @@ importers:
       '@fontsource-variable/geist-mono':
         specifier: ^5.2.8
         version: 5.2.8
+      '@usememos/editor':
+        specifier: 26.10.28
+        version: 26.10.28(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1003,6 +1006,17 @@ packages:
 
   '@types/webextension-polyfill@0.12.5':
     resolution: {integrity: sha512-uKSAv6LgcVdINmxXMKBuVIcg/2m5JZugoZO8x20g7j2bXJkPIl/lVGQcDlbV+aXAiTyXT2RA5U5mI4IGCDMQeg==}
+
+  '@usememos/editor@26.10.28':
+    resolution: {integrity: sha512-GM2Vi7Y4klNRDoMo33OkokDyPubUgEg5lq4O8rdDblbv0f4nHo+r6jeDF8f6PG0xwrxuEKq1vCWFnv9TAujZ8w==}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
 
   '@vitejs/plugin-react@6.0.3':
     resolution: {integrity: sha512-vmFvco5/QuC2f9Oj+wTk0+9XeDFkHxSamwZKYc7MxYwKICfvUvlMhqKI0VuICPltGqh1neqBKDvO4kes1ya8vg==}
@@ -4370,6 +4384,11 @@ snapshots:
   '@types/validate-npm-package-name@4.0.2': {}
 
   '@types/webextension-polyfill@0.12.5': {}
+
+  '@usememos/editor@26.10.28(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    optionalDependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
 
   '@vitejs/plugin-react@6.0.3(vite@8.1.3(@types/node@26.1.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))':
     dependencies:

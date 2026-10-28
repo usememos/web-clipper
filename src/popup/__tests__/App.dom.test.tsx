@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ClipSaveStatus } from "@/lib/clip-records";
 import { POPUP_STATE_KEY, type PopupState } from "@/lib/popup-state";
 import { App } from "@/popup/App";
@@ -6,6 +6,22 @@ import { AudienceMenu } from "@/popup/audience-menu";
 import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { act, renderWithUser, screen, waitFor } from "@/test/render";
 import japaneseMessages from "../../../public/_locales/ja/messages.json" with { type: "json" };
+
+// These tests cover the popup's flow, not the editor: a textarea stands in for it with the same
+// value/onChange contract (the real editor has its own test in memo-editor.dom.test.tsx).
+vi.mock("@usememos/editor/react", () => ({
+  MarkdownEditor: ({
+    value,
+    onChange,
+    placeholder,
+    attributes,
+  }: {
+    value: string;
+    onChange: (markdown: string) => void;
+    placeholder?: string;
+    attributes?: Record<string, string>;
+  }) => <textarea {...attributes} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />,
+}));
 
 const capture = {
   title: "Hello World",

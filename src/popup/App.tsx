@@ -7,12 +7,12 @@ import { AppBrand } from "@/components/app-brand";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
 import { describeSaveError, type SaveErrorDetail } from "@/lib/errors";
 import { formatDateTime, t, tp } from "@/lib/i18n";
 import type { PopupIdentity, PopupState } from "@/lib/popup-state";
 import { supportsSpaces } from "@/lib/versions";
 import { AudienceMenu } from "./audience-menu";
+import { MemoEditor } from "./memo-editor";
 import { usePageCapture } from "./page-capture";
 import { useClipper } from "./use-clipper";
 import { usePopupState } from "./use-popup-state";
@@ -281,17 +281,12 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
       <Header left={<IdentityBadge identity={state.identity} />} instanceUrl={state.instanceUrl} />
       <div className="flex min-h-0 flex-1 flex-col gap-2.5 p-3">
         {connectionError && <ErrorBar error={connectionError} busy={c.busy} onRetry={onSave} />}
-        <Textarea
-          aria-label={t("popupMemoContent")}
-          // field-sizing-fixed overrides the component's default `field-sizing-content` (which would
-          // auto-grow with the memo and push Save off the fixed-height popup); flex-1 + min-h-0 give
-          // it a bounded height that scrolls internally instead. The named utility (not the arbitrary
-          // [field-sizing:fixed]) is required: Tailwind emits it after field-sizing-content, so it wins.
-          className="min-h-0 flex-1 resize-none overflow-y-auto text-sm field-sizing-fixed"
+        <MemoEditor
+          label={t("popupMemoContent")}
           value={c.content}
-          onChange={(e) => {
+          onChange={(markdown) => {
             clearSavedConfirmation();
-            c.setContent(e.target.value);
+            c.setContent(markdown);
             clearRecoverableError();
           }}
           placeholder={t("popupEmptyCapturePlaceholder")}

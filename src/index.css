@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
-@import "@fontsource-variable/geist-mono";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -48,8 +46,6 @@
   --color-border: var(--border);
   --color-ring: var(--ring);
   --radius-lg: var(--radius);
-  --font-sans: 'Geist Variable', sans-serif;
-  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
   --color-input: var(--input);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);

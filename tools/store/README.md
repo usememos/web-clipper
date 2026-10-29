@@ -26,4 +26,4 @@ Check this workspace with `pnpm exec tsc -p tools/store/tsconfig.json` and `pnpm
 
 ## Brand
 
-Official SVGs live in `assets/brand/`; their geometry, lettering, viewBoxes, and proportions are preserved. Artwork lockups use `lockup.svg` at a minimum width of 145 px, including canvas padding. Embedded extension headers keep their compact 24 or 30 px height. Only the supplied lettering uses Source Serif 4 at weight 550. Other text uses the extension’s Geist interface font. Warm white and ink follow the extension UI; amber indicates selected text.
+Official SVGs live in `assets/brand/`; their geometry, lettering, viewBoxes, and proportions are preserved. Artwork lockups use `lockup.svg` at a minimum width of 145 px, including canvas padding. Embedded extension headers keep their compact 24 or 30 px height. Only the supplied lettering uses Source Serif 4 at weight 550. Other text uses the system interface font, matching the extension. Warm white and ink follow the extension UI; amber indicates selected text.

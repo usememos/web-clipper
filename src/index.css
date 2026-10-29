@@ -3,7 +3,7 @@
 @import "@usememos/ui/tokens.css";
 @import "@usememos/ui/styles.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* @usememos/ui is Tailwind-free: this maps its tokens to the Tailwind names the clipper uses.
    Use only these names; colors switch with ui's data-theme, so classes need no dark: variant. */

@@ -7,28 +7,28 @@ import "@usememos/editor/style.css";
 export const MEMO_MARKDOWN = { breaks: true, setext: false };
 export const MEMO_EXTENSIONS = [tags()];
 
-// The editor follows the app's shadcn variables, so light/dark comes with the `.dark` class
-// next-themes puts on <html>. 14/20 matches the textarea's text-sm it replaces.
+// The editor reads @usememos/ui tokens, so light/dark follows the data-theme next-themes puts
+// on <html>. 14/20 matches the textarea's text-sm it replaces.
 const THEME = {
   tokens: {
     colors: {
-      text: "var(--foreground)",
-      muted: "var(--muted-foreground)",
+      text: "var(--mu-ink)",
+      muted: "var(--mu-ink-muted)",
       // The frame below paints the field's background, as the textarea did.
       background: "transparent",
-      accent: "var(--primary)",
-      codeBackground: "var(--muted)",
-      border: "var(--border)",
-      popupBackground: "var(--popover)",
-      popupBorder: "var(--border)",
-      hover: "var(--accent)",
-      danger: "var(--destructive)",
+      accent: "var(--mu-accent)",
+      codeBackground: "var(--mu-well)",
+      border: "var(--mu-edge)",
+      popupBackground: "var(--mu-surface)",
+      popupBorder: "var(--mu-line)",
+      hover: "var(--mu-hover)",
+      danger: "var(--mu-danger)",
     },
     font: "inherit",
-    mono: "var(--font-mono)",
+    mono: "var(--mu-font-mono)",
     fontSize: 14,
     lineHeight: 20,
-    radius: "calc(var(--radius) - 2px)",
+    radius: "var(--mu-radius-md)",
   },
 };
 
@@ -44,9 +44,9 @@ export function MemoEditor({
   placeholder: string;
 }) {
   return (
-    // The frame owns the border and focus ring the textarea used to draw, and scrolls internally
+    // The frame looks like a ui Input (surface, edge, ui's focus ring), and scrolls internally
     // so a long clip never pushes Save off the fixed-height popup.
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-edge px-2.5 py-2 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
+    <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-edge bg-surface px-2.5 py-2 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-(--mu-focus)">
       <MarkdownEditor
         value={value}
         onChange={onChange}

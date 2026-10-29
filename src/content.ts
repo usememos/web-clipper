@@ -1,3 +1,4 @@
+import tokens from "@usememos/ui/tokens.css?inline";
 import browser from "webextension-polyfill";
 import { selectionToHtml } from "@/lib/capture";
 import type { Request, SelectionClip } from "@/lib/messages";
@@ -61,8 +62,11 @@ let toastHost: HTMLElement | null = null;
 
 /**
  * In-page save feedback for the context-menu flow (the toolbar badge alone is too easy to miss).
- * Rendered in a shadow root so page CSS can't restyle it and ours can't leak out; follows the
- * page's own light/dark preference. Warm theme to match the extension.
+ * Rendered in a shadow root so page CSS can't restyle it and ours can't leak out, and styled
+ * with @usememos/ui tokens (tokens.css sets them on :host). It follows the system light/dark
+ * preference. The theme attribute sits on the toast inside the shadow root, not on the host:
+ * tokens.css can only match `[data-theme=dark]` there, and on the host the page's own
+ * `[data-theme]` rules would reach it.
  */
 function showSaveToast({
   ok,
@@ -84,23 +88,23 @@ function showSaveToast({
   host.style.cssText = "position:fixed;bottom:20px;inset-inline-end:20px;z-index:2147483647;";
   const shadow = host.attachShadow({ mode: "open" });
   const style = document.createElement("style");
-  style.textContent = `
-    .toast{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;color:#1f1e1d;
-      border:1px solid rgba(31,30,29,.12);border-radius:10px;box-shadow:0 6px 24px rgba(31,30,29,.14);
-      font:500 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-      opacity:0;transform:translateY(8px);transition:opacity .18s ease-out,transform .18s ease-out}
+  style.textContent = `${tokens}
+    .toast{display:flex;align-items:center;gap:var(--mu-space-2);padding:var(--mu-space-3) var(--mu-space-4);
+      background:var(--mu-surface);color:var(--mu-ink);border-radius:var(--mu-radius-xl);box-shadow:var(--mu-shadow-pop);
+      font:500 13px/1.4 var(--mu-font-sans);-webkit-font-smoothing:antialiased;
+      opacity:0;transform:translateY(var(--mu-space-2));
+      transition:opacity var(--mu-duration-settle) var(--mu-ease-out),transform var(--mu-duration-settle) var(--mu-ease-settle)}
     .toast.show{opacity:1;transform:none}
-    .dot{display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;
-      background:#c96442;color:#fff;font-size:11px;flex:none}
-    .err .dot{background:#dc2626}
-    a{color:#c96442;font-weight:500;text-decoration:none;margin-inline-start:2px}
+    .dot{display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:var(--mu-radius-full);
+      background:var(--mu-success);color:var(--mu-surface);font-size:11px;flex:none}
+    .err .dot{background:var(--mu-danger)}
+    a{color:var(--mu-accent);font-weight:500;text-decoration:none;margin-inline-start:var(--mu-space-0_5);border-radius:var(--mu-radius-xs)}
     a:hover{text-decoration:underline}
-    @media (prefers-color-scheme:dark){
-      .toast{background:#30302e;color:#f5f4ef;border-color:rgba(245,244,239,.14);box-shadow:0 6px 24px rgba(0,0,0,.4)}
-      a{color:#e08d6d}
-    }`;
+    a:focus-visible{outline:var(--mu-focus-width) solid var(--mu-focus);outline-offset:var(--mu-focus-width)}
+    @media (prefers-reduced-motion:reduce){.toast{transform:none}}`;
   const toast = document.createElement("div");
   toast.className = ok ? "toast" : "toast err";
+  toast.dataset.theme = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   toast.setAttribute("role", "status");
   const dot = document.createElement("span");
   dot.className = "dot";

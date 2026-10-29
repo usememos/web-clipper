@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { browserMock, setBrowserLocale } from "@/test/browser-mock";
 import frenchMessages from "../../public/_locales/fr/messages.json" with { type: "json" };
 
@@ -52,6 +52,21 @@ describe("content script — SHOW_SAVE_RESULT", () => {
     expect(shadow.textContent).toContain("Access token rejected");
     expect(shadow.querySelector("a")).toBeNull();
     expect(shadow.querySelector(".toast")?.className).toContain("err");
+  });
+});
+
+describe("content script — toast theme", () => {
+  it.each([
+    [true, "dark"],
+    [false, "light"],
+  ])("styles the toast with ui tokens and follows a system dark preference of %s", async (dark, theme) => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: dark }));
+    await browserMock.runtime.onMessage.emitFirst({ type: "SHOW_SAVE_RESULT", ok: true, title: "Saved to Memos" });
+
+    const shadow = (document.querySelector("div[style*='2147483647']") as HTMLElement).shadowRoot!;
+    expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
+    expect(shadow.querySelector<HTMLElement>(".toast")?.dataset.theme).toBe(theme);
+    expect(shadow.querySelector("style")?.textContent).toContain("--mu-surface");
   });
 });
 

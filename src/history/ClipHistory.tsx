@@ -16,7 +16,7 @@ const FULL_TIMESTAMP: Intl.DateTimeFormatOptions = {
   minute: "2-digit",
 };
 const SHORT_TIMESTAMP: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
-const SECTION_LABEL_CLASS = "font-mono text-[11px] font-medium uppercase tracking-[0.09em] text-muted-foreground";
+const SECTION_LABEL_CLASS = "font-mono text-[11px] font-medium uppercase tracking-[0.09em] text-ink-muted";
 
 function host(value: string): string {
   try {
@@ -53,19 +53,19 @@ function recordMatches(record: ClipRecord, query: string): boolean {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="border-t py-2.5 first:border-t-0">
-      <dt className="text-[11px] leading-4 text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5 min-w-0 break-words font-mono text-[12px] leading-5 text-foreground/85 [overflow-wrap:anywhere]">{value}</dd>
+      <dt className="text-[11px] leading-4 text-ink-muted">{label}</dt>
+      <dd className="mt-0.5 min-w-0 break-words font-mono text-[12px] leading-5 text-ink/85 [overflow-wrap:anywhere]">{value}</dd>
     </div>
   );
 }
 
 function ClipDetail({ record }: { record: ClipRecord }) {
   return (
-    <article className="min-w-0 overflow-y-auto bg-card">
+    <article className="min-w-0 overflow-y-auto bg-surface">
       <div className="mx-auto max-w-5xl px-5 py-5 sm:px-6 lg:px-8 lg:py-7">
         <header className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="truncate font-mono text-[12px] leading-4 text-muted-foreground">{host(record.sourceUrl)}</p>
+            <p className="truncate font-mono text-[12px] leading-4 text-ink-muted">{host(record.sourceUrl)}</p>
             <h2 className="mt-1.5 text-[22px] font-semibold leading-7 tracking-[-0.025em]">{record.sourceTitle || record.sourceUrl}</h2>
           </div>
           <div className="flex shrink-0 flex-wrap gap-1.5">
@@ -87,10 +87,10 @@ function ClipDetail({ record }: { record: ClipRecord }) {
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <h3 className={SECTION_LABEL_CLASS}>{t("historySelection")}</h3>
                   {record.selection.imageCount ? (
-                    <span className="text-[11px] text-muted-foreground">{tp("historySelectedImages", record.selection.imageCount)}</span>
+                    <span className="text-[11px] text-ink-muted">{tp("historySelectedImages", record.selection.imageCount)}</span>
                   ) : null}
                 </div>
-                <pre className="max-h-56 overflow-auto whitespace-pre-wrap rounded-md border-s-2 border-highlight bg-highlight-wash/35 px-4 py-3 font-sans text-[13px] leading-[1.65]">
+                <pre className="max-h-56 overflow-auto whitespace-pre-wrap rounded-md border-s-2 border-(--clip-highlight) bg-(--clip-highlight-wash)/35 px-4 py-3 font-sans text-[13px] leading-[1.65]">
                   {record.selection.markdown || t("historyImageOnlySelection")}
                 </pre>
               </section>
@@ -98,7 +98,7 @@ function ClipDetail({ record }: { record: ClipRecord }) {
 
             <section>
               <h3 className={`mb-2 ${SECTION_LABEL_CLASS}`}>{t("historyMemoContent")}</h3>
-              <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap rounded-md border bg-muted/15 px-4 py-3.5 font-sans text-[13px] leading-[1.65]">
+              <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap rounded-md border bg-well/15 px-4 py-3.5 font-sans text-[13px] leading-[1.65]">
                 {record.memoContent}
               </pre>
             </section>
@@ -119,7 +119,7 @@ function ClipDetail({ record }: { record: ClipRecord }) {
             <details className="group mt-5 border-t pt-1">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-2 py-2.5 text-[12px] font-medium marker:hidden">
                 {t("historyTechnicalDetails")}
-                <ChevronDownIcon className="size-3.5 text-muted-foreground transition-transform group-open:rotate-180 motion-reduce:transition-none" />
+                <ChevronDownIcon className="size-3.5 text-ink-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" />
               </summary>
               <dl className="border-y">
                 <DetailRow label={t("historyRecordId")} value={record.id} />
@@ -177,18 +177,18 @@ export function ClipHistory() {
       <div className="mb-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div className="flex items-baseline gap-2.5">
           <h1 className="text-[20px] font-semibold leading-7 tracking-[-0.025em]">{t("historyTitle")}</h1>
-          {records ? <p className="text-[12px] text-muted-foreground">{tp("historyCount", records.length)}</p> : null}
+          {records ? <p className="text-[12px] text-ink-muted">{tp("historyCount", records.length)}</p> : null}
         </div>
         <div className="flex flex-col gap-1.5 sm:flex-row">
           <label className="relative block">
-            <SearchIcon aria-hidden="true" className="absolute start-2.5 top-2 size-3.5 text-muted-foreground" />
+            <SearchIcon aria-hidden="true" className="absolute start-2.5 top-2 size-3.5 text-ink-muted" />
             <span className="sr-only">{t("historySearch")}</span>
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={t("historySearch")}
-              className="h-8 w-full rounded-md border border-input bg-background ps-8 pe-3 text-[12px] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-64"
+              className="h-8 w-full rounded-md border border-edge bg-canvas ps-8 pe-3 text-[12px] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-64"
             />
           </label>
           {destinations.length > 1 ? (
@@ -196,7 +196,7 @@ export function ClipHistory() {
               aria-label={t("historyDestinationFilter")}
               value={destination}
               onChange={(event) => setDestination(event.target.value)}
-              className="h-8 rounded-md border border-input bg-background px-2.5 text-[12px] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              className="h-8 rounded-md border border-edge bg-canvas px-2.5 text-[12px] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <option value="all">{t("historyAllDestinations")}</option>
               {destinations.map((value) => (
@@ -210,27 +210,27 @@ export function ClipHistory() {
       </div>
 
       {records === null ? (
-        <div className="flex min-h-72 flex-1 items-center justify-center gap-2 text-[13px] text-muted-foreground">
+        <div className="flex min-h-72 flex-1 items-center justify-center gap-2 text-[13px] text-ink-muted">
           <Spinner />
           {t("commonLoading")}
         </div>
       ) : records.length === 0 ? (
         <div className="flex min-h-80 flex-1 flex-col items-center justify-center rounded-xl border border-dashed px-6 text-center">
-          <span className="mb-3 flex size-10 items-center justify-center rounded-full bg-highlight-wash text-highlight-deep">
+          <span className="mb-3 flex size-10 items-center justify-center rounded-full bg-well text-ink-muted">
             <FileTextIcon className="size-5" />
           </span>
           <p className="text-[14px] font-medium">{t("historyEmptyTitle")}</p>
-          <p className="mt-1 max-w-sm text-[13px] text-muted-foreground">{t("historyEmptyDescription")}</p>
+          <p className="mt-1 max-w-sm text-[13px] text-ink-muted">{t("historyEmptyDescription")}</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex min-h-72 flex-1 items-center justify-center rounded-xl border border-dashed text-[13px] text-muted-foreground">
+        <div className="flex min-h-72 flex-1 items-center justify-center rounded-xl border border-dashed text-[13px] text-ink-muted">
           {t("historyNoResults")}
         </div>
       ) : (
-        <div className="grid min-h-[32rem] flex-1 overflow-hidden rounded-xl border bg-card shadow-xs md:h-[calc(100dvh-9.75rem)] md:flex-none md:grid-cols-[19rem_minmax(0,1fr)]">
+        <div className="grid min-h-[32rem] flex-1 overflow-hidden rounded-xl border bg-surface shadow-xs md:h-[calc(100dvh-9.75rem)] md:flex-none md:grid-cols-[19rem_minmax(0,1fr)]">
           <nav
             aria-label={t("historyTitle")}
-            className="max-h-80 overflow-y-auto border-b bg-muted/10 md:max-h-none md:border-e md:border-b-0"
+            className="max-h-80 overflow-y-auto border-b bg-well/10 md:max-h-none md:border-e md:border-b-0"
           >
             {filtered.map((record) => {
               const active = selected?.id === record.id;
@@ -239,20 +239,20 @@ export function ClipHistory() {
                   type="button"
                   key={record.id}
                   onClick={() => setSelectedId(record.id)}
-                  className={`relative block w-full border-b px-3.5 py-2.5 text-start last:border-b-0 hover:bg-muted/45 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
-                    active ? "bg-highlight-wash/55" : ""
+                  className={`relative block w-full border-b px-3.5 py-2.5 text-start last:border-b-0 hover:bg-hover focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
+                    active ? "bg-hover" : ""
                   }`}
                   aria-current={active ? "true" : undefined}
                 >
-                  {active ? <span aria-hidden="true" className="absolute inset-y-2 start-0 w-[3px] rounded-e bg-highlight-deep" /> : null}
+                  {active ? <span aria-hidden="true" className="absolute inset-y-2 start-0 w-[3px] rounded-e bg-primary" /> : null}
                   <div className="flex items-center justify-between gap-2.5">
-                    <span className="truncate font-mono text-[11px] leading-4 text-muted-foreground">{host(record.sourceUrl)}</span>
-                    <span className="shrink-0 font-mono text-[10px] leading-4 text-muted-foreground">
+                    <span className="truncate font-mono text-[11px] leading-4 text-ink-muted">{host(record.sourceUrl)}</span>
+                    <span className="shrink-0 font-mono text-[10px] leading-4 text-ink-muted">
                       {formatDateTime(record.savedAt, SHORT_TIMESTAMP)}
                     </span>
                   </div>
                   <p className="mt-0.5 truncate text-[13px] font-medium leading-5">{record.sourceTitle || record.sourceUrl}</p>
-                  <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-[1.45] text-muted-foreground">{preview(record)}</p>
+                  <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-[1.45] text-ink-muted">{preview(record)}</p>
                 </button>
               );
             })}

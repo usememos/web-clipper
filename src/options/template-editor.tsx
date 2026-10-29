@@ -44,7 +44,7 @@ function placeholderMeta(): Record<TemplateVarName, { meaning: string; source: s
 }
 
 /** The micro-label voice, shared by section labels and the reference table's headers. */
-const SECTION_LABEL_CLASS = "font-mono text-[10.5px] font-semibold tracking-[0.08em] uppercase text-muted-foreground";
+const SECTION_LABEL_CLASS = "font-mono text-[10.5px] font-semibold tracking-[0.08em] uppercase text-ink-muted";
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return <div className={SECTION_LABEL_CLASS}>{children}</div>;
@@ -58,7 +58,7 @@ function HighlightedTemplate({ text }: { text: string }) {
       {splitTemplateTokens(text).map((part, i) =>
         i % 2 === 1 ? (
           // biome-ignore lint/suspicious/noArrayIndexKey: segments are positional by construction
-          <span key={i} className="rounded-sm bg-highlight-wash text-highlight-deep">
+          <span key={i} className="rounded-sm bg-(--clip-highlight-wash) text-(--clip-highlight-deep)">
             {part}
           </span>
         ) : (
@@ -88,7 +88,7 @@ function TemplateInput({ value, onChange }: { value: string; onChange: (next: st
       </div>
       <Textarea
         aria-label={t("templateAriaLabel")}
-        className={`relative min-h-24 break-words text-transparent caret-foreground selection:bg-highlight/25 selection:text-transparent md:text-xs ${EDITOR_TEXT}`}
+        className={`relative min-h-24 break-words text-transparent caret-ink selection:bg-(--mu-selection) selection:text-transparent md:text-xs ${EDITOR_TEXT}`}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         spellCheck={false}
@@ -118,10 +118,10 @@ function InlineMarkdown({ text }: { text: string }) {
         return (
           // biome-ignore lint/suspicious/noArrayIndexKey: segments are positional by construction
           <Fragment key={i}>
-            <a href={url} target="_blank" rel="noreferrer" className="font-semibold text-highlight-deep hover:underline">
+            <a href={url} target="_blank" rel="noreferrer" className="font-semibold text-(--clip-highlight-deep) hover:underline">
               {part}
             </a>
-            {host ? <span className="ms-1.5 text-xs text-muted-foreground">{host}</span> : null}
+            {host ? <span className="ms-1.5 text-xs text-ink-muted">{host}</span> : null}
           </Fragment>
         );
       })}
@@ -138,7 +138,7 @@ function MemoBody({ markdown }: { markdown: string }) {
   const flushQuote = (key: number) => {
     if (!quote.length) return;
     blocks.push(
-      <blockquote key={`q${key}`} className="border-s-[3px] border-highlight ps-3 text-sm leading-relaxed">
+      <blockquote key={`q${key}`} className="border-s-[3px] border-(--clip-highlight) ps-3 text-sm leading-relaxed">
         {quote.map((q, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: quote lines are positional
           <p key={i}>
@@ -167,7 +167,7 @@ function MemoBody({ markdown }: { markdown: string }) {
   flushQuote(lines.length);
 
   if (!blocks.length) {
-    return <p className="text-sm text-muted-foreground">{t("templateEmptyPreview")}</p>;
+    return <p className="text-sm text-ink-muted">{t("templateEmptyPreview")}</p>;
   }
   return <div className="space-y-2.5">{blocks}</div>;
 }
@@ -253,14 +253,14 @@ export function TemplateEditor({
             setSaveFailed(false);
           }}
         />
-        <p className="mt-2 text-xs text-muted-foreground">{t("templateHelp")}</p>
+        <p className="mt-2 text-xs text-ink-muted">{t("templateHelp")}</p>
       </div>
 
       <div>
         <SectionLabel>{t("templatePlaceholderReference")}</SectionLabel>
         <table className="mt-2 w-full table-fixed text-start text-xs">
           <thead>
-            <tr className="border-b border-input">
+            <tr className="border-b border-edge">
               {(
                 [
                   [t("templateColumnPlaceholder"), "w-[30%]"],
@@ -280,17 +280,17 @@ export function TemplateEditor({
               return (
                 <tr key={name} className="border-b align-top last:border-b-0">
                   <td className="px-1 py-2.5">
-                    <code className="inline-flex whitespace-nowrap rounded-md bg-highlight-wash px-2 py-1 font-mono text-xs text-highlight-deep">
+                    <code className="inline-flex whitespace-nowrap rounded-md bg-(--clip-highlight-wash) px-2 py-1 font-mono text-xs text-(--clip-highlight-deep)">
                       {`{{${name}}}`}
                     </code>
                   </td>
                   <td className="px-1 py-2.5">
-                    <span className="block leading-4.5 text-foreground">{meta.meaning}</span>
-                    <span className="mt-0.5 block leading-4.5 text-muted-foreground">
+                    <span className="block leading-4.5 text-ink">{meta.meaning}</span>
+                    <span className="mt-0.5 block leading-4.5 text-ink-muted">
                       {t("templateExample", meta.example ?? localizedPreviewVars[name])}
                     </span>
                   </td>
-                  <td className="px-1 py-2.5 leading-4.5 text-muted-foreground">{meta.source}</td>
+                  <td className="px-1 py-2.5 leading-4.5 text-ink-muted">{meta.source}</td>
                 </tr>
               );
             })}
@@ -300,12 +300,12 @@ export function TemplateEditor({
 
       <div>
         <SectionLabel>{t("templatePreviewSection")}</SectionLabel>
-        <div className="mt-2 rounded-xl border bg-card p-4 shadow-xs">
+        <div className="mt-2 rounded-xl border bg-surface p-4 shadow-xs">
           <div className="mb-2.5 flex items-center gap-2">
             <UserBadge compact />
-            <span className="text-xs text-muted-foreground">{t("templateJustNow")}</span>
+            <span className="text-xs text-ink-muted">{t("templateJustNow")}</span>
             <span className="flex-1" />
-            <Badge variant="outline" className="text-muted-foreground">
+            <Badge variant="outline" className="text-ink-muted">
               <LockIcon className="size-2.5" />
               {t("commonPrivate")}
             </Badge>
@@ -325,12 +325,12 @@ export function TemplateEditor({
               {t("templateSavedBrowser")}
             </span>
           ) : dirty ? (
-            <span className="text-muted-foreground">{t("templateUnsavedChanges")}</span>
+            <span className="text-ink-muted">{t("templateUnsavedChanges")}</span>
           ) : null}
         </span>
       </div>
       {externalUpdate ? (
-        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3 text-sm">
+        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-well/30 p-3 text-sm">
           <span>{t("templateExternalUpdate")}</span>
           <Button
             variant="outline"
@@ -347,7 +347,7 @@ export function TemplateEditor({
         </div>
       ) : null}
       {saveFailed || storageError ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-sm text-danger">
           {saveFailed ? t("templateSaveError") : storageError}
         </p>
       ) : null}

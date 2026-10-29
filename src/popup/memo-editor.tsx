@@ -46,7 +46,7 @@ export function MemoEditor({
   return (
     // The frame owns the border and focus ring the textarea used to draw, and scrolls internally
     // so a long clip never pushes Save off the fixed-height popup.
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-input px-2.5 py-2 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
+    <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-edge px-2.5 py-2 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50 dark:bg-input/30">
       <MarkdownEditor
         value={value}
         onChange={onChange}

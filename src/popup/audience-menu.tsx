@@ -19,14 +19,14 @@ import type { SpaceSummary, Visibility } from "@/lib/memos-client";
 import { cn } from "@/lib/utils";
 
 const ITEM =
-  "flex min-w-0 cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-[13px] outline-none select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground data-disabled:opacity-50";
+  "flex min-w-0 cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-[13px] outline-none select-none data-highlighted:bg-hover data-disabled:opacity-50";
 const POPUP =
-  "max-h-(--available-height) overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none";
+  "max-h-(--available-height) overflow-y-auto rounded-lg bg-surface p-1 text-ink shadow-md ring-1 ring-foreground/10 outline-none";
 
 function SpaceMark({ space }: { space?: SpaceSummary }) {
   return (
-    <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-[5px] bg-muted text-sm">
-      {space?.icon?.emoji || <AstroidIcon className="size-3.5 text-muted-foreground" strokeWidth={1.8} />}
+    <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-[5px] bg-well text-sm">
+      {space?.icon?.emoji || <AstroidIcon className="size-3.5 text-ink-muted" strokeWidth={1.8} />}
     </span>
   );
 }
@@ -83,7 +83,7 @@ export function AudienceMenu({
         render={
           <Button
             variant="outline"
-            className="min-w-0 max-w-52 shrink justify-start gap-1.5 bg-muted/60 px-2 hover:bg-muted"
+            className="min-w-0 max-w-52 shrink justify-start gap-1.5 bg-well/60 px-2 hover:bg-hover"
             disabled={disabled}
           />
         }
@@ -94,14 +94,14 @@ export function AudienceMenu({
           <>
             <SpaceMark space={selectedSpace} />
             <span className="min-w-0 truncate">{destination}</span>
-            <span aria-hidden="true" className="text-muted-foreground">
+            <span aria-hidden="true" className="text-ink-muted">
               ·
             </span>
           </>
         )}
-        <SelectedIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+        <SelectedIcon aria-hidden="true" className="size-4 shrink-0 text-ink-muted" />
         <span className="shrink-0">{selected.label}</span>
-        <ChevronDownIcon aria-hidden="true" className="size-3 shrink-0 text-muted-foreground" />
+        <ChevronDownIcon aria-hidden="true" className="size-3 shrink-0 text-ink-muted" />
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner side="top" sideOffset={4} align="start" collisionPadding={8} className="z-50">
@@ -113,14 +113,14 @@ export function AudienceMenu({
                 const Icon = option.icon;
                 return (
                   <Menu.RadioItem key={value} value={value} closeOnClick label={option.label} className={`${ITEM} items-start`}>
-                    <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                    <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-ink-muted" />
                     <span className="flex min-w-0 flex-1 flex-col">
                       <span className="break-words font-medium leading-4">{option.label}</span>
-                      <span className="text-pretty text-[11px] leading-4 text-muted-foreground">{option.description}</span>
+                      <span className="text-pretty text-[11px] leading-4 text-ink-muted">{option.description}</span>
                     </span>
                     <span aria-hidden="true" className="size-4 shrink-0">
                       <Menu.RadioItemIndicator>
-                        <CheckIcon className="size-4 text-muted-foreground" />
+                        <CheckIcon className="size-4 text-ink-muted" />
                       </Menu.RadioItemIndicator>
                     </span>
                   </Menu.RadioItem>
@@ -129,7 +129,7 @@ export function AudienceMenu({
             </Menu.RadioGroup>
             {showSpace && (
               <>
-                <Menu.Separator className="-mx-1 my-1 h-px bg-border" />
+                <Menu.Separator className="-mx-1 my-1 h-px bg-line" />
                 <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={ITEM} label={destination ?? t("popupAddToSpace")}>
                     {space ? (
@@ -137,15 +137,15 @@ export function AudienceMenu({
                     ) : (
                       <span
                         aria-hidden="true"
-                        className="flex size-5 shrink-0 items-center justify-center rounded-[5px] border border-dashed border-muted-foreground/50"
+                        className="flex size-5 shrink-0 items-center justify-center rounded-[5px] border border-dashed border-ink-muted/50"
                       >
-                        <PlusIcon className="size-3.5 text-muted-foreground" />
+                        <PlusIcon className="size-3.5 text-ink-muted" />
                       </span>
                     )}
-                    <span className="min-w-0 flex-1 truncate text-muted-foreground" title={destination}>
+                    <span className="min-w-0 flex-1 truncate text-ink-muted" title={destination}>
                       {destination ?? t("popupAddToSpace")}
                     </span>
-                    <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 text-muted-foreground rtl:rotate-180" />
+                    <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 text-ink-muted rtl:rotate-180" />
                   </Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner
@@ -193,10 +193,10 @@ export function AudienceMenu({
                             closeOnClick={tokenRejected}
                             onClick={tokenRejected ? onOpenSettings : onRetry}
                           >
-                            <span className="flex-1 text-destructive">
+                            <span className="flex-1 text-danger">
                               {t(tokenRejected ? "errorUnauthorizedTitle" : "popupSpacesLoadError")}
                             </span>
-                            <span className="text-muted-foreground">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
+                            <span className="text-ink-muted">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
                           </Menu.Item>
                         )}
                       </MenuPopup>

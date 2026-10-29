@@ -8,8 +8,8 @@ import { t } from "@/lib/i18n";
 type StepState = "done" | "active" | "locked";
 
 /**
- * Done steps are ink, the active step is amber ("you are here"), and locked steps
- * are dashed outlines. The number is set in mono —
+ * Done steps carry a success check, the active step is ink ("you are here"), and locked
+ * steps are dashed outlines. The number is set in mono —
  * machine facts (step numbers, hosts, versions) share that voice across the page.
  */
 export function StepRow({
@@ -30,10 +30,10 @@ export function StepRow({
   const markBase = "flex size-6.5 shrink-0 items-center justify-center rounded-full border font-mono text-xs font-semibold";
   const mark =
     state === "done"
-      ? "border-transparent bg-primary text-primary-foreground"
+      ? "border-transparent bg-success-soft text-success"
       : state === "active"
-        ? "border-transparent bg-highlight text-highlight-foreground ring-4 ring-highlight-wash"
-        : "border-[1.5px] border-dashed border-input bg-transparent text-muted-foreground";
+        ? "border-transparent bg-primary text-on-primary"
+        : "border-[1.5px] border-dashed border-edge bg-transparent text-ink-muted";
 
   return (
     <div className="grid grid-cols-[1.625rem_1fr] gap-x-3.5">
@@ -41,15 +41,13 @@ export function StepRow({
         <div className={`${markBase} ${mark}`}>
           {state === "done" ? <CheckIcon className="size-3.5" /> : state === "locked" ? <LockIcon className="size-3" /> : n}
         </div>
-        {last ? null : <div className="my-1.5 w-px flex-1 bg-border" />}
+        {last ? null : <div className="my-1.5 w-px flex-1 bg-line" />}
       </div>
       <div className="min-w-0 pb-8">
-        <div
-          className={`text-base leading-6.5 tracking-[-0.01em] ${state === "locked" ? "font-medium text-muted-foreground" : "font-semibold"}`}
-        >
+        <div className={`text-base leading-6.5 tracking-[-0.01em] ${state === "locked" ? "font-medium text-ink-muted" : "font-semibold"}`}>
           {title}
         </div>
-        {summary ? <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">{summary}</div> : null}
+        {summary ? <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-muted">{summary}</div> : null}
         {children ? <div className="mt-3">{children}</div> : null}
       </div>
     </div>

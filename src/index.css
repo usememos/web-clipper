@@ -1,117 +1,77 @@
+@layer theme, base, mu, components, utilities;
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import "@usememos/ui/tokens.css";
+@import "@usememos/ui/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* Warm paper/ink neutrals with a single highlighter-amber accent. Amber marks position
-   and clipped material (active step, focus ring, template tokens, excerpt bar), plus warnings — never
-   errors (red) or outcomes (green), so each color keeps one job. */
-:root {
-  --background: oklch(0.992 0.002 95);
-  --foreground: oklch(0.22 0.005 90);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.005 90);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.005 90);
-  --primary: oklch(0.25 0.005 90);
-  --primary-foreground: oklch(0.99 0.002 95);
-  --secondary: oklch(0.958 0.005 92);
-  --secondary-foreground: oklch(0.25 0.005 90);
-  --muted: oklch(0.958 0.005 92);
-  --muted-foreground: oklch(0.52 0.012 88);
-  --accent: oklch(0.958 0.005 92);
-  --accent-foreground: oklch(0.25 0.005 90);
-  --destructive: oklch(0.55 0.19 27);
-  --border: oklch(0.923 0.007 92);
-  --input: oklch(0.872 0.01 92);
-  --ring: oklch(0.76 0.115 82);
-  --radius: 0.625rem;
-  /* Accent + outcome tokens (see note above). */
-  --highlight: oklch(0.76 0.115 82);
-  --highlight-foreground: oklch(0.32 0.05 82);
-  --highlight-deep: oklch(0.52 0.1 78);
-  --highlight-wash: oklch(0.962 0.032 90);
-  --success: oklch(0.53 0.09 150);
-  --success-wash: oklch(0.95 0.02 150);
+/* @usememos/ui is Tailwind-free: this maps its tokens to the Tailwind names the clipper uses.
+   Use only these names; colors switch with ui's data-theme, so classes need no dark: variant. */
+@theme inline {
+  --color-canvas: var(--mu-canvas);
+  --color-surface: var(--mu-surface);
+  --color-well: var(--mu-well);
+  --color-hover: var(--mu-hover);
+  --color-edge: var(--mu-edge);
+  --color-line: var(--mu-line);
+  --color-ink: var(--mu-ink);
+  --color-ink-muted: var(--mu-ink-muted);
+  --color-primary: var(--mu-primary);
+  --color-on-primary: var(--mu-on-primary);
+  --color-accent: var(--mu-accent);
+  --color-success: var(--mu-success);
+  --color-success-soft: var(--mu-success-soft);
+  --color-warning: var(--mu-warning);
+  --color-warning-soft: var(--mu-warning-soft);
+  --color-danger: var(--mu-danger);
+  --color-danger-soft: var(--mu-danger-soft);
+  --radius-xs: var(--mu-radius-xs);
+  --radius-sm: var(--mu-radius-sm);
+  --radius-md: var(--mu-radius-md);
+  --radius-lg: var(--mu-radius-lg);
+  --radius-xl: var(--mu-radius-xl);
+  --radius-2xl: var(--mu-radius-2xl);
+  --font-sans: var(--mu-font-sans);
+  --font-mono: var(--mu-font-mono);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-ring: var(--ring);
-  --radius-lg: var(--radius);
-  --color-input: var(--input);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-highlight: var(--highlight);
-  --color-highlight-foreground: var(--highlight-foreground);
-  --color-highlight-deep: var(--highlight-deep);
-  --color-highlight-wash: var(--highlight-wash);
-  --color-success: var(--success);
-  --color-success-wash: var(--success-wash);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-4xl: calc(var(--radius) * 2.6);
+/* The clipper's own content color: highlighter amber marks clipped material — template tokens,
+   the excerpt bar and the template preview. Never on a ui control, for focus, or for warnings
+   (those use ui's warning tokens). */
+:root {
+  --clip-highlight: oklch(0.76 0.115 82);
+  --clip-highlight-deep: oklch(0.52 0.1 78);
+  --clip-highlight-wash: oklch(0.962 0.032 90);
+}
+
+[data-theme="dark"] {
+  --clip-highlight: oklch(0.78 0.12 84);
+  --clip-highlight-deep: oklch(0.83 0.09 86);
+  --clip-highlight-wash: oklch(0.29 0.032 86);
 }
 
 /* The "machine fact" voice: hosts, versions, tokens, URLs. One owner so call sites
    state intent (text-fact) instead of re-picking font and size. */
 @utility text-fact {
-  font-family: var(--font-mono);
+  font-family: var(--mu-font-mono);
   font-size: 13px;
 }
 
 /* The popup sets its own fixed width on its root container; the options page is a full tab. */
 
-.dark {
-  --background: oklch(0.195 0.004 90);
-  --foreground: oklch(0.93 0.006 92);
-  --card: oklch(0.24 0.005 90);
-  --card-foreground: oklch(0.93 0.006 92);
-  --popover: oklch(0.24 0.005 90);
-  --popover-foreground: oklch(0.93 0.006 92);
-  --primary: oklch(0.92 0.006 92);
-  --primary-foreground: oklch(0.24 0.005 90);
-  --secondary: oklch(0.29 0.005 90);
-  --secondary-foreground: oklch(0.93 0.006 92);
-  --muted: oklch(0.29 0.005 90);
-  --muted-foreground: oklch(0.68 0.01 90);
-  --accent: oklch(0.29 0.005 90);
-  --accent-foreground: oklch(0.93 0.006 92);
-  --destructive: oklch(0.68 0.17 25);
-  --border: oklch(1 0 0 / 11%);
-  --input: oklch(1 0 0 / 16%);
-  --ring: oklch(0.78 0.12 84);
-  --highlight: oklch(0.78 0.12 84);
-  --highlight-foreground: oklch(0.28 0.05 84);
-  --highlight-deep: oklch(0.83 0.09 86);
-  --highlight-wash: oklch(0.29 0.032 86);
-  --success: oklch(0.73 0.08 150);
-  --success-wash: oklch(0.27 0.022 150);
-}
-
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
+  *,
+  ::before,
+  ::after {
+    border-color: var(--mu-line);
   }
   html {
-    @apply font-sans;
+    font-family: var(--mu-font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background-color: var(--mu-canvas);
+    color: var(--mu-ink);
   }
 }

@@ -41,7 +41,7 @@ function HeaderActionTooltip({ label, children }: { label: string; children: Rea
         <Tooltip.Positioner side="bottom" sideOffset={6} className="z-50">
           <Tooltip.Popup
             role="tooltip"
-            className="max-w-56 rounded-md bg-foreground px-2 py-1 text-center text-[11px] font-medium leading-4 text-background shadow-sm transition-opacity duration-100 data-ending-style:opacity-0 data-starting-style:opacity-0"
+            className="max-w-56 rounded-md bg-primary px-2 py-1 text-center text-[11px] font-medium leading-4 text-on-primary shadow-sm transition-opacity duration-100 data-ending-style:opacity-0 data-starting-style:opacity-0"
           >
             {label}
           </Tooltip.Popup>
@@ -96,7 +96,7 @@ function IdentityBadge({ identity }: { identity: PopupIdentity }) {
 
 // Fills the fixed popup size (set in index.html) so every view has identical dimensions.
 function Frame({ children }: { children: React.ReactNode }) {
-  return <div className="flex h-full w-full flex-col bg-background text-foreground">{children}</div>;
+  return <div className="flex h-full w-full flex-col bg-canvas text-ink">{children}</div>;
 }
 
 function GatePrompt({
@@ -117,7 +117,7 @@ function GatePrompt({
       <Header left={identity ? <IdentityBadge identity={identity} /> : <AppBrand />} instanceUrl={instanceUrl} />
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
         {title ? <p className="text-sm font-medium">{title}</p> : null}
-        <p className="text-sm text-muted-foreground">{body}</p>
+        <p className="text-sm text-ink-muted">{body}</p>
         {learnMore ? (
           <a
             href={learnMore.url}
@@ -219,7 +219,7 @@ function CaptureNotice({
               ? t("popupCaptureContentUnavailable")
               : t("popupCaptureFailed");
   return (
-    <p role="status" className="text-xs text-muted-foreground">
+    <p role="status" className="text-xs text-ink-muted">
       {text}
     </p>
   );
@@ -293,7 +293,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
         />
         <CaptureNotice reason={c.captureFallbackReason} hasSelection={c.hasSelection} hasSource={c.hasSource} />
         {c.spaceUnavailable ? (
-          <p role="status" className="text-xs text-destructive">
+          <p role="status" className="text-xs text-danger">
             {t("errorSpaceUnavailableFix")}
           </p>
         ) : null}
@@ -302,14 +302,14 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
         {failedImageCount ? (
           <div
             role="status"
-            className="flex min-w-0 items-center gap-1.5 rounded-md border border-destructive/20 bg-destructive/5 px-2 py-1.5 text-[11px] leading-4"
+            className="flex min-w-0 items-center gap-1.5 rounded-md border border-danger/20 bg-danger-soft px-2 py-1.5 text-[11px] leading-4"
           >
-            <TriangleAlertIcon aria-hidden="true" className="size-3.5 shrink-0 text-destructive" />
+            <TriangleAlertIcon aria-hidden="true" className="size-3.5 shrink-0 text-danger" />
             <span className="min-w-0 flex-1 break-words">{tp("popupFailedImages", failedImageCount)}</span>
           </div>
         ) : null}
         {c.savedClip || c.imageCount > 0 ? (
-          <div className="flex h-4 shrink-0 items-center justify-between gap-3 overflow-hidden text-[11px] leading-4 text-muted-foreground">
+          <div className="flex h-4 shrink-0 items-center justify-between gap-3 overflow-hidden text-[11px] leading-4 text-ink-muted">
             {c.savedClip ? (
               <div role="status" className="flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden">
                 <HistoryIcon aria-hidden="true" className="size-3 shrink-0" />
@@ -322,7 +322,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
                   target="_blank"
                   rel="noreferrer"
                   title={t("popupOpenMemo")}
-                  className="max-w-[45%] shrink-0 truncate font-medium text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
+                  className="max-w-[45%] shrink-0 truncate font-medium text-ink/80 underline-offset-4 hover:text-ink hover:underline"
                 >
                   {t("popupOpenMemo")}
                 </a>
@@ -420,7 +420,7 @@ export function App() {
       <Frame>
         <Header left={<AppBrand />} />
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-          <p className="text-sm text-muted-foreground">{t("popupChooseConnection")}</p>
+          <p className="text-sm text-ink-muted">{t("popupChooseConnection")}</p>
           <Button className="mt-2 w-full" onClick={openOptions}>
             {t("commonOpenSettings")}
           </Button>

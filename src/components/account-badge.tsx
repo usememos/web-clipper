@@ -12,7 +12,7 @@ export function AccountBadge({ identity, compact = false }: { identity: AccountI
       </Avatar>
       <div className="min-w-0">
         <p className="truncate font-medium">{identity.displayName}</p>
-        {!compact && identity.email ? <p className="truncate text-sm text-muted-foreground">{identity.email}</p> : null}
+        {!compact && identity.email ? <p className="truncate text-sm text-ink-muted">{identity.email}</p> : null}
       </div>
     </div>
   );

@@ -185,7 +185,13 @@ browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) 
 });
 
 /** Flash a transient status badge on the toolbar icon (used by the context-menu quick-save). */
-async function flashBadge(text: string, color: string): Promise<void> {
+// The toolbar badge can't read CSS variables, and Chrome parses neither oklch() nor color-mix(),
+// so these are @usememos/ui's light `success` and `danger` (oklch 0.52 0.13 150 / 0.53 0.19 27)
+// in sRGB. Update them with the ui pin.
+const BADGE_SUCCESS: [number, number, number, number] = [29, 125, 62, 255];
+const BADGE_DANGER: [number, number, number, number] = [194, 40, 38, 255];
+
+async function flashBadge(text: string, color: [number, number, number, number]): Promise<void> {
   await Promise.all([browser.action.setBadgeBackgroundColor({ color }), browser.action.setBadgeText({ text })]);
   setTimeout(() => void browser.action.setBadgeText({ text: "" }), 4000);
 }
@@ -339,7 +345,7 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
   // The three outcome signals are independent — badge, selection cleanup, and in-page toast.
   await Promise.all([
     result.ok ? clearTabSelection(tab?.id) : Promise.resolve(),
-    result.ok ? flashBadge("✓", "#C96442") : flashBadge("!", "#dc2626"),
+    result.ok ? flashBadge("✓", BADGE_SUCCESS) : flashBadge("!", BADGE_DANGER),
     showSaveResultInTab(tab?.id, result, source),
   ]);
 });

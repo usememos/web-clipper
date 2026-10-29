@@ -12,7 +12,7 @@ vi.mock("webextension-polyfill", async () => {
   return { default: browserMock };
 });
 
-// jsdom is missing a handful of browser APIs that base-ui / next-themes / sonner
+// jsdom is missing a handful of browser APIs that @usememos/ui (Base UI) / next-themes
 // touch on render. Stub them so component trees mount cleanly.
 beforeEach(() => {
   vi.stubGlobal("browser", browserMock);

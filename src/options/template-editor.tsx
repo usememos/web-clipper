@@ -1,8 +1,7 @@
+import { Badge, Button, Textarea } from "@usememos/ui";
 import { CheckIcon, LockIcon } from "lucide-react";
 import { Fragment, type ReactNode, useEffect, useRef, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { InlineStatus } from "@/components/inline-status";
 import { UserBadge } from "@/components/user-badge";
 import { DESCRIPTION_MAX_CHARS, TEMPLATE_VAR_NAMES, type TemplateVarName } from "@/lib/format";
 import { t } from "@/lib/i18n";
@@ -80,15 +79,12 @@ const EDITOR_TEXT = "px-2.5 py-2 font-mono text-xs leading-relaxed";
 function TemplateInput({ value, onChange }: { value: string; onChange: (next: string) => void }) {
   return (
     <div className="relative">
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute inset-0 rounded-lg border border-transparent whitespace-pre-wrap break-words ${EDITOR_TEXT}`}
-      >
+      <div aria-hidden className={`pointer-events-none absolute inset-0 whitespace-pre-wrap break-words ${EDITOR_TEXT}`}>
         <HighlightedTemplate text={value} />
       </div>
       <Textarea
         aria-label={t("templateAriaLabel")}
-        className={`relative min-h-24 break-words text-transparent caret-ink selection:bg-(--mu-selection) selection:text-transparent md:text-xs ${EDITOR_TEXT}`}
+        className={`relative field-sizing-content min-h-24 resize-none break-words text-transparent caret-ink selection:bg-(--mu-selection) selection:text-transparent ${EDITOR_TEXT}`}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         spellCheck={false}
@@ -300,13 +296,12 @@ export function TemplateEditor({
 
       <div>
         <SectionLabel>{t("templatePreviewSection")}</SectionLabel>
-        <div className="mt-2 rounded-xl border bg-surface p-4 shadow-xs">
+        <div className="mt-2 rounded-xl border bg-surface p-4">
           <div className="mb-2.5 flex items-center gap-2">
             <UserBadge compact />
             <span className="text-xs text-ink-muted">{t("templateJustNow")}</span>
             <span className="flex-1" />
-            <Badge variant="outline" className="text-ink-muted">
-              <LockIcon className="size-2.5" />
+            <Badge tone="outline" icon={<LockIcon />}>
               {t("commonPrivate")}
             </Badge>
           </div>
@@ -315,13 +310,13 @@ export function TemplateEditor({
       </div>
 
       <div className="flex items-center gap-3">
-        <Button disabled={busy || !dirty} onClick={save}>
-          {busy ? t("commonSaving") : t("templateSave")}
+        <Button variant="primary" loading={busy} loadingLabel={t("commonSaving")} disabled={!dirty} onClick={save}>
+          {t("templateSave")}
         </Button>
         <span aria-live="polite" className="text-sm">
           {saved ? (
             <span className="inline-flex items-center gap-1.5 font-medium text-success">
-              <CheckIcon className="size-3.5" />
+              <CheckIcon aria-hidden="true" className="mu-icon [--icon:var(--mu-icon-sm)]" />
               {t("templateSavedBrowser")}
             </span>
           ) : dirty ? (
@@ -330,21 +325,24 @@ export function TemplateEditor({
         </span>
       </div>
       {externalUpdate ? (
-        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-well/30 p-3 text-sm">
-          <span>{t("templateExternalUpdate")}</span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setDraft(initial);
-              setSaved(false);
-              setSaveFailed(false);
-              setExternalUpdate(false);
-            }}
-          >
-            {t("templateLoadSaved")}
-          </Button>
-        </div>
+        <InlineStatus
+          tone="warning"
+          action={
+            <Button
+              size="sm"
+              onClick={() => {
+                setDraft(initial);
+                setSaved(false);
+                setSaveFailed(false);
+                setExternalUpdate(false);
+              }}
+            >
+              {t("templateLoadSaved")}
+            </Button>
+          }
+        >
+          {t("templateExternalUpdate")}
+        </InlineStatus>
       ) : null}
       {saveFailed || storageError ? (
         <p role="alert" className="text-sm text-danger">

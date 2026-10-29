@@ -284,8 +284,9 @@ describe("Options connection methods", () => {
     const warning = screen.getByRole("status");
     expect(warning).toHaveTextContent("Connection uses HTTP");
     expect(warning).toHaveTextContent("Your access token and clips are sent without TLS encryption.");
-    expect(warning).not.toHaveClass("text-destructive");
+    // The HTTP notice is a warning, not part of the error.
     expect(screen.getByRole("alert")).toHaveTextContent("Access token rejected");
+    expect(screen.getByRole("alert")).not.toHaveTextContent("Connection uses HTTP");
 
     active.verificationError = null;
     rerender(<Options />);

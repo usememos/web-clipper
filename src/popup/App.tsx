@@ -1,12 +1,10 @@
-import { Tooltip } from "@base-ui/react/tooltip";
-import { CheckCircle2Icon, ExternalLinkIcon, GlobeIcon, HistoryIcon, PaperclipIcon, SettingsIcon, TriangleAlertIcon } from "lucide-react";
+import { Button, buttonClasses, Link, Spinner, Tooltip } from "@usememos/ui";
+import { CheckCircle2Icon, GlobeIcon, HistoryIcon, PaperclipIcon, SettingsIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
 import { AccountBadge } from "@/components/account-badge";
 import { AppBrand } from "@/components/app-brand";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import { InlineStatus } from "@/components/inline-status";
 import { describeSaveError, type SaveErrorDetail } from "@/lib/errors";
 import { formatDateTime, t, tp } from "@/lib/i18n";
 import type { PopupIdentity, PopupState } from "@/lib/popup-state";
@@ -37,16 +35,9 @@ function HeaderActionTooltip({ label, children }: { label: string; children: Rea
   return (
     <Tooltip.Root>
       <Tooltip.Trigger render={children} />
-      <Tooltip.Portal>
-        <Tooltip.Positioner side="bottom" sideOffset={6} className="z-50">
-          <Tooltip.Popup
-            role="tooltip"
-            className="max-w-56 rounded-md bg-primary px-2 py-1 text-center text-[11px] font-medium leading-4 text-on-primary shadow-sm transition-opacity duration-100 data-ending-style:opacity-0 data-starting-style:opacity-0"
-          >
-            {label}
-          </Tooltip.Popup>
-        </Tooltip.Positioner>
-      </Tooltip.Portal>
+      <Tooltip.Popup side="bottom" role="tooltip">
+        {label}
+      </Tooltip.Popup>
     </Tooltip.Root>
   );
 }
@@ -59,12 +50,12 @@ function Header({ left, instanceUrl }: { left: React.ReactNode; instanceUrl?: st
   return (
     <header className="flex h-11 shrink-0 items-center justify-between border-b pe-2 ps-3">
       <div className="min-w-0">{left}</div>
-      <Tooltip.Provider delay={400}>
+      <Tooltip.Provider>
         <div className="flex shrink-0 items-center gap-0.5">
           {instanceUrl ? (
             <HeaderActionTooltip label={t("popupOpenInstance")}>
               <a
-                className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                className={buttonClasses({ variant: "ghost", size: "sm", iconOnly: true })}
                 href={instanceUrl}
                 target="_blank"
                 rel="noreferrer"
@@ -75,14 +66,10 @@ function Header({ left, instanceUrl }: { left: React.ReactNode; instanceUrl?: st
             </HeaderActionTooltip>
           ) : null}
           <HeaderActionTooltip label={t("popupOpenHistory")}>
-            <Button variant="ghost" size="icon-sm" onClick={() => openHistory()} aria-label={t("popupOpenHistory")}>
-              <HistoryIcon />
-            </Button>
+            <Button variant="ghost" size="sm" icon={<HistoryIcon />} onClick={() => openHistory()} aria-label={t("popupOpenHistory")} />
           </HeaderActionTooltip>
           <HeaderActionTooltip label={t("popupExtensionSettings")}>
-            <Button variant="ghost" size="icon-sm" onClick={openOptions} aria-label={t("popupExtensionSettings")}>
-              <SettingsIcon />
-            </Button>
+            <Button variant="ghost" size="sm" icon={<SettingsIcon />} onClick={openOptions} aria-label={t("popupExtensionSettings")} />
           </HeaderActionTooltip>
         </div>
       </Tooltip.Provider>
@@ -119,17 +106,11 @@ function GatePrompt({
         {title ? <p className="text-sm font-medium">{title}</p> : null}
         <p className="text-sm text-ink-muted">{body}</p>
         {learnMore ? (
-          <a
-            href={learnMore.url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
-          >
+          <Link href={learnMore.url} external className="text-sm">
             {learnMore.label}
-            <ExternalLinkIcon className="h-3.5 w-3.5" />
-          </a>
+          </Link>
         ) : null}
-        <Button className="mt-2 w-full" onClick={openOptions}>
+        <Button variant="primary" className="mt-2 w-full" onClick={openOptions}>
           {t("commonOpenSettings")}
         </Button>
       </div>
@@ -143,35 +124,46 @@ function GatePrompt({
  * editor content; the bar clears when the user edits or a retry succeeds.
  */
 function ErrorBar({ error, busy, onRetry }: { error: SaveErrorDetail; busy: boolean; onRetry: () => void }) {
+  const opensSettings = error.primaryAction === "settings";
   return (
-    <Alert variant="destructive" className="shrink-0">
-      <TriangleAlertIcon />
-      <AlertTitle>{error.title}</AlertTitle>
-      <AlertDescription>
+    <InlineStatus
+      tone="danger"
+      className="shrink-0"
+      title={error.title}
+      action={
+        <>
+          {opensSettings && (
+            <Button size="sm" onClick={openOptions}>
+              {t("commonOpenSettings")}
+            </Button>
+          )}
+          {error.kind !== "unauthorized" ? (
+            <Button
+              size="sm"
+              variant={opensSettings ? "ghost" : "neutral"}
+              loading={busy}
+              loadingLabel={t("commonRetrying")}
+              onClick={onRetry}
+            >
+              {t("commonTryAgain")}
+            </Button>
+          ) : null}
+        </>
+      }
+    >
+      <p>
         {error.kind !== "unauthorized" ? `${error.why} ` : null}
         {error.howToFix[0]}
         {error.learnMore ? (
           <>
             {" "}
-            <a href={error.learnMore.url} target="_blank" rel="noreferrer" className="font-medium">
+            <Link href={error.learnMore.url} target="_blank" rel="noreferrer" underline="always">
               {error.learnMore.label}
-            </a>
+            </Link>
           </>
         ) : null}
-      </AlertDescription>
-      <div className="col-start-2 mt-2 flex items-center gap-2">
-        {error.primaryAction === "settings" && (
-          <Button size="xs" onClick={openOptions}>
-            {t("commonOpenSettings")}
-          </Button>
-        )}
-        {error.kind !== "unauthorized" ? (
-          <Button size="xs" variant={error.primaryAction === "settings" ? "ghost" : "default"} disabled={busy} onClick={onRetry}>
-            {busy ? t("commonRetrying") : t("commonTryAgain")}
-          </Button>
-        ) : null}
-      </div>
-    </Alert>
+      </p>
+    </InlineStatus>
   );
 }
 
@@ -182,15 +174,18 @@ type BlockedPopupState = Exclude<PopupState, { status: "ready" }>;
 function ReconciliationBar({ state }: { state: BlockedPopupState }) {
   const signedOut = state.status === "signed-out";
   return (
-    <Alert>
-      <AlertTitle>
-        {signedOut ? t("popupSignedOut") : state.status === "disconnected" ? t("popupDisconnected") : t("popupNeedsUpgrade")}
-      </AlertTitle>
-      <AlertDescription>{t("popupDraftPreserved")}</AlertDescription>
-      <Button size="xs" className="mt-2 w-fit" onClick={openOptions}>
-        {t("commonOpenSettings")}
-      </Button>
-    </Alert>
+    <InlineStatus
+      tone="warning"
+      role="alert"
+      title={signedOut ? t("popupSignedOut") : state.status === "disconnected" ? t("popupDisconnected") : t("popupNeedsUpgrade")}
+      action={
+        <Button size="sm" onClick={openOptions}>
+          {t("commonOpenSettings")}
+        </Button>
+      }
+    >
+      <p>{t("popupDraftPreserved")}</p>
+    </InlineStatus>
   );
 }
 
@@ -300,13 +295,9 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
         {blocked ? <ReconciliationBar state={blocked} /> : null}
         {error && !connectionError && <ErrorBar error={error} busy={c.busy} onRetry={onSave} />}
         {failedImageCount ? (
-          <div
-            role="status"
-            className="flex min-w-0 items-center gap-1.5 rounded-md border border-danger/20 bg-danger-soft px-2 py-1.5 text-[11px] leading-4"
-          >
-            <TriangleAlertIcon aria-hidden="true" className="size-3.5 shrink-0 text-danger" />
-            <span className="min-w-0 flex-1 break-words">{tp("popupFailedImages", failedImageCount)}</span>
-          </div>
+          <InlineStatus tone="warning" className="shrink-0">
+            {tp("popupFailedImages", failedImageCount)}
+          </InlineStatus>
         ) : null}
         {c.savedClip || c.imageCount > 0 ? (
           <div className="flex h-4 shrink-0 items-center justify-between gap-3 overflow-hidden text-[11px] leading-4 text-ink-muted">
@@ -317,15 +308,15 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
                 <span aria-hidden="true" className="shrink-0">
                   ·
                 </span>
-                <a
+                <Link
                   href={c.savedClip.memoUrl}
                   target="_blank"
                   rel="noreferrer"
                   title={t("popupOpenMemo")}
-                  className="max-w-[45%] shrink-0 truncate font-medium text-ink/80 underline-offset-4 hover:text-ink hover:underline"
+                  className="max-w-[45%] shrink-0 truncate"
                 >
                   {t("popupOpenMemo")}
-                </a>
+                </Link>
               </div>
             ) : null}
             {c.imageCount > 0 ? (
@@ -358,12 +349,15 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
             onOpenSettings={() => void browser.runtime.openOptionsPage()}
           />
           <Button
-            className={`min-w-0 flex-1 overflow-hidden ${justSaved ? "disabled:opacity-100" : ""}`}
-            disabled={c.busy || justSaved || !!blocked || !!connectionError || c.spaceUnavailable || !c.content.trim()}
+            variant="primary"
+            className={`min-w-0 flex-1 overflow-hidden ${justSaved ? "data-disabled:opacity-100" : ""}`}
+            icon={justSaved ? <CheckCircle2Icon /> : undefined}
+            loading={c.busy}
+            loadingLabel={t("commonSaving")}
+            disabled={justSaved || !!blocked || !!connectionError || c.spaceUnavailable || !c.content.trim()}
             onClick={onSave}
             title={saveButtonLabel}
           >
-            {justSaved ? <CheckCircle2Icon aria-hidden="true" /> : null}
             <span className="truncate">{saveButtonLabel}</span>
           </Button>
         </div>
@@ -403,7 +397,7 @@ export function App() {
       <Frame>
         <Header left={<AppBrand />} />
         <div className="flex flex-1 items-center justify-center">
-          <Spinner />
+          <Spinner label={t("commonLoading")} />
         </div>
       </Frame>
     );
@@ -421,7 +415,7 @@ export function App() {
         <Header left={<AppBrand />} />
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
           <p className="text-sm text-ink-muted">{t("popupChooseConnection")}</p>
-          <Button className="mt-2 w-full" onClick={openOptions}>
+          <Button variant="primary" className="mt-2 w-full" onClick={openOptions}>
             {t("commonOpenSettings")}
           </Button>
         </div>

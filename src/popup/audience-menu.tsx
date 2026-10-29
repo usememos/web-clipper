@@ -1,32 +1,14 @@
-import { Menu } from "@base-ui/react/menu";
-import {
-  AstroidIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  EarthIcon,
-  LockIcon,
-  PlusIcon,
-  UserLockIcon,
-  UsersRoundIcon,
-  XIcon,
-} from "lucide-react";
-import type { ComponentProps } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, Menu } from "@usememos/ui";
+import { AstroidIcon, CheckIcon, ChevronDownIcon, EarthIcon, LockIcon, PlusIcon, UserLockIcon, UsersRoundIcon, XIcon } from "lucide-react";
 import type { SaveErrorKind } from "@/lib/errors";
 import { t } from "@/lib/i18n";
 import type { SpaceSummary, Visibility } from "@/lib/memos-client";
 import { cn } from "@/lib/utils";
 
-const ITEM =
-  "flex min-w-0 cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-[13px] outline-none select-none data-highlighted:bg-hover data-disabled:opacity-50";
-const POPUP =
-  "max-h-(--available-height) overflow-y-auto rounded-lg bg-surface p-1 text-ink shadow-md ring-1 ring-foreground/10 outline-none";
-
 function SpaceMark({ space }: { space?: SpaceSummary }) {
   return (
-    <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-[5px] bg-well text-sm">
-      {space?.icon?.emoji || <AstroidIcon className="size-3.5 text-ink-muted" strokeWidth={1.8} />}
+    <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-well text-sm">
+      {space?.icon?.emoji || <AstroidIcon className="mu-icon text-ink-muted [--icon:var(--mu-icon-sm)]" />}
     </span>
   );
 }
@@ -42,10 +24,6 @@ type Props = {
   onOpenSettings: () => void;
   disabled?: boolean;
 };
-
-function MenuPopup({ className, ...props }: ComponentProps<typeof Menu.Popup>) {
-  return <Menu.Popup className={cn(POPUP, className)} {...props} />;
-}
 
 export function AudienceMenu({
   visibility,
@@ -80,13 +58,7 @@ export function AudienceMenu({
   return (
     <Menu.Root>
       <Menu.Trigger
-        render={
-          <Button
-            variant="outline"
-            className="min-w-0 max-w-52 shrink justify-start gap-1.5 bg-well/60 px-2 hover:bg-hover"
-            disabled={disabled}
-          />
-        }
+        render={<Button className="min-w-0 max-w-52 shrink justify-start" disabled={disabled} />}
         title={summary}
         aria-label={t("popupAudienceLabel", [t("popupVisibility"), summary])}
       >
@@ -99,115 +71,113 @@ export function AudienceMenu({
             </span>
           </>
         )}
-        <SelectedIcon aria-hidden="true" className="size-4 shrink-0 text-ink-muted" />
+        <SelectedIcon aria-hidden="true" className="text-ink-muted" />
         <span className="shrink-0">{selected.label}</span>
-        <ChevronDownIcon aria-hidden="true" className="size-3 shrink-0 text-ink-muted" />
+        <ChevronDownIcon aria-hidden="true" className="text-ink-muted [--icon:var(--mu-icon-sm)]" />
       </Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner side="top" sideOffset={4} align="start" collisionPadding={8} className="z-50">
-          {/* Intrinsic width: descriptions stay on one line and wrap only when the popup window is narrower. */}
-          <MenuPopup className="w-max min-w-44 max-w-(--available-width)" aria-label={t("popupVisibility")}>
-            <Menu.RadioGroup value={visibility} onValueChange={(value) => onVisibilityChange(value as Visibility)}>
-              {values.map((value) => {
-                const option = options[value];
-                const Icon = option.icon;
-                return (
-                  <Menu.RadioItem key={value} value={value} closeOnClick label={option.label} className={`${ITEM} items-start`}>
-                    <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-ink-muted" />
-                    <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="break-words font-medium leading-4">{option.label}</span>
-                      <span className="text-pretty text-[11px] leading-4 text-ink-muted">{option.description}</span>
-                    </span>
-                    <span aria-hidden="true" className="size-4 shrink-0">
-                      <Menu.RadioItemIndicator>
-                        <CheckIcon className="size-4 text-ink-muted" />
-                      </Menu.RadioItemIndicator>
-                    </span>
-                  </Menu.RadioItem>
-                );
-              })}
-            </Menu.RadioGroup>
-            {showSpace && (
-              <>
-                <Menu.Separator className="-mx-1 my-1 h-px bg-line" />
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger className={ITEM} label={destination ?? t("popupAddToSpace")}>
-                    {space ? (
-                      <SpaceMark space={selectedSpace} />
-                    ) : (
-                      <span
-                        aria-hidden="true"
-                        className="flex size-5 shrink-0 items-center justify-center rounded-[5px] border border-dashed border-ink-muted/50"
-                      >
-                        <PlusIcon className="size-3.5 text-ink-muted" />
-                      </span>
-                    )}
-                    <span className="min-w-0 flex-1 truncate text-ink-muted" title={destination}>
-                      {destination ?? t("popupAddToSpace")}
-                    </span>
-                    <ChevronRightIcon aria-hidden="true" className="size-3.5 shrink-0 text-ink-muted rtl:rotate-180" />
-                  </Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner
-                      side="inline-end"
-                      sideOffset={4}
-                      align="start"
-                      collisionPadding={8}
-                      // The 380px popup rarely fits a second column beside a content-sized menu; sliding the
-                      // submenu over the parent's edge keeps it at its row instead of dropping it on top of the items.
-                      collisionAvoidance={{ side: "shift", align: "shift" }}
-                      className="z-50"
+      {/* Intrinsic width: descriptions stay on one line and wrap only when the popup window is narrower. */}
+      <Menu.Popup
+        side="top"
+        align="start"
+        collisionPadding={8}
+        className="w-max max-w-(--available-width)"
+        aria-label={t("popupVisibility")}
+      >
+        <Menu.RadioGroup value={visibility} onValueChange={(value) => onVisibilityChange(value as Visibility)}>
+          {values.map((value) => {
+            const option = options[value];
+            const Icon = option.icon;
+            return (
+              <Menu.RadioItem
+                key={value}
+                value={value}
+                closeOnClick
+                label={option.label}
+                icon={<Icon />}
+                className="h-auto items-start py-1.5 whitespace-normal [&>svg]:mt-0.5"
+              >
+                <span className="flex min-w-0 flex-col">
+                  <span className="break-words font-medium leading-5">{option.label}</span>
+                  <span className="text-pretty text-xs text-ink-muted">{option.description}</span>
+                </span>
+              </Menu.RadioItem>
+            );
+          })}
+        </Menu.RadioGroup>
+        {showSpace && (
+          <>
+            <Menu.Separator />
+            <Menu.SubmenuRoot>
+              <Menu.SubmenuTrigger label={destination ?? t("popupAddToSpace")}>
+                <span className="flex min-w-0 items-center gap-2">
+                  {space ? (
+                    <SpaceMark space={selectedSpace} />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="flex size-5 shrink-0 items-center justify-center rounded-sm border border-dashed border-ink-muted/50"
                     >
-                      <MenuPopup className="w-44" aria-label={t("popupChooseSpace")}>
-                        {choices.map((item) => {
-                          const isSelected = item.name === space;
-                          const name = label(item);
-                          return (
-                            <Menu.Item
-                              key={item.name}
-                              className={`${ITEM} group`}
-                              label={name}
-                              title={name}
-                              aria-label={isSelected ? t("popupRemoveFromSpace", name) : name}
-                              onClick={() => onSpaceChange(isSelected ? undefined : item.name)}
-                            >
-                              <SpaceMark space={item} />
-                              <span className="min-w-0 flex-1 truncate">{name}</span>
-                              {isSelected && (
-                                <span aria-hidden="true" className="size-3.5 shrink-0">
-                                  <CheckIcon className="size-3.5 group-data-highlighted:hidden pointer-coarse:hidden" />
-                                  <XIcon className="hidden size-3.5 group-data-highlighted:block pointer-coarse:block" />
-                                </span>
-                              )}
-                            </Menu.Item>
-                          );
-                        })}
-                        {spaces.status === "loading" && (
-                          <Menu.Item disabled className={ITEM}>
-                            {t("popupSpacesLoading")}
-                          </Menu.Item>
+                      <PlusIcon className="mu-icon text-ink-muted [--icon:var(--mu-icon-sm)]" />
+                    </span>
+                  )}
+                  <span className="min-w-0 flex-1 truncate text-ink-muted" title={destination}>
+                    {destination ?? t("popupAddToSpace")}
+                  </span>
+                </span>
+              </Menu.SubmenuTrigger>
+              <Menu.Popup
+                side="inline-end"
+                align="start"
+                collisionPadding={8}
+                // The 380px popup rarely fits a second column beside a content-sized menu; sliding the
+                // submenu over the parent's edge keeps it at its row instead of dropping it on top of the items.
+                collisionAvoidance={{ side: "shift", align: "shift" }}
+                className="w-44"
+                aria-label={t("popupChooseSpace")}
+              >
+                {choices.map((item) => {
+                  const isSelected = item.name === space;
+                  const name = label(item);
+                  return (
+                    <Menu.Item
+                      key={item.name}
+                      className="group"
+                      label={name}
+                      title={name}
+                      aria-label={isSelected ? t("popupRemoveFromSpace", name) : name}
+                      onClick={() => onSpaceChange(isSelected ? undefined : item.name)}
+                    >
+                      <span className="flex min-w-0 items-center gap-2">
+                        <SpaceMark space={item} />
+                        <span className="min-w-0 flex-1 truncate">{name}</span>
+                        {isSelected && (
+                          <span aria-hidden="true" className="shrink-0 [--icon:var(--mu-icon-sm)]">
+                            <CheckIcon className="mu-icon group-data-highlighted:hidden pointer-coarse:hidden" />
+                            <XIcon className="mu-icon hidden group-data-highlighted:block pointer-coarse:block" />
+                          </span>
                         )}
-                        {spaces.status === "error" && (
-                          <Menu.Item
-                            className={cn(ITEM, tokenRejected && "flex-col items-start")}
-                            closeOnClick={tokenRejected}
-                            onClick={tokenRejected ? onOpenSettings : onRetry}
-                          >
-                            <span className="flex-1 text-danger">
-                              {t(tokenRejected ? "errorUnauthorizedTitle" : "popupSpacesLoadError")}
-                            </span>
-                            <span className="text-ink-muted">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
-                          </Menu.Item>
-                        )}
-                      </MenuPopup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </>
-            )}
-          </MenuPopup>
-        </Menu.Positioner>
-      </Menu.Portal>
+                      </span>
+                    </Menu.Item>
+                  );
+                })}
+                {spaces.status === "loading" && <Menu.Item disabled>{t("popupSpacesLoading")}</Menu.Item>}
+                {spaces.status === "error" && (
+                  <Menu.Item
+                    className={tokenRejected ? "h-auto py-1.5" : undefined}
+                    closeOnClick={tokenRejected}
+                    onClick={tokenRejected ? onOpenSettings : onRetry}
+                  >
+                    <span className={cn("flex min-w-0 gap-2", tokenRejected ? "flex-col" : "items-center")}>
+                      <span className="flex-1 text-danger">{t(tokenRejected ? "errorUnauthorizedTitle" : "popupSpacesLoadError")}</span>
+                      <span className="text-ink-muted">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
+                    </span>
+                  </Menu.Item>
+                )}
+              </Menu.Popup>
+            </Menu.SubmenuRoot>
+          </>
+        )}
+      </Menu.Popup>
     </Menu.Root>
   );
 }

@@ -1,6 +1,7 @@
-import { CheckIcon, ExternalLinkIcon, LockIcon, TriangleAlertIcon } from "lucide-react";
+import { Link } from "@usememos/ui";
+import { CheckIcon, LockIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { InlineStatus } from "@/components/inline-status";
 import type { ConnectionSource } from "@/lib/connection-config";
 import { describeSaveError, type SaveErrorKind } from "@/lib/errors";
 import { t } from "@/lib/i18n";
@@ -56,11 +57,9 @@ export function StepRow({
 
 export function HttpConnectionWarning() {
   return (
-    <Alert variant="warning" role="status">
-      <TriangleAlertIcon aria-hidden="true" />
-      <AlertTitle>{t("optionsHttpWarningTitle")}</AlertTitle>
-      <AlertDescription>{t("optionsHttpWarningBody")}</AlertDescription>
-    </Alert>
+    <InlineStatus tone="warning" title={t("optionsHttpWarningTitle")}>
+      {t("optionsHttpWarningBody")}
+    </InlineStatus>
   );
 }
 
@@ -76,26 +75,21 @@ export function ErrorNotice({
   className?: string;
 }) {
   const detail = describeSaveError(kind, source);
-  const danger = kind !== "unsupported-version";
+  // An instance that is too old needs an upgrade, not a repair: a warning, still announced at once.
   return (
-    <Alert className={className} variant={danger ? "destructive" : "default"}>
-      <TriangleAlertIcon />
-      <AlertTitle>{detail.title}</AlertTitle>
-      <AlertDescription>
-        {kind === "unsupported-version" && version ? <p className="break-words">{t("errorUnsupportedRunningVersion", version)}</p> : null}
-        <p>{detail.why}</p>
-        <ul className="list-disc ps-4">
-          {detail.howToFix.map((step) => (
-            <li key={step}>{step}</li>
-          ))}
-        </ul>
-        {detail.learnMore ? (
-          <a href={detail.learnMore.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium">
-            {detail.learnMore.label}
-            <ExternalLinkIcon />
-          </a>
-        ) : null}
-      </AlertDescription>
-    </Alert>
+    <InlineStatus className={className} tone={kind === "unsupported-version" ? "warning" : "danger"} role="alert" title={detail.title}>
+      {kind === "unsupported-version" && version ? <p className="break-words">{t("errorUnsupportedRunningVersion", version)}</p> : null}
+      <p>{detail.why}</p>
+      <ul className="list-disc ps-4">
+        {detail.howToFix.map((step) => (
+          <li key={step}>{step}</li>
+        ))}
+      </ul>
+      {detail.learnMore ? (
+        <Link href={detail.learnMore.url} external>
+          {detail.learnMore.label}
+        </Link>
+      ) : null}
+    </InlineStatus>
   );
 }

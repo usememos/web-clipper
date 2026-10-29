@@ -1,9 +1,8 @@
+import { buttonClasses, Input, Select, Spinner } from "@usememos/ui";
 import { ArrowLeftIcon, ChevronDownIcon, ExternalLinkIcon, FileTextIcon, SearchIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import browser from "webextension-polyfill";
 import { AppBrand } from "@/components/app-brand";
-import { buttonVariants } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import type { ClipRecord } from "@/lib/clip-records";
 import { formatDateTime, t, tp } from "@/lib/i18n";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
@@ -69,13 +68,13 @@ function ClipDetail({ record }: { record: ClipRecord }) {
             <h2 className="mt-1.5 text-[22px] font-semibold leading-7 tracking-[-0.025em]">{record.sourceTitle || record.sourceUrl}</h2>
           </div>
           <div className="flex shrink-0 flex-wrap gap-1.5">
-            <a className={buttonVariants({ variant: "outline", size: "sm" })} href={record.sourceUrl} target="_blank" rel="noreferrer">
+            <a className={buttonClasses({ size: "sm" })} href={record.sourceUrl} target="_blank" rel="noreferrer">
               {t("historyOpenSource")}
-              <ExternalLinkIcon />
+              <ExternalLinkIcon aria-hidden="true" />
             </a>
-            <a className={buttonVariants({ variant: "default", size: "sm" })} href={record.memoUrl} target="_blank" rel="noreferrer">
+            <a className={buttonClasses({ variant: "primary", size: "sm" })} href={record.memoUrl} target="_blank" rel="noreferrer">
               {t("historyOpenMemo")}
-              <ExternalLinkIcon />
+              <ExternalLinkIcon aria-hidden="true" />
             </a>
           </div>
         </header>
@@ -117,7 +116,7 @@ function ClipDetail({ record }: { record: ClipRecord }) {
             </section>
 
             <details className="group mt-5 border-t pt-1">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-2 py-2.5 text-[12px] font-medium marker:hidden">
+              <summary className="mu-focus flex cursor-pointer list-none items-center justify-between gap-2 py-2.5 text-[12px] font-medium marker:hidden">
                 {t("historyTechnicalDetails")}
                 <ChevronDownIcon className="size-3.5 text-ink-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" />
               </summary>
@@ -168,7 +167,7 @@ export function ClipHistory() {
     <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-5 sm:px-6 sm:py-6">
       <header className="mb-5 flex items-center justify-between gap-4">
         <AppBrand size="md" sub={t("historyStoredLocally")} />
-        <a className={buttonVariants({ variant: "ghost", size: "sm" })} href={browser.runtime.getURL("src/options/index.html")}>
+        <a className={buttonClasses({ variant: "ghost", size: "sm" })} href={browser.runtime.getURL("src/options/index.html")}>
           <ArrowLeftIcon />
           {t("historySettings")}
         </a>
@@ -180,38 +179,40 @@ export function ClipHistory() {
           {records ? <p className="text-[12px] text-ink-muted">{tp("historyCount", records.length)}</p> : null}
         </div>
         <div className="flex flex-col gap-1.5 sm:flex-row">
-          <label className="relative block">
-            <SearchIcon aria-hidden="true" className="absolute start-2.5 top-2 size-3.5 text-ink-muted" />
-            <span className="sr-only">{t("historySearch")}</span>
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={t("historySearch")}
-              className="h-8 w-full rounded-md border border-edge bg-canvas ps-8 pe-3 text-[12px] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:w-64"
-            />
-          </label>
+          <Input
+            type="search"
+            prefix={<SearchIcon aria-hidden="true" />}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t("historySearch")}
+            aria-label={t("historySearch")}
+            className="sm:w-64"
+          />
           {destinations.length > 1 ? (
-            <select
-              aria-label={t("historyDestinationFilter")}
+            <Select.Root
+              items={{ all: t("historyAllDestinations"), ...Object.fromEntries(destinations.map((value) => [value, host(value)])) }}
               value={destination}
-              onChange={(event) => setDestination(event.target.value)}
-              className="h-8 rounded-md border border-edge bg-canvas px-2.5 text-[12px] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              onValueChange={(value) => setDestination(value ?? "all")}
             >
-              <option value="all">{t("historyAllDestinations")}</option>
-              {destinations.map((value) => (
-                <option key={value} value={value}>
-                  {host(value)}
-                </option>
-              ))}
-            </select>
+              <Select.Trigger aria-label={t("historyDestinationFilter")}>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Popup>
+                <Select.Item value="all">{t("historyAllDestinations")}</Select.Item>
+                {destinations.map((value) => (
+                  <Select.Item key={value} value={value}>
+                    {host(value)}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Root>
           ) : null}
         </div>
       </div>
 
       {records === null ? (
         <div className="flex min-h-72 flex-1 items-center justify-center gap-2 text-[13px] text-ink-muted">
-          <Spinner />
+          <Spinner label={t("commonLoading")} />
           {t("commonLoading")}
         </div>
       ) : records.length === 0 ? (
@@ -227,7 +228,7 @@ export function ClipHistory() {
           {t("historyNoResults")}
         </div>
       ) : (
-        <div className="grid min-h-[32rem] flex-1 overflow-hidden rounded-xl border bg-surface shadow-xs md:h-[calc(100dvh-9.75rem)] md:flex-none md:grid-cols-[19rem_minmax(0,1fr)]">
+        <div className="grid min-h-[32rem] flex-1 overflow-hidden rounded-xl border bg-surface md:h-[calc(100dvh-9.75rem)] md:flex-none md:grid-cols-[19rem_minmax(0,1fr)]">
           <nav
             aria-label={t("historyTitle")}
             className="max-h-80 overflow-y-auto border-b bg-well/10 md:max-h-none md:border-e md:border-b-0"
@@ -239,7 +240,7 @@ export function ClipHistory() {
                   type="button"
                   key={record.id}
                   onClick={() => setSelectedId(record.id)}
-                  className={`relative block w-full border-b px-3.5 py-2.5 text-start last:border-b-0 hover:bg-hover focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
+                  className={`relative block w-full border-b px-3.5 py-2.5 text-start last:border-b-0 mu-focus hover:bg-hover focus-visible:z-10 focus-visible:-outline-offset-2 ${
                     active ? "bg-hover" : ""
                   }`}
                   aria-current={active ? "true" : undefined}

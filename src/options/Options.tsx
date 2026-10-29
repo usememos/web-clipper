@@ -1,3 +1,4 @@
+import { Badge, Button, buttonClasses, Field, Input, Link, Select, Separator, Spinner, Tooltip } from "@usememos/ui";
 import {
   ArrowLeftIcon,
   CheckIcon,
@@ -10,19 +11,13 @@ import {
   LogInIcon,
   RefreshCwIcon,
   ServerIcon,
-  TriangleAlertIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 import { openSignIn } from "@/auth/actions";
 import { useAuth } from "@/auth/auth-provider";
 import { AppBrand } from "@/components/app-brand";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
+import { InlineStatus } from "@/components/inline-status";
 import { UserBadge } from "@/components/user-badge";
 import { WEB_APP_URL } from "@/config/env";
 import { useClipTemplate } from "@/hooks/use-clip-template";
@@ -92,32 +87,36 @@ function OptionsHeader({
   locale: LocalePreference;
   onLocaleChange: (locale: LocalePreference) => void;
 }) {
-  const localeLabel = locale === "browser" ? t("localeBrowserDefault") : LOCALE_AUTONYMS[locale];
+  const localeItems: Record<LocalePreference, string> = { ...LOCALE_AUTONYMS, browser: t("localeBrowserDefault") };
   return (
     <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
       <AppBrand size="md" sub={sub} />
       <div className="flex items-center gap-1">
-        <a
-          href={browser.runtime.getURL("src/options/index.html?view=history")}
-          className={buttonVariants({ variant: "ghost", size: "sm" })}
-        >
+        <a href={browser.runtime.getURL("src/options/index.html?view=history")} className={buttonClasses({ variant: "ghost", size: "sm" })}>
           <HistoryIcon />
           {t("historyTitle")}
         </a>
-        <Select value={locale} onValueChange={(value) => onLocaleChange(value as LocalePreference)}>
-          <SelectTrigger aria-label={t("optionsLanguage")} className="max-w-48" size="sm">
-            <LanguagesIcon />
-            <span className="truncate">{localeLabel}</span>
-          </SelectTrigger>
-          <SelectContent align="end" className="min-w-48">
-            <SelectItem value="browser">{t("localeBrowserDefault")}</SelectItem>
+        <Select.Root
+          size="sm"
+          items={localeItems}
+          value={locale}
+          onValueChange={(value) => {
+            if (value) onLocaleChange(value as LocalePreference);
+          }}
+        >
+          <Select.Trigger aria-label={t("optionsLanguage")} className="max-w-48">
+            <LanguagesIcon aria-hidden="true" className="mu-icon text-ink-muted" />
+            <Select.Value className="truncate" />
+          </Select.Trigger>
+          <Select.Popup align="end">
+            <Select.Item value="browser">{t("localeBrowserDefault")}</Select.Item>
             {SUPPORTED_LOCALES.map((supportedLocale) => (
-              <SelectItem key={supportedLocale} value={supportedLocale}>
+              <Select.Item key={supportedLocale} value={supportedLocale}>
                 {LOCALE_AUTONYMS[supportedLocale]}
-              </SelectItem>
+              </Select.Item>
             ))}
-          </SelectContent>
-        </Select>
+          </Select.Popup>
+        </Select.Root>
       </div>
     </div>
   );
@@ -140,7 +139,7 @@ function LocalTemplateStep({ enabled }: { enabled: boolean }) {
         </div>
       ) : (
         <div className="flex items-center gap-2 text-sm text-ink-muted" aria-live="polite">
-          <Spinner />
+          <Spinner label={t("commonLoading")} />
           {t("optionsLoadingTemplate")}
         </div>
       )}
@@ -148,45 +147,62 @@ function LocalTemplateStep({ enabled }: { enabled: boolean }) {
   );
 }
 
+/** One way to connect: an icon, a title, what it means, and the button that starts it. */
+function MethodOption({
+  icon,
+  title,
+  badge,
+  description,
+  action,
+}: {
+  icon: ReactNode;
+  title: string;
+  badge?: ReactNode;
+  description: string;
+  action: ReactNode;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-well text-ink-muted">{icon}</span>
+      <div className="min-w-0 flex-1 space-y-3">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium">{title}</p>
+            {badge}
+          </div>
+          <p className="mt-1 text-sm text-ink-muted">{description}</p>
+        </div>
+        {action}
+      </div>
+    </div>
+  );
+}
+
 function MethodChoice({ busy, onUseMemos, onDirect }: { busy: boolean; onUseMemos: () => void; onDirect: () => void }) {
   return (
-    <div className="space-y-3">
-      <Card size="sm" className="ring-highlight/55">
-        <CardContent className="space-y-3">
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-(--clip-highlight-wash) text-(--clip-highlight-deep)">
-              <LogInIcon className="size-4" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="font-medium">{t("optionsSignInTitle")}</p>
-                <Badge>{t("commonRecommended")}</Badge>
-              </div>
-              <p className="mt-1 text-sm text-ink-muted">{t("optionsAccountConnectionDescription")}</p>
-            </div>
-          </div>
-          <Button disabled={busy} onClick={onUseMemos}>
-            {busy ? <Spinner /> : null}
+    <div className="space-y-5">
+      <MethodOption
+        icon={<LogInIcon className="mu-icon" />}
+        title={t("optionsSignInTitle")}
+        badge={<Badge>{t("commonRecommended")}</Badge>}
+        description={t("optionsAccountConnectionDescription")}
+        action={
+          <Button variant="primary" loading={busy} onClick={onUseMemos}>
             {t("optionsContinueUseMemos")}
           </Button>
-        </CardContent>
-      </Card>
-      <Card size="sm">
-        <CardContent className="space-y-3">
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-well text-ink-muted">
-              <ServerIcon className="size-4" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="font-medium">{t("optionsDirectConnection")}</p>
-              <p className="mt-1 text-sm text-ink-muted">{t("optionsDirectDescription")}</p>
-            </div>
-          </div>
-          <Button variant="outline" disabled={busy} onClick={onDirect}>
+        }
+      />
+      <Separator />
+      <MethodOption
+        icon={<ServerIcon className="mu-icon" />}
+        title={t("optionsDirectConnection")}
+        description={t("optionsDirectDescription")}
+        action={
+          <Button disabled={busy} onClick={onDirect}>
             {t("optionsConnectDirectly")}
           </Button>
-        </CardContent>
-      </Card>
+        }
+      />
     </div>
   );
 }
@@ -239,19 +255,16 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
 
   return (
     <div className="space-y-5">
-      <Button variant="ghost" size="sm" disabled={busy} onClick={onBack}>
-        <ArrowLeftIcon />
+      <Button variant="ghost" size="sm" icon={<ArrowLeftIcon />} disabled={busy} onClick={onBack}>
         {t("optionsBackToMethods")}
       </Button>
       <div>
         <p className="font-medium">{t("optionsConnectDirectly")}</p>
         <p className="mt-1 text-sm text-ink-muted">{t("optionsDirectSetupDescription")}</p>
       </div>
-      <div className="space-y-1.5">
-        <label htmlFor="instance-url" className="text-sm font-medium">
-          {t("optionsInstanceUrl")}
-        </label>
-        <input
+      <Field.Root invalid={fieldError === "url"}>
+        <Field.Label>{t("optionsInstanceUrl")}</Field.Label>
+        <Input
           id="instance-url"
           type="url"
           autoComplete="url"
@@ -263,85 +276,87 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
             setConnectionError(null);
           }}
           placeholder="https://memos.example.com"
-          className="h-9 w-full rounded-lg border border-edge bg-canvas px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          aria-invalid={fieldError === "url" || undefined}
           readOnly={busy}
         />
-      </div>
-      <div className="space-y-1.5">
+      </Field.Root>
+      <Field.Root invalid={fieldError === "token"}>
         <div className="flex items-center justify-between gap-3">
-          <label htmlFor="access-token" className="text-sm font-medium">
-            {t("optionsAccessToken")}
-          </label>
+          <Field.Label>{t("optionsAccessToken")}</Field.Label>
           {tokenSettingsUrl ? (
-            <a
-              href={tokenSettingsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-ink hover:underline"
-            >
+            <Link href={tokenSettingsUrl} external muted className="text-xs">
               {t("optionsCreateToken")}
-              <ExternalLinkIcon className="size-3" />
-            </a>
+            </Link>
           ) : (
             <span className="text-xs text-ink-muted">{t("optionsEnterUrlForTokenSettings")}</span>
           )}
         </div>
-        <div className="relative">
-          <input
-            id="access-token"
-            type={showToken ? "text" : "password"}
-            autoComplete="off"
-            spellCheck={false}
-            value={accessToken}
-            onChange={(event) => {
-              setAccessToken(event.target.value);
-              setFieldError(null);
-              setConnectionError(null);
-            }}
-            className="h-9 w-full rounded-lg border border-edge bg-canvas px-3 pe-10 font-mono text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            aria-invalid={fieldError === "token" || undefined}
-            readOnly={busy}
-          />
-          <button
-            type="button"
-            className="absolute inset-y-0 end-0 flex w-9 items-center justify-center text-ink-muted hover:text-ink"
-            onClick={() => setShowToken((value) => !value)}
-            disabled={busy}
-            aria-label={showToken ? t("optionsHideAccessToken") : t("optionsShowAccessToken")}
-            aria-pressed={showToken}
-          >
-            {showToken ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
-          </button>
-        </div>
-        <p className="text-xs text-ink-muted">{t("optionsTokenAdvice")}</p>
-      </div>
+        <Input
+          id="access-token"
+          type={showToken ? "text" : "password"}
+          autoComplete="off"
+          spellCheck={false}
+          value={accessToken}
+          onChange={(event) => {
+            setAccessToken(event.target.value);
+            setFieldError(null);
+            setConnectionError(null);
+          }}
+          className="font-mono"
+          readOnly={busy}
+          suffix={
+            <Tooltip.Root>
+              <Tooltip.Trigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={showToken ? <EyeOffIcon /> : <EyeIcon />}
+                    onClick={() => setShowToken((value) => !value)}
+                    disabled={busy}
+                    aria-label={showToken ? t("optionsHideAccessToken") : t("optionsShowAccessToken")}
+                    aria-pressed={showToken}
+                  />
+                }
+              />
+              <Tooltip.Popup role="tooltip">{showToken ? t("optionsHideAccessToken") : t("optionsShowAccessToken")}</Tooltip.Popup>
+            </Tooltip.Root>
+          }
+        />
+        <Field.Description>{t("optionsTokenAdvice")}</Field.Description>
+      </Field.Root>
       {fieldError ? (
         <p role="alert" className="text-sm text-danger">
           {t(fieldError === "url" ? "optionsInvalidUrlField" : "optionsMissingTokenField")}
         </p>
       ) : null}
       {confirmHttp ? (
-        <Alert>
-          <TriangleAlertIcon />
-          <AlertTitle>{t("optionsUnencryptedTitle")}</AlertTitle>
-          <AlertDescription>
-            {t("optionsUnencryptedBody")}
-            <div className="mt-3 flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setConfirmHttp(false)}>
+        <InlineStatus
+          tone="warning"
+          role="alert"
+          title={t("optionsUnencryptedTitle")}
+          action={
+            <>
+              <Button size="sm" variant="ghost" onClick={() => setConfirmHttp(false)}>
                 {t("commonCancel")}
               </Button>
               <Button size="sm" onClick={() => void connect(true)}>
                 {t("optionsContinueHttp")}
               </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
+            </>
+          }
+        >
+          {t("optionsUnencryptedBody")}
+        </InlineStatus>
       ) : null}
       {connectionError ? <ErrorNotice kind={connectionError.errorKind} version={connectionError.version} source="direct" /> : null}
-      <Button disabled={busy} onClick={() => void connect(false)}>
-        {busy ? <Spinner /> : <KeyRoundIcon />}
-        {busy ? t("optionsTestingConnection") : t("optionsTestAndSave")}
+      <Button
+        variant="primary"
+        icon={<KeyRoundIcon />}
+        loading={busy}
+        loadingLabel={t("optionsTestingConnection")}
+        onClick={() => void connect(false)}
+      >
+        {t("optionsTestAndSave")}
       </Button>
       <span className="sr-only" aria-live="polite">
         {busy ? t("optionsTestingDirectConnection") : ""}
@@ -428,8 +443,7 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
 
   return (
     <div className="space-y-5">
-      <Button variant="ghost" size="sm" onClick={onBack}>
-        <ArrowLeftIcon />
+      <Button variant="ghost" size="sm" icon={<ArrowLeftIcon />} onClick={onBack}>
         {t("optionsBackToMethods")}
       </Button>
       <div>
@@ -441,30 +455,27 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
       </div>
       {!isLoaded ? (
         <div className="flex items-center gap-2 text-sm text-ink-muted">
-          <Spinner />
+          <Spinner label={t("commonLoading")} />
           {t("optionsCheckingAccount")}
         </div>
       ) : !isSignedIn ? (
-        <Button disabled={busy} onClick={() => void signIn()}>
-          {busy ? <Spinner /> : <LogInIcon />}
+        <Button variant="primary" icon={<LogInIcon />} loading={busy} onClick={() => void signIn()}>
           {t("optionsSignInTitle")}
         </Button>
       ) : (
         <div className="space-y-3">
           <UserBadge compact />
           {candidate.status === "ready" ? (
-            <div className="space-y-3 rounded-lg border p-3">
+            <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="text-fact text-ink">
                   {safeHost(candidate.instanceUrl)} · {candidate.version}
                 </span>
-                <Badge variant="success">
-                  <CheckIcon className="size-3" />
+                <Badge tone="success" icon={<CheckIcon />}>
                   {t("optionsSupported")}
                 </Badge>
               </div>
-              <Button disabled={busy} onClick={() => void activate()}>
-                {busy ? <Spinner /> : null}
+              <Button variant="primary" loading={busy} onClick={() => void activate()}>
                 {replacing ? t("optionsUseThisConnection") : t("optionsFinishSetup")}
               </Button>
             </div>
@@ -489,7 +500,7 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
               <p className="text-sm text-ink-muted">{t("optionsRepairDestination")}</p>
               <div className="flex flex-wrap gap-2">
                 <a
-                  className={buttonVariants({ variant: "default" })}
+                  className={buttonClasses({ variant: "primary" })}
                   href={MEMOS_SETUP_URL}
                   target="_blank"
                   rel="noreferrer"
@@ -499,11 +510,16 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
                   }}
                 >
                   {pendingSetup ? t("optionsWaitingForConnection") : t("optionsConnectOnUseMemos")}
-                  <ExternalLinkIcon />
+                  <ExternalLinkIcon aria-hidden="true" />
                 </a>
-                <Button variant="ghost" disabled={busy || candidate.isChecking} onClick={() => void refresh(false)}>
-                  {busy || candidate.isChecking ? <Spinner /> : <RefreshCwIcon />}
-                  {busy || candidate.isChecking ? t("commonChecking") : t("optionsCheckAgain")}
+                <Button
+                  variant="ghost"
+                  icon={<RefreshCwIcon />}
+                  loading={busy || candidate.isChecking}
+                  loadingLabel={t("commonChecking")}
+                  onClick={() => void refresh(false)}
+                >
+                  {t("optionsCheckAgain")}
                 </Button>
               </div>
             </div>
@@ -540,23 +556,17 @@ function ConnectedSummary({
       <div className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
         <span className="inline-flex items-center gap-1.5 text-fact text-ink">
           {connection.instanceUrl ? (
-            <a
-              className="group inline-flex items-center gap-1 rounded-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              href={connection.instanceUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link href={connection.instanceUrl} external muted className="text-ink">
               {host}
-              <ExternalLinkIcon aria-hidden="true" className="size-3 text-ink-muted transition-colors group-hover:text-ink" />
-            </a>
+            </Link>
           ) : (
             <span>{host}</span>
           )}
           <span aria-hidden="true">·</span>
           <span>{connection.version}</span>
         </span>
-        {connection.verificationError ? <Badge variant="outline">{t("optionsLastVerified")}</Badge> : null}
-        <Badge variant="outline">{connection.source === "direct" ? t("commonDirect") : "usememos.com"}</Badge>
+        {connection.verificationError ? <Badge tone="outline">{t("optionsLastVerified")}</Badge> : null}
+        <Badge tone="outline">{connection.source === "direct" ? t("commonDirect") : "usememos.com"}</Badge>
       </div>
       {connection.source === "usememos" && isSignedIn ? (
         <UserBadge compact />
@@ -569,14 +579,19 @@ function ConnectedSummary({
         <ErrorNotice kind={connection.verificationError} source={connection.source} />
       ) : null}
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" disabled={connection.isChecking} onClick={() => void connection.reverify()}>
-          {connection.isChecking ? <Spinner /> : <RefreshCwIcon />}
-          {connection.isChecking ? t("commonChecking") : t("optionsCheckConnection")}
+        <Button
+          icon={<RefreshCwIcon />}
+          loading={connection.isChecking}
+          loadingLabel={t("commonChecking")}
+          onClick={() => void connection.reverify()}
+        >
+          {t("optionsCheckConnection")}
         </Button>
         <Button variant="ghost" onClick={onChange}>
           {t("optionsChangeConnection")}
         </Button>
-        <Button variant="destructive" onClick={onDisconnect}>
+        {/* Destructive, but confirmed in the next step, so not a danger key on the first click. */}
+        <Button variant="ghost" className="text-danger" onClick={onDisconnect}>
           {t("optionsDisconnect")}
         </Button>
       </div>
@@ -657,7 +672,7 @@ export function Options() {
         >
           {active.isChecking && active.source === null && view === null ? (
             <div className="flex items-center gap-2 text-sm text-ink-muted">
-              <Spinner />
+              <Spinner label={t("commonLoading")} />
               {t("optionsCheckingConnection")}
             </div>
           ) : ready && !effectiveView ? (

@@ -24,7 +24,6 @@
   "packageManager": "pnpm@11.10.0",
   "type": "module",
   "dependencies": {
-    "@base-ui/react": "^1.6.0",
     "@usememos/editor": "26.10.28",
     "@usememos/ui": "26.10.2",
     "class-variance-authority": "^0.7.1",

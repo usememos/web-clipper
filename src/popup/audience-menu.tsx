@@ -62,18 +62,21 @@ export function AudienceMenu({
         title={summary}
         aria-label={t("popupAudienceLabel", [t("popupVisibility"), summary])}
       >
-        {destination && (
-          <>
-            <SpaceMark space={selectedSpace} />
-            <span className="min-w-0 truncate">{destination}</span>
-            <span aria-hidden="true" className="text-ink-muted">
-              ·
-            </span>
-          </>
-        )}
-        <SelectedIcon aria-hidden="true" className="text-ink-muted" />
-        <span className="shrink-0">{selected.label}</span>
-        <ChevronDownIcon aria-hidden="true" className="text-ink-muted [--icon:var(--mu-icon-sm)]" />
+        {/* Button puts children in one label span; this keeps them on one line. */}
+        <span className="flex min-w-0 items-center gap-1.5">
+          {destination && (
+            <>
+              <SpaceMark space={selectedSpace} />
+              <span className="min-w-0 truncate">{destination}</span>
+              <span aria-hidden="true" className="text-ink-muted">
+                ·
+              </span>
+            </>
+          )}
+          <SelectedIcon aria-hidden="true" className="mu-icon text-ink-muted" />
+          <span className="shrink-0">{selected.label}</span>
+          <ChevronDownIcon aria-hidden="true" className="mu-icon text-ink-muted [--icon:var(--mu-icon-sm)]" />
+        </span>
       </Menu.Trigger>
       {/* Intrinsic width: descriptions stay on one line and wrap only when the popup window is narrower. */}
       <Menu.Popup

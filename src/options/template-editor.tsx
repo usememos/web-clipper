@@ -78,13 +78,14 @@ function HighlightedTemplate({ text }: { text: string }) {
 const EDITOR_TEXT = "px-2.5 py-2 font-mono text-xs leading-relaxed";
 function TemplateInput({ value, onChange }: { value: string; onChange: (next: string) => void }) {
   return (
-    <div className="relative">
+    // The wrapper paints the field's surface; the textarea stays transparent so the layer shows.
+    <div className="relative rounded-md bg-surface">
       <div aria-hidden className={`pointer-events-none absolute inset-0 whitespace-pre-wrap break-words ${EDITOR_TEXT}`}>
         <HighlightedTemplate text={value} />
       </div>
       <Textarea
         aria-label={t("templateAriaLabel")}
-        className={`relative field-sizing-content min-h-24 resize-none break-words text-transparent caret-ink selection:bg-(--mu-selection) selection:text-transparent ${EDITOR_TEXT}`}
+        className={`relative field-sizing-content bg-transparent min-h-24 resize-none break-words text-transparent caret-ink selection:bg-(--mu-selection) selection:text-transparent ${EDITOR_TEXT}`}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         spellCheck={false}

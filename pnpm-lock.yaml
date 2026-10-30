@@ -8,12 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@base-ui/react':
+        specifier: 1.9.0
+        version: 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@usememos/editor':
         specifier: 26.10.28
         version: 26.10.28(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@usememos/ui':
-        specifier: 26.10.2
-        version: 26.10.2(@date-fns/tz@1.5.0)(@types/react@19.2.17)(date-fns@4.4.0)(lucide-react@1.23.0(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: 26.10.5
+        version: 26.10.5(@base-ui/react@1.9.0(@date-fns/tz@1.5.0)(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(lucide-react@1.23.0(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -835,9 +838,10 @@ packages:
       react-dom:
         optional: true
 
-  '@usememos/ui@26.10.2':
-    resolution: {integrity: sha512-xgi+4ge4FT+VTXKqSue4RMDkV0tEH9kY/6yDGhIMHPkLoFKg2uwHWujEIBM5luL/PLMI53TSxr+N5QFCXYvnLw==}
+  '@usememos/ui@26.10.5':
+    resolution: {integrity: sha512-F7I1SHM4Tn2rKamVK9dbp7Hi7+CoL1p0dQ/6S+xRWRepRs8gsz+G2vOhwTjrSQMmXJmHcX8cr9+prlgUqd3VqA==}
     peerDependencies:
+      '@base-ui/react': 1.9.0
       lucide-react: '>=1.0.0'
       react: '>=18'
       react-dom: '>=18'
@@ -3399,16 +3403,12 @@ snapshots:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
 
-  '@usememos/ui@26.10.2(@date-fns/tz@1.5.0)(@types/react@19.2.17)(date-fns@4.4.0)(lucide-react@1.23.0(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@usememos/ui@26.10.5(@base-ui/react@1.9.0(@date-fns/tz@1.5.0)(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(lucide-react@1.23.0(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@base-ui/react': 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       lucide-react: 1.23.0(react@19.2.7)
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-    transitivePeerDependencies:
-      - '@date-fns/tz'
-      - '@types/react'
-      - date-fns
 
   '@vitejs/plugin-react@6.0.3(vite@8.1.3(@types/node@26.1.0)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))':
     dependencies:

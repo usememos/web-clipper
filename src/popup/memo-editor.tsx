@@ -1,6 +1,7 @@
 import { tags } from "@usememos/editor";
 import { MarkdownEditor } from "@usememos/editor/react";
 import "@usememos/editor/style.css";
+import { textareaClasses } from "@usememos/ui";
 
 // Memos' own note dialect: a single newline is a line break, `Title`⏎`---` is a paragraph and a
 // divider, and #tags are highlighted. Module constants so the editor is never recreated on render.
@@ -8,7 +9,7 @@ export const MEMO_MARKDOWN = { breaks: true, setext: false };
 export const MEMO_EXTENSIONS = [tags()];
 
 // The editor reads @usememos/ui tokens, so light/dark follows the data-theme next-themes puts
-// on <html>. 14/20 matches the textarea's text-sm it replaces.
+// on <html>. 14/20 is ui's body text.
 const THEME = {
   tokens: {
     colors: {
@@ -25,7 +26,7 @@ const THEME = {
       danger: "var(--mu-danger)",
     },
     font: "inherit",
-    mono: "var(--mu-font-mono)",
+    mono: "var(--mu-font-mu-mono)",
     fontSize: 14,
     lineHeight: 20,
     radius: "var(--mu-radius-md)",
@@ -44,9 +45,12 @@ export function MemoEditor({
   placeholder: string;
 }) {
   return (
-    // The frame looks like a ui Input (surface, edge, ui's focus ring), and scrolls internally
-    // so a long clip never pushes Save off the fixed-height popup.
-    <div className="min-h-0 flex-1 overflow-y-auto rounded-md border border-edge bg-surface px-2.5 py-2 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-(--mu-focus)">
+    // The frame is a ui Textarea around the editor (textareaClasses), and scrolls internally so a
+    // long clip never pushes Save off the fixed-height popup. ui draws the textarea ring on :focus
+    // only; the editable element sits inside the frame, so focus-within adds the same ring.
+    <div
+      className={`${textareaClasses()} min-h-0 flex-1 resize-none overflow-y-auto focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-mu-focus`}
+    >
       <MarkdownEditor
         value={value}
         onChange={onChange}

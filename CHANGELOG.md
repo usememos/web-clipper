@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/usememos/web-clipper/compare/v0.5.3...v0.6.0) (2026-10-30)
+
+### Features
+
+- Edit clips in the popup with the Memos Markdown editor. The memo stays visible as Markdown text with its syntax highlighted, and quoted clips stay editable.
+- Let templates control quotation: `> {{content}}` quotes the captured content, and `{{content}}` keeps its original Markdown. The default template still quotes.
+
+### Improvements
+
+- Rebuild the popup, settings, and saved-clips pages on the shared Memos design system (`@usememos/ui`), with the system font, matching light and dark themes, visible keyboard focus, and tooltips on icon buttons.
+- Show errors, warnings, and their fixes as consistent inline notices.
+- Style the in-page save notice and the toolbar badge with the same design colors; the notice follows the system light or dark setting.
+
 ## [0.5.3](https://github.com/usememos/web-clipper/compare/v0.5.2...v0.5.3) (2026-10-21)
 
 ### Bug Fixes

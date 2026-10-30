@@ -35,7 +35,7 @@ function HeaderActionTooltip({ label, children }: { label: string; children: Rea
   return (
     <Tooltip.Root>
       <Tooltip.Trigger render={children} />
-      <Tooltip.Popup side="bottom" role="tooltip">
+      <Tooltip.Popup side="bottom" align="end" role="tooltip">
         {label}
       </Tooltip.Popup>
     </Tooltip.Root>
@@ -51,7 +51,7 @@ function Header({ left, instanceUrl }: { left: React.ReactNode; instanceUrl?: st
     <header className="flex h-11 shrink-0 items-center justify-between border-b pe-2 ps-3">
       <div className="min-w-0">{left}</div>
       <Tooltip.Provider>
-        <div className="flex shrink-0 items-center gap-0.5">
+        <div className="flex shrink-0 items-center gap-(--mu-inset)">
           {instanceUrl ? (
             <HeaderActionTooltip label={t("popupOpenInstance")}>
               <a
@@ -83,7 +83,7 @@ function IdentityBadge({ identity }: { identity: PopupIdentity }) {
 
 // Fills the fixed popup size (set in index.html) so every view has identical dimensions.
 function Frame({ children }: { children: React.ReactNode }) {
-  return <div className="flex h-full w-full flex-col bg-canvas text-ink">{children}</div>;
+  return <div className="flex h-full w-full flex-col bg-mu-canvas text-mu-ink">{children}</div>;
 }
 
 function GatePrompt({
@@ -103,10 +103,10 @@ function GatePrompt({
     <Frame>
       <Header left={identity ? <IdentityBadge identity={identity} /> : <AppBrand />} instanceUrl={instanceUrl} />
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-        {title ? <p className="text-sm font-medium">{title}</p> : null}
-        <p className="text-sm text-ink-muted">{body}</p>
+        {title ? <p className="mu-label">{title}</p> : null}
+        <p className="mu-body text-mu-ink-muted">{body}</p>
         {learnMore ? (
-          <Link href={learnMore.url} external className="text-sm">
+          <Link href={learnMore.url} external className="mu-body">
             {learnMore.label}
           </Link>
         ) : null}
@@ -214,7 +214,7 @@ function CaptureNotice({
               ? t("popupCaptureContentUnavailable")
               : t("popupCaptureFailed");
   return (
-    <p role="status" className="text-xs text-ink-muted">
+    <p role="status" className="mu-caption text-mu-ink-muted">
       {text}
     </p>
   );
@@ -274,7 +274,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
   return (
     <Frame>
       <Header left={<IdentityBadge identity={state.identity} />} instanceUrl={state.instanceUrl} />
-      <div className="flex min-h-0 flex-1 flex-col gap-2.5 p-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 p-3">
         {connectionError && <ErrorBar error={connectionError} busy={c.busy} onRetry={onSave} />}
         <MemoEditor
           label={t("popupMemoContent")}
@@ -288,7 +288,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
         />
         <CaptureNotice reason={c.captureFallbackReason} hasSelection={c.hasSelection} hasSource={c.hasSource} />
         {c.spaceUnavailable ? (
-          <p role="status" className="text-xs text-danger">
+          <p role="status" className="mu-caption text-mu-danger">
             {t("errorSpaceUnavailableFix")}
           </p>
         ) : null}
@@ -300,10 +300,10 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
           </InlineStatus>
         ) : null}
         {c.savedClip || c.imageCount > 0 ? (
-          <div className="flex h-4 shrink-0 items-center justify-between gap-3 overflow-hidden text-[11px] leading-4 text-ink-muted">
+          <div className="mu-caption flex shrink-0 items-center justify-between gap-3 overflow-hidden text-mu-ink-muted">
             {c.savedClip ? (
-              <div role="status" className="flex min-w-0 max-w-full items-center gap-1.5 overflow-hidden">
-                <HistoryIcon aria-hidden="true" className="size-3 shrink-0" />
+              <div role="status" className="flex min-w-0 max-w-full items-center gap-1 overflow-hidden">
+                <HistoryIcon aria-hidden="true" className="mu-icon mu-s-sm shrink-0" />
                 <span className="min-w-0 flex-1 truncate">{t("popupSavedAt", savedAt)}</span>
                 <span aria-hidden="true" className="shrink-0">
                   ·
@@ -320,8 +320,8 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
               </div>
             ) : null}
             {c.imageCount > 0 ? (
-              <span className="flex shrink-0 items-center gap-1 font-mono" title={tp("popupSelectionImages", c.imageCount)}>
-                <PaperclipIcon aria-hidden="true" className="size-3" />
+              <span className="flex shrink-0 items-center gap-1 font-mu-mono" title={tp("popupSelectionImages", c.imageCount)}>
+                <PaperclipIcon aria-hidden="true" className="mu-icon mu-s-sm" />
                 <span aria-hidden="true">{c.imageCount}</span>
                 <span className="sr-only">{tp("popupSelectionImages", c.imageCount)}</span>
               </span>
@@ -414,7 +414,7 @@ export function App() {
       <Frame>
         <Header left={<AppBrand />} />
         <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center">
-          <p className="text-sm text-ink-muted">{t("popupChooseConnection")}</p>
+          <p className="mu-body text-mu-ink-muted">{t("popupChooseConnection")}</p>
           <Button variant="primary" className="mt-2 w-full" onClick={openOptions}>
             {t("commonOpenSettings")}
           </Button>

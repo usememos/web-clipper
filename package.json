@@ -1,6 +1,6 @@
 {
   "name": "@usememos/web-clipper",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "private": true,
   "description": "Save pages, selections, and images to your memos from Chrome or Firefox, as Markdown with a link to the source.",
   "engines": {
@@ -24,8 +24,9 @@
   "packageManager": "pnpm@11.10.0",
   "type": "module",
   "dependencies": {
+    "@base-ui/react": "1.9.0",
     "@usememos/editor": "26.10.28",
-    "@usememos/ui": "26.10.2",
+    "@usememos/ui": "26.10.5",
     "clsx": "^2.1.1",
     "defuddle": "^0.19.2",
     "lucide-react": "^1.22.0",

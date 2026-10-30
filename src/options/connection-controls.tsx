@@ -28,27 +28,25 @@ export function StepRow({
   children?: ReactNode;
   last?: boolean;
 }) {
-  const markBase = "flex size-6.5 shrink-0 items-center justify-center rounded-full border font-mono text-xs font-semibold";
+  const markBase = "mu-label-sm flex size-6 shrink-0 items-center justify-center rounded-mu-full border font-mu-mono";
   const mark =
     state === "done"
-      ? "border-transparent bg-success-soft text-success"
+      ? "border-transparent bg-mu-success-soft text-mu-success"
       : state === "active"
-        ? "border-transparent bg-primary text-on-primary"
-        : "border-[1.5px] border-dashed border-edge bg-transparent text-ink-muted";
+        ? "border-transparent bg-mu-primary text-mu-on-primary"
+        : "border-[1.5px] border-dashed border-mu-edge bg-transparent text-mu-ink-muted";
 
   return (
-    <div className="grid grid-cols-[1.625rem_1fr] gap-x-3.5">
+    <div className="grid grid-cols-[1.5rem_1fr] gap-x-3">
       <div className="flex flex-col items-center">
         <div className={`${markBase} ${mark}`}>
-          {state === "done" ? <CheckIcon className="size-3.5" /> : state === "locked" ? <LockIcon className="size-3" /> : n}
+          {state === "done" ? <CheckIcon className="mu-icon mu-s-sm" /> : state === "locked" ? <LockIcon className="mu-icon mu-s-xs" /> : n}
         </div>
-        {last ? null : <div className="my-1.5 w-px flex-1 bg-line" />}
+        {last ? null : <div className="my-1 w-px flex-1 bg-mu-line" />}
       </div>
       <div className="min-w-0 pb-8">
-        <div className={`text-base leading-6.5 tracking-[-0.01em] ${state === "locked" ? "font-medium text-ink-muted" : "font-semibold"}`}>
-          {title}
-        </div>
-        {summary ? <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-muted">{summary}</div> : null}
+        <div className={`mu-title ${state === "locked" ? "text-mu-ink-muted" : ""}`}>{title}</div>
+        {summary ? <div className="mu-body mt-1 flex flex-wrap items-center gap-2 text-mu-ink-muted">{summary}</div> : null}
         {children ? <div className="mt-3">{children}</div> : null}
       </div>
     </div>

@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 
 function SpaceMark({ space }: { space?: SpaceSummary }) {
   return (
-    <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-well text-sm">
-      {space?.icon?.emoji || <AstroidIcon className="mu-icon text-ink-muted [--icon:var(--mu-icon-sm)]" />}
+    <span aria-hidden="true" className="flex size-5 shrink-0 items-center justify-center mu-body rounded-mu-sm bg-mu-well">
+      {space?.icon?.emoji || <AstroidIcon className="mu-icon mu-s-sm text-mu-ink-muted" />}
     </span>
   );
 }
@@ -63,29 +63,23 @@ export function AudienceMenu({
         aria-label={t("popupAudienceLabel", [t("popupVisibility"), summary])}
       >
         {/* Button puts children in one label span; this keeps them on one line. */}
-        <span className="flex min-w-0 items-center gap-1.5">
+        <span className="flex min-w-0 items-center gap-1">
           {destination && (
             <>
               <SpaceMark space={selectedSpace} />
               <span className="min-w-0 truncate">{destination}</span>
-              <span aria-hidden="true" className="text-ink-muted">
+              <span aria-hidden="true" className="text-mu-ink-muted">
                 ·
               </span>
             </>
           )}
-          <SelectedIcon aria-hidden="true" className="mu-icon text-ink-muted" />
+          <SelectedIcon aria-hidden="true" className="mu-icon text-mu-ink-muted" />
           <span className="shrink-0">{selected.label}</span>
-          <ChevronDownIcon aria-hidden="true" className="mu-icon text-ink-muted [--icon:var(--mu-icon-sm)]" />
+          <ChevronDownIcon aria-hidden="true" className="mu-icon mu-s-sm text-mu-ink-muted" />
         </span>
       </Menu.Trigger>
       {/* Intrinsic width: descriptions stay on one line and wrap only when the popup window is narrower. */}
-      <Menu.Popup
-        side="top"
-        align="start"
-        collisionPadding={8}
-        className="w-max max-w-(--available-width)"
-        aria-label={t("popupVisibility")}
-      >
+      <Menu.Popup side="top" align="start" className="w-max max-w-(--available-width)" aria-label={t("popupVisibility")}>
         <Menu.RadioGroup value={visibility} onValueChange={(value) => onVisibilityChange(value as Visibility)}>
           {values.map((value) => {
             const option = options[value];
@@ -97,11 +91,11 @@ export function AudienceMenu({
                 closeOnClick
                 label={option.label}
                 icon={<Icon />}
-                className="h-auto items-start py-1.5 whitespace-normal [&>svg]:mt-0.5"
+                className="h-auto items-start py-1 whitespace-normal [&>svg]:mt-(--mu-inset)"
               >
                 <span className="flex min-w-0 flex-col">
-                  <span className="break-words font-medium leading-5">{option.label}</span>
-                  <span className="text-pretty text-xs text-ink-muted">{option.description}</span>
+                  <span className="mu-label break-words">{option.label}</span>
+                  <span className="mu-caption text-pretty text-mu-ink-muted">{option.description}</span>
                 </span>
               </Menu.RadioItem>
             );
@@ -118,12 +112,12 @@ export function AudienceMenu({
                   ) : (
                     <span
                       aria-hidden="true"
-                      className="flex size-5 shrink-0 items-center justify-center rounded-sm border border-dashed border-ink-muted/50"
+                      className="flex size-5 shrink-0 items-center justify-center rounded-mu-sm border border-dashed border-mu-ink-muted/50"
                     >
-                      <PlusIcon className="mu-icon text-ink-muted [--icon:var(--mu-icon-sm)]" />
+                      <PlusIcon className="mu-icon mu-s-sm text-mu-ink-muted" />
                     </span>
                   )}
-                  <span className="min-w-0 flex-1 truncate text-ink-muted" title={destination}>
+                  <span className="min-w-0 flex-1 truncate text-mu-ink-muted" title={destination}>
                     {destination ?? t("popupAddToSpace")}
                   </span>
                 </span>
@@ -131,7 +125,6 @@ export function AudienceMenu({
               <Menu.Popup
                 side="inline-end"
                 align="start"
-                collisionPadding={8}
                 // The 380px popup rarely fits a second column beside a content-sized menu; sliding the
                 // submenu over the parent's edge keeps it at its row instead of dropping it on top of the items.
                 collisionAvoidance={{ side: "shift", align: "shift" }}
@@ -154,7 +147,7 @@ export function AudienceMenu({
                         <SpaceMark space={item} />
                         <span className="min-w-0 flex-1 truncate">{name}</span>
                         {isSelected && (
-                          <span aria-hidden="true" className="shrink-0 [--icon:var(--mu-icon-sm)]">
+                          <span aria-hidden="true" className="mu-s-sm shrink-0">
                             <CheckIcon className="mu-icon group-data-highlighted:hidden pointer-coarse:hidden" />
                             <XIcon className="mu-icon hidden group-data-highlighted:block pointer-coarse:block" />
                           </span>
@@ -166,13 +159,13 @@ export function AudienceMenu({
                 {spaces.status === "loading" && <Menu.Item disabled>{t("popupSpacesLoading")}</Menu.Item>}
                 {spaces.status === "error" && (
                   <Menu.Item
-                    className={tokenRejected ? "h-auto py-1.5" : undefined}
+                    className={tokenRejected ? "h-auto py-1" : undefined}
                     closeOnClick={tokenRejected}
                     onClick={tokenRejected ? onOpenSettings : onRetry}
                   >
                     <span className={cn("flex min-w-0 gap-2", tokenRejected ? "flex-col" : "items-center")}>
-                      <span className="flex-1 text-danger">{t(tokenRejected ? "errorUnauthorizedTitle" : "popupSpacesLoadError")}</span>
-                      <span className="text-ink-muted">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
+                      <span className="flex-1 text-mu-danger">{t(tokenRejected ? "errorUnauthorizedTitle" : "popupSpacesLoadError")}</span>
+                      <span className="text-mu-ink-muted">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
                     </span>
                   </Menu.Item>
                 )}

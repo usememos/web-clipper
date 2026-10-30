@@ -5,4 +5,5 @@ allowBuilds:
   utf-8-validate: false
 minimumReleaseAgeExclude:
   - '@usememos/editor@26.10.28'
-  - '@usememos/ui@26.10.2'
+  - '@usememos/ui@26.10.3'
+  - '@usememos/ui@26.10.5'

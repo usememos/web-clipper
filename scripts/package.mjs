@@ -50,7 +50,8 @@ mkdirSync(ARTIFACTS, { recursive: true });
 const zipDirectory = (sourceDir, outputPath) => {
   rmSync(outputPath, { force: true });
   // -X omits platform-specific extended attributes; the manifest remains at ZIP root.
-  execFileSync("zip", ["-X", "-qr", outputPath, "."], { cwd: sourceDir, stdio: "inherit" });
+  // Finder can drop .DS_Store into dist/ while it builds; it never belongs in a package.
+  execFileSync("zip", ["-X", "-qr", outputPath, ".", "-x", "*.DS_Store"], { cwd: sourceDir, stdio: "inherit" });
 };
 
 const storeManifest = (target) => {

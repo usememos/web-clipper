@@ -98,7 +98,7 @@ function showSaveToast({
     .dot{display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:var(--mu-radius-full);
       background:var(--mu-success);color:var(--mu-surface);font-size:11px;flex:none}
     .err .dot{background:var(--mu-danger)}
-    a{color:var(--mu-accent);font-weight:500;text-decoration:none;margin-inline-start:var(--mu-space-0_5);border-radius:var(--mu-radius-xs)}
+    a{color:var(--mu-accent);font-weight:500;text-decoration:none;margin-inline-start:var(--mu-inset);border-radius:var(--mu-radius-xs)}
     a:hover{text-decoration:underline}
     a:focus-visible{outline:var(--mu-focus-width) solid var(--mu-focus);outline-offset:var(--mu-focus-width)}
     @media (prefers-reduced-motion:reduce){.toast{transform:none}}`;

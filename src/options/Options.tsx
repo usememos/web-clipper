@@ -105,7 +105,7 @@ function OptionsHeader({
           }}
         >
           <Select.Trigger aria-label={t("optionsLanguage")} className="max-w-48">
-            <LanguagesIcon aria-hidden="true" className="mu-icon text-ink-muted" />
+            <LanguagesIcon aria-hidden="true" className="mu-icon text-mu-ink-muted" />
             <Select.Value className="truncate" />
           </Select.Trigger>
           <Select.Popup align="end">
@@ -127,10 +127,10 @@ function LocalTemplateStep({ enabled }: { enabled: boolean }) {
   return (
     <StepRow n={2} state={enabled ? "active" : "locked"} title={t("optionsClipTemplate")} last>
       {!enabled ? (
-        <p className="text-sm text-ink-muted">{t("optionsTemplateLocked")}</p>
+        <p className="mu-body text-mu-ink-muted">{t("optionsTemplateLocked")}</p>
       ) : clipTemplate.isLoaded ? (
         <div className="space-y-5">
-          <p className="text-sm text-ink-muted">{t("optionsTemplateDescription")}</p>
+          <p className="mu-body text-mu-ink-muted">{t("optionsTemplateDescription")}</p>
           <TemplateEditor
             initial={clipTemplate.template ?? DEFAULT_TEMPLATE}
             onSave={clipTemplate.saveTemplate}
@@ -138,7 +138,7 @@ function LocalTemplateStep({ enabled }: { enabled: boolean }) {
           />
         </div>
       ) : (
-        <div className="flex items-center gap-2 text-sm text-ink-muted" aria-live="polite">
+        <div className="mu-body flex items-center gap-2 text-mu-ink-muted" aria-live="polite">
           <Spinner label={t("commonLoading")} />
           {t("optionsLoadingTemplate")}
         </div>
@@ -163,14 +163,14 @@ function MethodOption({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-well text-ink-muted">{icon}</span>
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-mu-lg bg-mu-well text-mu-ink-muted">{icon}</span>
       <div className="min-w-0 flex-1 space-y-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <p className="font-medium">{title}</p>
+            <p className="mu-label">{title}</p>
             {badge}
           </div>
-          <p className="mt-1 text-sm text-ink-muted">{description}</p>
+          <p className="mu-body mt-1 text-mu-ink-muted">{description}</p>
         </div>
         {action}
       </div>
@@ -259,8 +259,8 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
         {t("optionsBackToMethods")}
       </Button>
       <div>
-        <p className="font-medium">{t("optionsConnectDirectly")}</p>
-        <p className="mt-1 text-sm text-ink-muted">{t("optionsDirectSetupDescription")}</p>
+        <p className="mu-label">{t("optionsConnectDirectly")}</p>
+        <p className="mu-body mt-1 text-mu-ink-muted">{t("optionsDirectSetupDescription")}</p>
       </div>
       <Field.Root invalid={fieldError === "url"}>
         <Field.Label>{t("optionsInstanceUrl")}</Field.Label>
@@ -283,11 +283,11 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
         <div className="flex items-center justify-between gap-3">
           <Field.Label>{t("optionsAccessToken")}</Field.Label>
           {tokenSettingsUrl ? (
-            <Link href={tokenSettingsUrl} external muted className="text-xs">
+            <Link href={tokenSettingsUrl} external muted className="mu-caption">
               {t("optionsCreateToken")}
             </Link>
           ) : (
-            <span className="text-xs text-ink-muted">{t("optionsEnterUrlForTokenSettings")}</span>
+            <span className="mu-caption text-mu-ink-muted">{t("optionsEnterUrlForTokenSettings")}</span>
           )}
         </div>
         <Input
@@ -301,7 +301,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
             setFieldError(null);
             setConnectionError(null);
           }}
-          className="font-mono"
+          className="font-mu-mono"
           readOnly={busy}
           suffix={
             <Tooltip.Root>
@@ -325,7 +325,7 @@ function DirectSetup({ initialUrl, onBack, onConnected }: { initialUrl?: string 
         <Field.Description>{t("optionsTokenAdvice")}</Field.Description>
       </Field.Root>
       {fieldError ? (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className="mu-body text-mu-danger">
           {t(fieldError === "url" ? "optionsInvalidUrlField" : "optionsMissingTokenField")}
         </p>
       ) : null}
@@ -448,13 +448,13 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
       </Button>
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium">{t("optionsSignInTitle")}</p>
+          <p className="mu-label">{t("optionsSignInTitle")}</p>
           <Badge>{t("commonRecommended")}</Badge>
         </div>
-        <p className="mt-1 text-sm text-ink-muted">{t("optionsUseMemosSetupDescription")}</p>
+        <p className="mu-body mt-1 text-mu-ink-muted">{t("optionsUseMemosSetupDescription")}</p>
       </div>
       {!isLoaded ? (
-        <div className="flex items-center gap-2 text-sm text-ink-muted">
+        <div className="mu-body flex items-center gap-2 text-mu-ink-muted">
           <Spinner label={t("commonLoading")} />
           {t("optionsCheckingAccount")}
         </div>
@@ -467,8 +467,8 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
           <UserBadge compact />
           {candidate.status === "ready" ? (
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-fact text-ink">
+              <div className="mu-body flex flex-wrap items-center gap-2">
+                <span className="text-fact text-mu-ink">
                   {safeHost(candidate.instanceUrl)} · {candidate.version}
                 </span>
                 <Badge tone="success" icon={<CheckIcon />}>
@@ -482,7 +482,7 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
           ) : (
             <div className="space-y-3">
               {candidate.status === "invalid" ? (
-                <p role="alert" className="text-sm text-danger">
+                <p role="alert" className="mu-body text-mu-danger">
                   {t("optionsSavedConnectionIncomplete")}
                 </p>
               ) : null}
@@ -493,11 +493,11 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
                 <ErrorNotice kind={candidate.verificationError} source="usememos" />
               ) : null}
               {setupReturnedWithoutConnection ? (
-                <p role="alert" className="text-sm text-danger">
+                <p role="alert" className="mu-body text-mu-danger">
                   {t("optionsNoConnectionFound")}
                 </p>
               ) : null}
-              <p className="text-sm text-ink-muted">{t("optionsRepairDestination")}</p>
+              <p className="mu-body text-mu-ink-muted">{t("optionsRepairDestination")}</p>
               <div className="flex flex-wrap gap-2">
                 <a
                   className={buttonClasses({ variant: "primary" })}
@@ -527,12 +527,12 @@ function UseMemosSetup({ replacing, onBack, onConnected }: { replacing: boolean;
         </div>
       )}
       {authError || signInErrorKey ? (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className="mu-body text-mu-danger">
           {signInErrorKey ? t(signInErrorKey) : authError}
         </p>
       ) : null}
       {activationError ? <ErrorNotice kind={activationError.errorKind} version={activationError.version} source="usememos" /> : null}
-      {user && replacing ? <p className="text-xs text-ink-muted">{t("optionsCurrentConnectionActive")}</p> : null}
+      {user && replacing ? <p className="mu-caption text-mu-ink-muted">{t("optionsCurrentConnectionActive")}</p> : null}
     </div>
   );
 }
@@ -553,10 +553,10 @@ function ConnectedSummary({
   const insecureHttp = connection.instanceUrl?.startsWith("http://") ?? false;
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
-        <span className="inline-flex items-center gap-1.5 text-fact text-ink">
+      <div className="mu-body flex flex-wrap items-center gap-2 text-mu-ink-muted">
+        <span className="inline-flex items-center gap-1 text-fact text-mu-ink">
           {connection.instanceUrl ? (
-            <Link href={connection.instanceUrl} external muted className="text-ink">
+            <Link href={connection.instanceUrl} external muted className="text-mu-ink">
               {host}
             </Link>
           ) : (
@@ -571,9 +571,9 @@ function ConnectedSummary({
       {connection.source === "usememos" && isSignedIn ? (
         <UserBadge compact />
       ) : connection.displayName ? (
-        <p className="text-sm text-ink-muted">{t("optionsConnectedAs", connection.displayName)}</p>
+        <p className="mu-body text-mu-ink-muted">{t("optionsConnectedAs", connection.displayName)}</p>
       ) : null}
-      {connection.source === "direct" ? <p className="text-sm text-ink-muted">{t("optionsTokenSaved")}</p> : null}
+      {connection.source === "direct" ? <p className="mu-body text-mu-ink-muted">{t("optionsTokenSaved")}</p> : null}
       {insecureHttp ? <HttpConnectionWarning /> : null}
       {connection.verificationError && connection.verificationError !== "mixed-content" ? (
         <ErrorNotice kind={connection.verificationError} source={connection.source} />
@@ -591,7 +591,7 @@ function ConnectedSummary({
           {t("optionsChangeConnection")}
         </Button>
         {/* Destructive, but confirmed in the next step, so not a danger key on the first click. */}
-        <Button variant="ghost" className="text-danger" onClick={onDisconnect}>
+        <Button variant="ghost" className="text-mu-danger" onClick={onDisconnect}>
           {t("optionsDisconnect")}
         </Button>
       </div>
@@ -660,7 +660,7 @@ export function Options() {
       <div>
         <OptionsHeader sub={sub} locale={localePreference} onLocaleChange={changeLocale} />
         {localeError ? (
-          <p role="alert" className="-mt-5 mb-5 text-sm text-danger">
+          <p role="alert" className="mu-body -mt-5 mb-5 text-mu-danger">
             {t("optionsLanguageSaveError")}
           </p>
         ) : null}
@@ -671,7 +671,7 @@ export function Options() {
           summary={ready && !effectiveView ? undefined : <span>{t("optionsConnectionSummary")}</span>}
         >
           {active.isChecking && active.source === null && view === null ? (
-            <div className="flex items-center gap-2 text-sm text-ink-muted">
+            <div className="mu-body flex items-center gap-2 text-mu-ink-muted">
               <Spinner label={t("commonLoading")} />
               {t("optionsCheckingConnection")}
             </div>

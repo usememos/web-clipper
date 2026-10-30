@@ -2,35 +2,13 @@
 @import "tailwindcss";
 @import "@usememos/ui/tokens.css";
 @import "@usememos/ui/styles.css";
+@import "@usememos/ui/tailwind.css";
 
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-
-/* @usememos/ui is Tailwind-free: this maps its tokens to the Tailwind names the clipper uses.
-   Use only these names; colors switch with ui's data-theme, so classes need no dark: variant. */
+/* ui's tailwind.css maps its color, shadow, radius and font tokens to mu- utilities
+   (bg-mu-surface, text-mu-ink-muted, rounded-mu-md, shadow-mu-pop). Colors switch with ui's
+   data-theme, so classes need no dark: variant. Only the default fonts are mapped here, so
+   Tailwind's font-sans and font-mono stay the system fonts ui uses. */
 @theme inline {
-  --color-canvas: var(--mu-canvas);
-  --color-surface: var(--mu-surface);
-  --color-well: var(--mu-well);
-  --color-hover: var(--mu-hover);
-  --color-edge: var(--mu-edge);
-  --color-line: var(--mu-line);
-  --color-ink: var(--mu-ink);
-  --color-ink-muted: var(--mu-ink-muted);
-  --color-primary: var(--mu-primary);
-  --color-on-primary: var(--mu-on-primary);
-  --color-accent: var(--mu-accent);
-  --color-success: var(--mu-success);
-  --color-success-soft: var(--mu-success-soft);
-  --color-warning: var(--mu-warning);
-  --color-warning-soft: var(--mu-warning-soft);
-  --color-danger: var(--mu-danger);
-  --color-danger-soft: var(--mu-danger-soft);
-  --radius-xs: var(--mu-radius-xs);
-  --radius-sm: var(--mu-radius-sm);
-  --radius-md: var(--mu-radius-md);
-  --radius-lg: var(--mu-radius-lg);
-  --radius-xl: var(--mu-radius-xl);
-  --radius-2xl: var(--mu-radius-2xl);
   --font-sans: var(--mu-font-sans);
   --font-mono: var(--mu-font-mono);
 }
@@ -55,6 +33,7 @@
 @utility text-fact {
   font-family: var(--mu-font-mono);
   font-size: 13px;
+  line-height: 18px;
 }
 
 /* The popup sets its own fixed width on its root container; the options page is a full tab. */

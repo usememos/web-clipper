@@ -1,5 +1,5 @@
-import { buttonClasses, Input, Select, Spinner } from "@usememos/ui";
-import { ArrowLeftIcon, ChevronDownIcon, ExternalLinkIcon, FileTextIcon, SearchIcon } from "lucide-react";
+import { buttonClasses, Collapsible, Input, Select, Spinner } from "@usememos/ui";
+import { ArrowLeftIcon, ExternalLinkIcon, FileTextIcon, SearchIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import browser from "webextension-polyfill";
 import { AppBrand } from "@/components/app-brand";
@@ -15,7 +15,7 @@ const FULL_TIMESTAMP: Intl.DateTimeFormatOptions = {
   minute: "2-digit",
 };
 const SHORT_TIMESTAMP: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
-const SECTION_LABEL_CLASS = "font-mono text-[11px] font-medium uppercase tracking-[0.09em] text-ink-muted";
+const SECTION_LABEL_CLASS = "mu-label";
 
 function host(value: string): string {
   try {
@@ -51,23 +51,23 @@ function recordMatches(record: ClipRecord, query: string): boolean {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border-t py-2.5 first:border-t-0">
-      <dt className="text-[11px] leading-4 text-ink-muted">{label}</dt>
-      <dd className="mt-0.5 min-w-0 break-words font-mono text-[12px] leading-5 text-ink/85 [overflow-wrap:anywhere]">{value}</dd>
+    <div className="border-t py-2 first:border-t-0">
+      <dt className="mu-caption text-mu-ink-muted">{label}</dt>
+      <dd className="text-fact min-w-0 break-words text-mu-ink [overflow-wrap:anywhere]">{value}</dd>
     </div>
   );
 }
 
 function ClipDetail({ record }: { record: ClipRecord }) {
   return (
-    <article className="min-w-0 overflow-y-auto bg-surface">
+    <article className="min-w-0 overflow-y-auto bg-mu-surface">
       <div className="mx-auto max-w-5xl px-5 py-5 sm:px-6 lg:px-8 lg:py-7">
         <header className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <p className="truncate font-mono text-[12px] leading-4 text-ink-muted">{host(record.sourceUrl)}</p>
-            <h2 className="mt-1.5 text-[22px] font-semibold leading-7 tracking-[-0.025em]">{record.sourceTitle || record.sourceUrl}</h2>
+            <p className="text-fact truncate text-mu-ink-muted">{host(record.sourceUrl)}</p>
+            <h2 className="mu-title mt-1">{record.sourceTitle || record.sourceUrl}</h2>
           </div>
-          <div className="flex shrink-0 flex-wrap gap-1.5">
+          <div className="flex shrink-0 flex-wrap gap-2">
             <a className={buttonClasses({ size: "sm" })} href={record.sourceUrl} target="_blank" rel="noreferrer">
               {t("historyOpenSource")}
               <ExternalLinkIcon aria-hidden="true" />
@@ -86,10 +86,10 @@ function ClipDetail({ record }: { record: ClipRecord }) {
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <h3 className={SECTION_LABEL_CLASS}>{t("historySelection")}</h3>
                   {record.selection.imageCount ? (
-                    <span className="text-[11px] text-ink-muted">{tp("historySelectedImages", record.selection.imageCount)}</span>
+                    <span className="mu-caption text-mu-ink-muted">{tp("historySelectedImages", record.selection.imageCount)}</span>
                   ) : null}
                 </div>
-                <pre className="max-h-56 overflow-auto whitespace-pre-wrap rounded-md border-s-2 border-(--clip-highlight) bg-(--clip-highlight-wash)/35 px-4 py-3 font-sans text-[13px] leading-[1.65]">
+                <pre className="mu-body max-h-56 overflow-auto whitespace-pre-wrap rounded-mu-md border-s-2 border-(--clip-highlight) bg-(--clip-highlight-wash)/35 px-4 py-3">
                   {record.selection.markdown || t("historyImageOnlySelection")}
                 </pre>
               </section>
@@ -97,7 +97,7 @@ function ClipDetail({ record }: { record: ClipRecord }) {
 
             <section>
               <h3 className={`mb-2 ${SECTION_LABEL_CLASS}`}>{t("historyMemoContent")}</h3>
-              <pre className="max-h-[28rem] overflow-auto whitespace-pre-wrap rounded-md border bg-well/15 px-4 py-3.5 font-sans text-[13px] leading-[1.65]">
+              <pre className="mu-body max-h-[28rem] overflow-auto whitespace-pre-wrap rounded-mu-md border bg-mu-well/15 px-4 py-3">
                 {record.memoContent}
               </pre>
             </section>
@@ -115,17 +115,16 @@ function ClipDetail({ record }: { record: ClipRecord }) {
               </dl>
             </section>
 
-            <details className="group mt-5 border-t pt-1">
-              <summary className="mu-focus flex cursor-pointer list-none items-center justify-between gap-2 py-2.5 text-[12px] font-medium marker:hidden">
-                {t("historyTechnicalDetails")}
-                <ChevronDownIcon className="size-3.5 text-ink-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" />
-              </summary>
-              <dl className="border-y">
-                <DetailRow label={t("historyRecordId")} value={record.id} />
-                <DetailRow label={t("historyDedupeKey")} value={record.dedupeKey} />
-                <DetailRow label={t("historyMemoName")} value={record.memoName} />
-              </dl>
-            </details>
+            <Collapsible.Root size="sm" className="mt-5 border-t pt-2">
+              <Collapsible.Trigger>{t("historyTechnicalDetails")}</Collapsible.Trigger>
+              <Collapsible.Panel>
+                <dl className="mt-1 border-y">
+                  <DetailRow label={t("historyRecordId")} value={record.id} />
+                  <DetailRow label={t("historyDedupeKey")} value={record.dedupeKey} />
+                  <DetailRow label={t("historyMemoName")} value={record.memoName} />
+                </dl>
+              </Collapsible.Panel>
+            </Collapsible.Root>
           </aside>
         </div>
       </div>
@@ -174,11 +173,11 @@ export function ClipHistory() {
       </header>
 
       <div className="mb-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div className="flex items-baseline gap-2.5">
-          <h1 className="text-[20px] font-semibold leading-7 tracking-[-0.025em]">{t("historyTitle")}</h1>
-          {records ? <p className="text-[12px] text-ink-muted">{tp("historyCount", records.length)}</p> : null}
+        <div className="flex items-baseline gap-2">
+          <h1 className="mu-heading">{t("historyTitle")}</h1>
+          {records ? <p className="mu-caption text-mu-ink-muted">{tp("historyCount", records.length)}</p> : null}
         </div>
-        <div className="flex flex-col gap-1.5 sm:flex-row">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Input
             type="search"
             prefix={<SearchIcon aria-hidden="true" />}
@@ -211,27 +210,27 @@ export function ClipHistory() {
       </div>
 
       {records === null ? (
-        <div className="flex min-h-72 flex-1 items-center justify-center gap-2 text-[13px] text-ink-muted">
+        <div className="mu-caption flex min-h-72 flex-1 items-center justify-center gap-2 text-mu-ink-muted">
           <Spinner label={t("commonLoading")} />
           {t("commonLoading")}
         </div>
       ) : records.length === 0 ? (
-        <div className="flex min-h-80 flex-1 flex-col items-center justify-center rounded-xl border border-dashed px-6 text-center">
-          <span className="mb-3 flex size-10 items-center justify-center rounded-full bg-well text-ink-muted">
-            <FileTextIcon className="size-5" />
+        <div className="flex min-h-80 flex-1 flex-col items-center justify-center rounded-mu-xl border border-dashed px-6 text-center">
+          <span className="mb-3 flex size-10 items-center justify-center rounded-mu-full bg-mu-well text-mu-ink-muted">
+            <FileTextIcon className="mu-icon" />
           </span>
-          <p className="text-[14px] font-medium">{t("historyEmptyTitle")}</p>
-          <p className="mt-1 max-w-sm text-[13px] text-ink-muted">{t("historyEmptyDescription")}</p>
+          <p className="mu-title">{t("historyEmptyTitle")}</p>
+          <p className="mu-body mt-1 max-w-sm text-mu-ink-muted">{t("historyEmptyDescription")}</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex min-h-72 flex-1 items-center justify-center rounded-xl border border-dashed text-[13px] text-ink-muted">
+        <div className="mu-caption flex min-h-72 flex-1 items-center justify-center rounded-mu-xl border border-dashed text-mu-ink-muted">
           {t("historyNoResults")}
         </div>
       ) : (
-        <div className="grid min-h-[32rem] flex-1 overflow-hidden rounded-xl border bg-surface md:h-[calc(100dvh-9.75rem)] md:flex-none md:grid-cols-[19rem_minmax(0,1fr)]">
+        <div className="grid min-h-[32rem] flex-1 overflow-hidden rounded-mu-xl border bg-mu-surface md:h-[calc(100dvh-9.75rem)] md:flex-none md:grid-cols-[19rem_minmax(0,1fr)]">
           <nav
             aria-label={t("historyTitle")}
-            className="max-h-80 overflow-y-auto border-b bg-well/10 md:max-h-none md:border-e md:border-b-0"
+            className="max-h-80 overflow-y-auto border-b bg-mu-well/10 md:max-h-none md:border-e md:border-b-0"
           >
             {filtered.map((record) => {
               const active = selected?.id === record.id;
@@ -240,20 +239,18 @@ export function ClipHistory() {
                   type="button"
                   key={record.id}
                   onClick={() => setSelectedId(record.id)}
-                  className={`relative block w-full border-b px-3.5 py-2.5 text-start last:border-b-0 mu-focus hover:bg-hover focus-visible:z-10 focus-visible:-outline-offset-2 ${
-                    active ? "bg-hover" : ""
+                  className={`relative block w-full border-b px-3 py-2 text-start last:border-b-0 mu-focus hover:bg-mu-hover focus-visible:z-10 focus-visible:-outline-offset-2 ${
+                    active ? "bg-mu-hover" : ""
                   }`}
                   aria-current={active ? "true" : undefined}
                 >
-                  {active ? <span aria-hidden="true" className="absolute inset-y-2 start-0 w-[3px] rounded-e bg-primary" /> : null}
-                  <div className="flex items-center justify-between gap-2.5">
-                    <span className="truncate font-mono text-[11px] leading-4 text-ink-muted">{host(record.sourceUrl)}</span>
-                    <span className="shrink-0 font-mono text-[10px] leading-4 text-ink-muted">
-                      {formatDateTime(record.savedAt, SHORT_TIMESTAMP)}
-                    </span>
+                  {active ? <span aria-hidden="true" className="absolute inset-y-2 start-0 w-[3px] rounded-e-mu-sm bg-mu-primary" /> : null}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-fact truncate text-mu-ink-muted">{host(record.sourceUrl)}</span>
+                    <span className="text-fact shrink-0 text-mu-ink-muted">{formatDateTime(record.savedAt, SHORT_TIMESTAMP)}</span>
                   </div>
-                  <p className="mt-0.5 truncate text-[13px] font-medium leading-5">{record.sourceTitle || record.sourceUrl}</p>
-                  <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-[1.45] text-ink-muted">{preview(record)}</p>
+                  <p className="mu-label truncate">{record.sourceTitle || record.sourceUrl}</p>
+                  <p className="mu-caption line-clamp-2 text-mu-ink-muted">{preview(record)}</p>
                 </button>
               );
             })}

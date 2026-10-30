@@ -1,4 +1,4 @@
-import { Badge, Button, Textarea } from "@usememos/ui";
+import { Badge, Button, badgeClasses, Table, Textarea } from "@usememos/ui";
 import { CheckIcon, LockIcon } from "lucide-react";
 import { Fragment, type ReactNode, useEffect, useRef, useState } from "react";
 import { InlineStatus } from "@/components/inline-status";
@@ -42,8 +42,8 @@ function placeholderMeta(): Record<TemplateVarName, { meaning: string; source: s
   };
 }
 
-/** The micro-label voice, shared by section labels and the reference table's headers. */
-const SECTION_LABEL_CLASS = "font-mono text-[10.5px] font-semibold tracking-[0.08em] uppercase text-ink-muted";
+/** A section title inside the step: ui's label style, set apart by space rather than size. */
+const SECTION_LABEL_CLASS = "mu-label";
 
 function SectionLabel({ children }: { children: ReactNode }) {
   return <div className={SECTION_LABEL_CLASS}>{children}</div>;
@@ -57,7 +57,7 @@ function HighlightedTemplate({ text }: { text: string }) {
       {splitTemplateTokens(text).map((part, i) =>
         i % 2 === 1 ? (
           // biome-ignore lint/suspicious/noArrayIndexKey: segments are positional by construction
-          <span key={i} className="rounded-sm bg-(--clip-highlight-wash) text-(--clip-highlight-deep)">
+          <span key={i} className="rounded-mu-sm bg-(--clip-highlight-wash) text-(--clip-highlight-deep)">
             {part}
           </span>
         ) : (
@@ -75,17 +75,17 @@ function HighlightedTemplate({ text }: { text: string }) {
  * caret/selection stay native. field-sizing-content keeps the textarea unscrollable, so
  * the layers can never drift.
  */
-const EDITOR_TEXT = "px-2.5 py-2 font-mono text-xs leading-relaxed";
+const EDITOR_TEXT = "text-fact px-3 py-2";
 function TemplateInput({ value, onChange }: { value: string; onChange: (next: string) => void }) {
   return (
     // The wrapper paints the field's surface; the textarea stays transparent so the layer shows.
-    <div className="relative rounded-md bg-surface">
+    <div className="relative rounded-mu-md bg-mu-surface">
       <div aria-hidden className={`pointer-events-none absolute inset-0 whitespace-pre-wrap break-words ${EDITOR_TEXT}`}>
         <HighlightedTemplate text={value} />
       </div>
       <Textarea
         aria-label={t("templateAriaLabel")}
-        className={`relative field-sizing-content bg-transparent min-h-24 resize-none break-words text-transparent caret-ink selection:bg-(--mu-selection) selection:text-transparent ${EDITOR_TEXT}`}
+        className={`relative field-sizing-content bg-transparent min-h-24 resize-none break-words text-transparent caret-mu-ink selection:bg-(--mu-selection) selection:text-transparent ${EDITOR_TEXT}`}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         spellCheck={false}
@@ -115,10 +115,10 @@ function InlineMarkdown({ text }: { text: string }) {
         return (
           // biome-ignore lint/suspicious/noArrayIndexKey: segments are positional by construction
           <Fragment key={i}>
-            <a href={url} target="_blank" rel="noreferrer" className="font-semibold text-(--clip-highlight-deep) hover:underline">
+            <a href={url} target="_blank" rel="noreferrer" className="mu-label text-(--clip-highlight-deep) hover:underline">
               {part}
             </a>
-            {host ? <span className="ms-1.5 text-xs text-ink-muted">{host}</span> : null}
+            {host ? <span className="mu-caption ms-1 text-mu-ink-muted">{host}</span> : null}
           </Fragment>
         );
       })}
@@ -135,7 +135,7 @@ function MemoBody({ markdown }: { markdown: string }) {
   const flushQuote = (key: number) => {
     if (!quote.length) return;
     blocks.push(
-      <blockquote key={`q${key}`} className="border-s-[3px] border-(--clip-highlight) ps-3 text-sm leading-relaxed">
+      <blockquote key={`q${key}`} className="mu-body border-s-[3px] border-(--clip-highlight) ps-3">
         {quote.map((q, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: quote lines are positional
           <p key={i}>
@@ -156,7 +156,7 @@ function MemoBody({ markdown }: { markdown: string }) {
     if (!line.trim()) return;
     blocks.push(
       // biome-ignore lint/suspicious/noArrayIndexKey: preview lines are positional and re-render wholesale
-      <p key={i} className="text-sm leading-relaxed">
+      <p key={i} className="mu-body">
         <InlineMarkdown text={line} />
       </p>,
     );
@@ -164,9 +164,9 @@ function MemoBody({ markdown }: { markdown: string }) {
   flushQuote(lines.length);
 
   if (!blocks.length) {
-    return <p className="text-sm text-ink-muted">{t("templateEmptyPreview")}</p>;
+    return <p className="mu-body text-mu-ink-muted">{t("templateEmptyPreview")}</p>;
   }
-  return <div className="space-y-2.5">{blocks}</div>;
+  return <div className="space-y-2">{blocks}</div>;
 }
 
 export function TemplateEditor({
@@ -250,14 +250,14 @@ export function TemplateEditor({
             setSaveFailed(false);
           }}
         />
-        <p className="mt-2 text-xs text-ink-muted">{t("templateHelp")}</p>
+        <p className="mu-caption mt-2 text-mu-ink-muted">{t("templateHelp")}</p>
       </div>
 
       <div>
         <SectionLabel>{t("templatePlaceholderReference")}</SectionLabel>
-        <table className="mt-2 w-full table-fixed text-start text-xs">
-          <thead>
-            <tr className="border-b border-edge">
+        <Table.Root size="sm" className="mt-2 table-fixed" aria-label={t("templatePlaceholderReference")}>
+          <Table.Header>
+            <Table.Row>
               {(
                 [
                   [t("templateColumnPlaceholder"), "w-[30%]"],
@@ -265,42 +265,43 @@ export function TemplateEditor({
                   [t("templateColumnSource"), "w-[30%]"],
                 ] as const
               ).map(([label, width]) => (
-                <th key={label} className={`${width} px-1 py-2 ${SECTION_LABEL_CLASS}`}>
+                <Table.Head key={label} className={width}>
                   {label}
-                </th>
+                </Table.Head>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
             {TEMPLATE_VAR_NAMES.map((name) => {
               const meta = localizedPlaceholderMeta[name];
               return (
-                <tr key={name} className="border-b align-top last:border-b-0">
-                  <td className="px-1 py-2.5">
-                    <code className="inline-flex whitespace-nowrap rounded-md bg-(--clip-highlight-wash) px-2 py-1 font-mono text-xs text-(--clip-highlight-deep)">
-                      {`{{${name}}}`}
-                    </code>
-                  </td>
-                  <td className="px-1 py-2.5">
-                    <span className="block leading-4.5 text-ink">{meta.meaning}</span>
-                    <span className="mt-0.5 block leading-4.5 text-ink-muted">
-                      {t("templateExample", meta.example ?? localizedPreviewVars[name])}
-                    </span>
-                  </td>
-                  <td className="px-1 py-2.5 leading-4.5 text-ink-muted">{meta.source}</td>
-                </tr>
+                <Table.Row key={name}>
+                  <Table.Cell className="align-top">
+                    {/* A badge in the clipper's content color: the token reads as the mark it leaves in the template. */}
+                    <code
+                      className={`${badgeClasses()} bg-(--clip-highlight-wash) font-mu-mono text-(--clip-highlight-deep)`}
+                    >{`{{${name}}}`}</code>
+                  </Table.Cell>
+                  <Table.Cell className="align-top">
+                    <span className="block">{meta.meaning}</span>
+                    <span className="block text-mu-ink-muted">{t("templateExample", meta.example ?? localizedPreviewVars[name])}</span>
+                  </Table.Cell>
+                  <Table.Cell muted className="align-top">
+                    {meta.source}
+                  </Table.Cell>
+                </Table.Row>
               );
             })}
-          </tbody>
-        </table>
+          </Table.Body>
+        </Table.Root>
       </div>
 
       <div>
         <SectionLabel>{t("templatePreviewSection")}</SectionLabel>
-        <div className="mt-2 rounded-xl border bg-surface p-4">
-          <div className="mb-2.5 flex items-center gap-2">
+        <div className="mt-2 rounded-mu-xl border bg-mu-surface p-4">
+          <div className="mb-2 flex items-center gap-2">
             <UserBadge compact />
-            <span className="text-xs text-ink-muted">{t("templateJustNow")}</span>
+            <span className="mu-caption text-mu-ink-muted">{t("templateJustNow")}</span>
             <span className="flex-1" />
             <Badge tone="outline" icon={<LockIcon />}>
               {t("commonPrivate")}
@@ -314,14 +315,14 @@ export function TemplateEditor({
         <Button variant="primary" loading={busy} loadingLabel={t("commonSaving")} disabled={!dirty} onClick={save}>
           {t("templateSave")}
         </Button>
-        <span aria-live="polite" className="text-sm">
+        <span aria-live="polite" className="mu-body">
           {saved ? (
-            <span className="inline-flex items-center gap-1.5 font-medium text-success">
-              <CheckIcon aria-hidden="true" className="mu-icon [--icon:var(--mu-icon-sm)]" />
+            <span className="mu-label inline-flex items-center gap-1 text-mu-success">
+              <CheckIcon aria-hidden="true" className="mu-icon mu-s-sm" />
               {t("templateSavedBrowser")}
             </span>
           ) : dirty ? (
-            <span className="text-ink-muted">{t("templateUnsavedChanges")}</span>
+            <span className="text-mu-ink-muted">{t("templateUnsavedChanges")}</span>
           ) : null}
         </span>
       </div>
@@ -346,7 +347,7 @@ export function TemplateEditor({
         </InlineStatus>
       ) : null}
       {saveFailed || storageError ? (
-        <p role="alert" className="text-sm text-danger">
+        <p role="alert" className="mu-body text-mu-danger">
           {saveFailed ? t("templateSaveError") : storageError}
         </p>
       ) : null}

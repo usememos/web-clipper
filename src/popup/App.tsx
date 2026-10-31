@@ -259,7 +259,7 @@ function SignedInView({ c, state, blocked }: { c: ClipperState; state: ReadyPopu
       }, SAVED_CONFIRMATION_MS);
     } else {
       // Persistent inline state, not a toast: the error stays until it's acted on.
-      setError(describeSaveError(result.errorKind, state.source));
+      setError(describeSaveError(result.errorKind, state.source, result));
     }
   };
   const savedAt = c.savedClip ? formatDateTime(c.savedClip.savedAt, SAVED_AT_FORMAT) : "";

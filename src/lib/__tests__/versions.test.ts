@@ -116,7 +116,7 @@ describe("isSupportedVersion", () => {
 
 describe("OPENAPI_SNAPSHOT_VERSIONS", () => {
   it("keeps immutable documentation snapshots separate from the supported series floor", () => {
-    expect(OPENAPI_SNAPSHOT_VERSIONS).toEqual(["0.30.0", "0.29.1", "0.28.0", "0.27.1", "0.26.2"]);
+    expect(OPENAPI_SNAPSHOT_VERSIONS).toEqual(["26.10.0", "0.31.0", "0.30.0", "0.29.1", "0.28.0", "0.27.1", "0.26.2"]);
   });
 });
 

@@ -12,8 +12,8 @@ importers:
         specifier: 1.9.0
         version: 1.9.0(@date-fns/tz@1.5.0)(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@usememos/editor':
-        specifier: 26.10.28
-        version: 26.10.28(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: 26.10.30
+        version: 26.10.30(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@usememos/ui':
         specifier: 26.10.5
         version: 26.10.5(@base-ui/react@1.9.0(@date-fns/tz@1.5.0)(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(lucide-react@1.23.0(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -827,8 +827,8 @@ packages:
   '@types/webextension-polyfill@0.12.5':
     resolution: {integrity: sha512-uKSAv6LgcVdINmxXMKBuVIcg/2m5JZugoZO8x20g7j2bXJkPIl/lVGQcDlbV+aXAiTyXT2RA5U5mI4IGCDMQeg==}
 
-  '@usememos/editor@26.10.28':
-    resolution: {integrity: sha512-GM2Vi7Y4klNRDoMo33OkokDyPubUgEg5lq4O8rdDblbv0f4nHo+r6jeDF8f6PG0xwrxuEKq1vCWFnv9TAujZ8w==}
+  '@usememos/editor@26.10.30':
+    resolution: {integrity: sha512-jc0RU5O5BWpX7+tPjU3hDWYSrdv463SoZLalDpDGJkvZskB69lYkp5L8JB1BATQ+jtqig1TenbJxc5ROAZycLg==}
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
@@ -3398,7 +3398,7 @@ snapshots:
 
   '@types/webextension-polyfill@0.12.5': {}
 
-  '@usememos/editor@26.10.28(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@usememos/editor@26.10.30(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     optionalDependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)

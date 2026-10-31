@@ -109,6 +109,79 @@ describe("createMemo", () => {
     await expect(createMemo(creds, { content: "x", visibility: "PRIVATE" }, { fetchImpl })).rejects.toMatchObject({ kind: "bad-response" });
   });
 
+  it("reads a usage-limit refusal from the 429's ErrorInfo detail", async () => {
+    const body = {
+      code: 8,
+      message: "quota exceeded",
+      details: [
+        {
+          "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+          reason: "QUOTA_EXCEEDED",
+          domain: "memos.api",
+          metadata: { metric: "MEMO_CONTENT_BYTES", limit: "8192", usage: "24615" },
+        },
+        { "@type": "type.googleapis.com/google.rpc.QuotaFailure", violations: [{ subject: "users/steven", description: "…" }] },
+      ],
+    };
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse(body, 429));
+    await expect(createMemo(creds, { content: "x", visibility: "PRIVATE" }, { fetchImpl })).rejects.toMatchObject({
+      kind: "quota-exceeded",
+      status: 429,
+      quota: { metric: "MEMO_CONTENT_BYTES", limit: 8192, usage: 24615 },
+    });
+  });
+
+  it("drops quota metadata it cannot read instead of failing the whole refusal", async () => {
+    const body = {
+      details: [
+        { "@type": "type.googleapis.com/google.rpc.ErrorInfo", reason: "QUOTA_EXCEEDED", metadata: { metric: "LATER", limit: "lots" } },
+      ],
+    };
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse(body, 429));
+    await expect(createMemo(creds, { content: "x", visibility: "PRIVATE" }, { fetchImpl })).rejects.toMatchObject({
+      kind: "quota-exceeded",
+      quota: {},
+    });
+  });
+
+  it("reads a rate limit's advertised delay from the 429's ErrorInfo detail", async () => {
+    const body = {
+      code: 8,
+      message: "too many requests, try again later",
+      details: [
+        {
+          "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+          reason: "RATE_LIMITED",
+          domain: "memos.api",
+          metadata: { scope: "write_user", retry_after_seconds: "17", limit: "120", window_seconds: "60", remaining: "0" },
+        },
+        { "@type": "type.googleapis.com/google.rpc.RetryInfo", retryDelay: "17s" },
+      ],
+    };
+    const fetchImpl = vi.fn().mockResolvedValue(jsonResponse(body, 429));
+    await expect(createMemo(creds, { content: "x", visibility: "PRIVATE" }, { fetchImpl })).rejects.toMatchObject({
+      kind: "rate-limited",
+      retryAfterSeconds: 17,
+    });
+  });
+
+  it("treats a bare 429 as a rate limit, reading Retry-After when it is in seconds", async () => {
+    const withHeader = vi
+      .fn()
+      .mockResolvedValue(new Response("Too Many Requests", { status: 429, headers: { "retry-after": "5", "content-type": "text/plain" } }));
+    await expect(createMemo(creds, { content: "x", visibility: "PRIVATE" }, { fetchImpl: withHeader })).rejects.toMatchObject({
+      kind: "rate-limited",
+      retryAfterSeconds: 5,
+    });
+
+    const withDate = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 429, headers: { "retry-after": "Wed, 21 Oct 2026 07:28:00 GMT" } }));
+    const error = await createMemo(creds, { content: "x", visibility: "PRIVATE" }, { fetchImpl: withDate }).catch((e: InstanceError) => e);
+    expect(error).toMatchObject({ kind: "rate-limited" });
+    expect((error as { retryAfterSeconds?: number }).retryAfterSeconds).toBeUndefined();
+  });
+
   it("rejects a 200 response without a memo identity", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(jsonResponse({}));
     await expect(createMemo(creds, { content: "x", visibility: "PRIVATE" }, { fetchImpl })).rejects.toMatchObject({
@@ -389,15 +462,18 @@ describe("API prefix detection", () => {
 });
 
 describe("published OpenAPI compatibility", () => {
-  // Every published snapshot predates the unversioned API, so these servers answer only under /api/v1.
+  // The 0.x snapshots predate the unversioned API, so those servers answer only under /api/v1;
+  // calendar releases answer only under /api (and /api/v1 with 410 Gone, as 26.10 does).
   it.each(OPENAPI_SNAPSHOT_VERSIONS)("uses the shared %s contract for every required capability", async (version) => {
     const creds = { ...testCreds, instanceUrl: `https://memos-${version}.example.com` };
+    const prefix = version.startsWith("0.") ? "/api/v1" : "/api";
     const fetchImpl = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
       const value = String(url);
-      if (value.endsWith("/api/v1/instance/profile")) return jsonResponse({ version });
-      if (value.endsWith("/api/v1/auth/me")) return jsonResponse({ user: { name: "users/steven" } });
-      if (value.endsWith("/api/v1/attachments")) return jsonResponse({ name: "attachments/9" });
-      if (value.includes("/api/v1/memos?") && init?.method === "GET") {
+      if (prefix === "/api" && value.includes("/api/v1/")) return jsonResponse({ code: 12, message: "Unimplemented" }, 410);
+      if (value.endsWith(`${prefix}/instance/profile`)) return jsonResponse({ version });
+      if (value.endsWith(`${prefix}/auth/me`)) return jsonResponse({ user: { name: "users/steven" } });
+      if (value.endsWith(`${prefix}/attachments`)) return jsonResponse({ name: "attachments/9" });
+      if (value.includes(`${prefix}/memos?`) && init?.method === "GET") {
         return jsonResponse({
           memos: [
             {
@@ -410,7 +486,7 @@ describe("published OpenAPI compatibility", () => {
           ],
         });
       }
-      if (value.endsWith("/api/v1/memos?memoId=save-123")) return jsonResponse({ name: "memos/save-123" });
+      if (value.endsWith(`${prefix}/memos?memoId=save-123`)) return jsonResponse({ name: "memos/save-123" });
       return jsonResponse({}, 404);
     });
 

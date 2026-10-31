@@ -738,6 +738,34 @@
   "errorBadResponseFixRedirect": {
     "message": "Si votre serveur redirige, utilisez l’URL finale."
   },
+  "errorQuotaContentTitle": { "message": "Clip trop volumineux pour votre instance" },
+  "errorQuotaContentWhy": {
+    "message": "Ce mémo fait $USAGE$ et votre instance autorise $LIMIT$ par mémo.",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": {
+    "message": "Raccourcissez le clip ou demandez à votre administrateur d’augmenter la limite dans Memos, sous Paramètres › Limites d’utilisation."
+  },
+  "errorQuotaCountTitle": { "message": "Limite de mémos atteinte" },
+  "errorQuotaCountWhy": {
+    "message": "Votre compte a atteint sa limite de $LIMIT$ mémos.",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": {
+    "message": "Supprimez les mémos dont vous n’avez plus besoin ou demandez à votre administrateur d’augmenter la limite dans Memos, sous Paramètres › Limites d’utilisation."
+  },
+  "errorQuotaTitle": { "message": "Limite d’utilisation atteinte" },
+  "errorQuotaWhy": { "message": "Votre instance a refusé l’enregistrement parce qu’une limite d’utilisation est atteinte." },
+  "errorQuotaFix": {
+    "message": "Demandez à votre administrateur d’augmenter la limite dans Memos, sous Paramètres › Limites d’utilisation."
+  },
+  "errorRateLimitedTitle": { "message": "Trop de requêtes" },
+  "errorRateLimitedWhy": { "message": "Votre instance limite actuellement la fréquence à laquelle vous pouvez enregistrer." },
+  "errorRateLimitedFixWait": {
+    "message": "Réessayez dans $SECONDS$ secondes.",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "Réessayez dans un instant." },
   "commonSpaceVisibility": { "message": "Membres" },
   "popupSpaceDescription": { "message": "Visible par les membres de cet espace" },
   "popupAddToSpace": { "message": "Ajouter à un espace" },

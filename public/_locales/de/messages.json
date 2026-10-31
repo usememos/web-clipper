@@ -738,6 +738,32 @@
   "errorBadResponseFixRedirect": {
     "message": "Falls Ihr Server weiterleitet, verwenden Sie die endgültige URL."
   },
+  "errorQuotaContentTitle": { "message": "Clip zu groß für Ihre Instanz" },
+  "errorQuotaContentWhy": {
+    "message": "Dieses Memo ist $USAGE$ groß, Ihre Instanz erlaubt $LIMIT$ pro Memo.",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": {
+    "message": "Kürzen Sie den Clip oder bitten Sie Ihren Administrator, das Limit in Memos unter Einstellungen › Nutzungslimits zu erhöhen."
+  },
+  "errorQuotaCountTitle": { "message": "Memo-Limit erreicht" },
+  "errorQuotaCountWhy": {
+    "message": "Ihr Konto hat sein Limit von $LIMIT$ Memos erreicht.",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": {
+    "message": "Löschen Sie nicht mehr benötigte Memos oder bitten Sie Ihren Administrator, das Limit in Memos unter Einstellungen › Nutzungslimits zu erhöhen."
+  },
+  "errorQuotaTitle": { "message": "Nutzungslimit erreicht" },
+  "errorQuotaWhy": { "message": "Ihre Instanz hat das Speichern abgelehnt, weil ein Nutzungslimit erreicht ist." },
+  "errorQuotaFix": { "message": "Bitten Sie Ihren Administrator, das Limit in Memos unter Einstellungen › Nutzungslimits zu erhöhen." },
+  "errorRateLimitedTitle": { "message": "Zu viele Anfragen" },
+  "errorRateLimitedWhy": { "message": "Ihre Instanz begrenzt gerade, wie oft Sie speichern können." },
+  "errorRateLimitedFixWait": {
+    "message": "Versuchen Sie es in $SECONDS$ Sekunden erneut.",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "Versuchen Sie es gleich noch einmal." },
   "commonSpaceVisibility": { "message": "Mitglieder" },
   "popupSpaceDescription": { "message": "Für Mitglieder dieses Spaces sichtbar" },
   "popupAddToSpace": { "message": "Zu Space hinzufügen" },

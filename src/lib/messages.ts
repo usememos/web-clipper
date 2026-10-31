@@ -1,7 +1,7 @@
 import type { OAuthIdentity } from "@/auth/oauth-session";
 import type { ClipCaptureInput } from "./clip-records";
 import type { ConnectionSource } from "./connection-config";
-import type { SaveErrorKind } from "./errors";
+import type { SaveErrorKind, SaveFailure } from "./errors";
 import type { SpaceSummary, Visibility } from "./memos-client";
 import type { PopupState } from "./popup-state";
 
@@ -94,4 +94,4 @@ export type ConnectionActionResult = { ok: true; state: ConnectionStateResult } 
 
 export type SaveResult =
   // failedImages: how many captured images could not be uploaded — surfaced so success is never silently partial.
-  { ok: true; webUrl: string; failedImages?: number } | { ok: false; errorKind: SaveErrorKind };
+  { ok: true; webUrl: string; failedImages?: number } | SaveFailure;

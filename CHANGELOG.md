@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Improvements
+
+- Explain a save that Memos 26.10 refuses for a usage limit, naming the memo's size and the instance's per-memo limit, or the memo count limit, instead of reporting an unexpected response. Rate-limited saves say how long to wait.
+- Verify the API contract against the published 0.31 and 26.10 OpenAPI snapshots as well as the earlier 0.x series.
+- Update the Memos Markdown editor to 26.10.30.
+
 ## [0.6.0](https://github.com/usememos/web-clipper/compare/v0.5.3...v0.6.0) (2026-10-30)
 
 ### Features

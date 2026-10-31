@@ -325,6 +325,21 @@ describe("App — signed-in, connected", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
+  it("names the memo size and the instance's limit when the save exceeds a usage limit", async () => {
+    wireSaveResult({ ok: false, errorKind: "quota-exceeded", quota: { metric: "MEMO_CONTENT_BYTES", limit: 8192, usage: 24615 } });
+    const { user } = renderWithUser(<App />);
+    const saveBtn = await screen.findByRole("button", { name: /save to memos/i });
+    await waitFor(() => expect(saveBtn).toBeEnabled());
+    await user.click(saveBtn);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Clip too large for your instance");
+    expect(alert).toHaveTextContent("This memo is 24.6 kB, and your instance allows 8.2 kB per memo.");
+    // The fix is editing the clip, so the retry stays and settings is not offered.
+    expect(screen.getByRole("button", { name: /try again/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /open settings/i })).not.toBeInTheDocument();
+  });
+
   it("clears the error when the user edits the content", async () => {
     wireSaveResult({ ok: false, errorKind: "unreachable" });
     const { user } = renderWithUser(<App />);

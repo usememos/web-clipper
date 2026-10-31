@@ -350,6 +350,30 @@
   "errorBadResponseWhy": { "message": "인스턴스에서 유효한 API 응답이 아닌 내용을 반환했습니다." },
   "errorBadResponseFixApi": { "message": "URL이 Memos API를 가리키는지 확인하세요." },
   "errorBadResponseFixRedirect": { "message": "서버가 리디렉션하는 경우 최종 URL을 사용하세요." },
+  "errorQuotaContentTitle": { "message": "클립이 인스턴스 한도보다 큽니다" },
+  "errorQuotaContentWhy": {
+    "message": "이 메모는 $USAGE$이고, 인스턴스는 메모당 $LIMIT$까지 허용합니다.",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": { "message": "클립을 줄이거나, 관리자에게 Memos의 설정 › 사용량 한도에서 한도를 늘려 달라고 요청하세요." },
+  "errorQuotaCountTitle": { "message": "메모 한도에 도달했습니다" },
+  "errorQuotaCountWhy": {
+    "message": "계정이 메모 $LIMIT$개 한도에 도달했습니다.",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": {
+    "message": "더 이상 필요 없는 메모를 삭제하거나, 관리자에게 Memos의 설정 › 사용량 한도에서 한도를 늘려 달라고 요청하세요."
+  },
+  "errorQuotaTitle": { "message": "사용량 한도에 도달했습니다" },
+  "errorQuotaWhy": { "message": "사용량 한도에 도달하여 인스턴스가 저장을 거부했습니다." },
+  "errorQuotaFix": { "message": "관리자에게 Memos의 설정 › 사용량 한도에서 한도를 늘려 달라고 요청하세요." },
+  "errorRateLimitedTitle": { "message": "요청이 너무 많습니다" },
+  "errorRateLimitedWhy": { "message": "인스턴스가 지금 저장 빈도를 제한하고 있습니다." },
+  "errorRateLimitedFixWait": {
+    "message": "$SECONDS$초 후에 다시 시도하세요.",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "잠시 후 다시 시도하세요." },
   "commonSpaceVisibility": { "message": "멤버" },
   "popupSpaceDescription": { "message": "이 스페이스의 멤버에게만 공개" },
   "popupAddToSpace": { "message": "스페이스에 추가" },

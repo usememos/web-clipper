@@ -380,6 +380,32 @@
   "errorBadResponseWhy": { "message": "Экземпляр вернул данные, которые не являются допустимым ответом API." },
   "errorBadResponseFixApi": { "message": "Убедитесь, что URL указывает на API вашего экземпляра Memos." },
   "errorBadResponseFixRedirect": { "message": "Если сервер перенаправляет запрос, используйте конечный URL." },
+  "errorQuotaContentTitle": { "message": "Клип слишком большой для вашего экземпляра" },
+  "errorQuotaContentWhy": {
+    "message": "Эта заметка занимает $USAGE$, а ваш экземпляр допускает $LIMIT$ на заметку.",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": {
+    "message": "Сократите клип или попросите администратора повысить лимит в Memos: Настройки › Лимиты использования."
+  },
+  "errorQuotaCountTitle": { "message": "Достигнут лимит заметок" },
+  "errorQuotaCountWhy": {
+    "message": "Ваша учётная запись достигла лимита в $LIMIT$ заметок.",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": {
+    "message": "Удалите ненужные заметки или попросите администратора повысить лимит в Memos: Настройки › Лимиты использования."
+  },
+  "errorQuotaTitle": { "message": "Достигнут лимит использования" },
+  "errorQuotaWhy": { "message": "Экземпляр отклонил сохранение, потому что достигнут лимит использования." },
+  "errorQuotaFix": { "message": "Попросите администратора повысить лимит в Memos: Настройки › Лимиты использования." },
+  "errorRateLimitedTitle": { "message": "Слишком много запросов" },
+  "errorRateLimitedWhy": { "message": "Экземпляр сейчас ограничивает частоту сохранений." },
+  "errorRateLimitedFixWait": {
+    "message": "Повторите попытку через $SECONDS$ с.",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "Повторите попытку чуть позже." },
   "commonSpaceVisibility": { "message": "Участники" },
   "popupSpaceDescription": { "message": "Видно участникам этого пространства" },
   "popupAddToSpace": { "message": "Добавить в пространство" },

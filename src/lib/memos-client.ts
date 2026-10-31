@@ -1,4 +1,4 @@
-import { InstanceError } from "./errors";
+import { InstanceError, QuotaExceededError, type QuotaMetric, type QuotaRefusal, RateLimitedError } from "./errors";
 
 export type MemosCredentials = { instanceUrl: string; accessToken: string };
 export type Visibility = "PRIVATE" | "PROTECTED" | "PUBLIC" | "SPACE";
@@ -162,6 +162,7 @@ async function apiFetchJson(
       type: response.type,
     });
     if (response.status === 401 || response.status === 403) throw new InstanceError("unauthorized", response.status);
+    if (response.status === 429) throw await resourceExhaustedError(response);
     throw new InstanceError("bad-response", response.status);
   }
   const text = await response.text();
@@ -172,6 +173,56 @@ async function apiFetchJson(
     console.error("[memos-web-clipper] JSON parse failed", { path: `${prefix}${path}`, method: options.method, error: String(e) });
     throw new InstanceError("bad-response");
   }
+}
+
+const QUOTA_METRICS: ReadonlySet<string> = new Set<QuotaMetric>(["MEMO_COUNT", "MEMO_CONTENT_BYTES", "STORAGE_BYTES", "UPLOAD_BYTES"]);
+
+function nonNegativeInteger(value: unknown): number | undefined {
+  const parsed = typeof value === "string" ? Number(value) : value;
+  return typeof parsed === "number" && Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
+/** The `google.rpc.ErrorInfo` detail of a gRPC-gateway error body, if the body carries one. */
+function errorInfo(body: unknown): { reason?: string; metadata: Record<string, unknown> } | null {
+  const details = (body as { details?: unknown } | null)?.details;
+  if (!Array.isArray(details)) return null;
+  for (const detail of details) {
+    if (!detail || typeof detail !== "object") continue;
+    const entry = detail as Record<string, unknown>;
+    if (typeof entry["@type"] !== "string" || !entry["@type"].endsWith("/google.rpc.ErrorInfo")) continue;
+    const metadata = entry.metadata && typeof entry.metadata === "object" ? (entry.metadata as Record<string, unknown>) : {};
+    return { ...(typeof entry.reason === "string" ? { reason: entry.reason } : {}), metadata };
+  }
+  return null;
+}
+
+/**
+ * Memos 26.10 answers a usage-limit refusal (`QUOTA_EXCEEDED`, which waiting never fixes) and a
+ * rate limit (`RATE_LIMITED`, which recovers after the advertised delay) both as 429 with a
+ * `google.rpc.ErrorInfo` detail naming the reason. A 429 from anything else (an older server, a
+ * reverse proxy) is read as a rate limit, with the `Retry-After` header when it is in seconds.
+ */
+async function resourceExhaustedError(response: Response): Promise<InstanceError> {
+  let body: unknown = null;
+  try {
+    body = JSON.parse(await response.text());
+  } catch {
+    // Not JSON: the proxy or server gave no detail to read.
+  }
+  const info = errorInfo(body);
+  if (info?.reason === "QUOTA_EXCEEDED") {
+    const { metric } = info.metadata;
+    const limit = nonNegativeInteger(info.metadata.limit);
+    const usage = nonNegativeInteger(info.metadata.usage);
+    const quota: QuotaRefusal = {
+      ...(typeof metric === "string" && QUOTA_METRICS.has(metric) ? { metric: metric as QuotaMetric } : {}),
+      ...(limit !== undefined ? { limit } : {}),
+      ...(usage !== undefined ? { usage } : {}),
+    };
+    return new QuotaExceededError(quota);
+  }
+  const retryAfter = nonNegativeInteger(info?.metadata.retry_after_seconds) ?? nonNegativeInteger(response.headers.get("retry-after"));
+  return new RateLimitedError(retryAfter);
 }
 
 export type InstanceProfile = { version: string };

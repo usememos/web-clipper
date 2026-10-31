@@ -13,7 +13,15 @@ import { clearMemoSaveAttempts, savePopupMemo, saveSelectionClip } from "@/backg
 import { isTrustedBackgroundRequest, parseBackgroundRequest, type RuntimeSender } from "@/lib/background-protocol";
 import { findLatestClipStatus, listClipRecords } from "@/lib/clip-records";
 import type { ConnectionSource } from "@/lib/connection-config";
-import { ClientError, describeSaveError, InstanceError, type SaveErrorKind, toSaveErrorKind, UnsupportedVersionError } from "@/lib/errors";
+import {
+  ClientError,
+  describeSaveError,
+  InstanceError,
+  type SaveErrorKind,
+  type SaveFailure,
+  toSaveErrorKind,
+  UnsupportedVersionError,
+} from "@/lib/errors";
 import { applyLocalePreference, getTextDirection, initializeLocalePreference, LOCALE_PREFERENCE_KEY, t, tp } from "@/lib/i18n";
 import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
 import { listSpaces, memosUserDisplayName } from "@/lib/memos-client";
@@ -246,8 +254,8 @@ async function showSaveResultInTab(tabId: number | undefined, result: SaveResult
   if (tabId === undefined) return;
   await localeReady;
   // The in-page toast has no buttons, so the fix rides along in the text ("… — Sign in and reconnect.").
-  const failureTitle = (kind: SaveErrorKind): string => {
-    const detail = describeSaveError(kind, source);
+  const failureTitle = (failure: SaveFailure): string => {
+    const detail = describeSaveError(failure.errorKind, source, failure);
     return detail.howToFix[0] ? t("contextFailureWithFix", [detail.title, detail.howToFix[0]]) : detail.title;
   };
   const msg: Request = result.ok
@@ -262,7 +270,7 @@ async function showSaveResultInTab(tabId: number | undefined, result: SaveResult
     : {
         type: "SHOW_SAVE_RESULT",
         ok: false,
-        title: failureTitle(result.errorKind),
+        title: failureTitle(result),
         direction: getTextDirection(),
       };
   await browser.tabs.sendMessage(tabId, msg).catch(() => {});

@@ -741,6 +741,32 @@
   "errorBadResponseFixRedirect": {
     "message": "サーバーでリダイレクトする場合は、最終的な URL を使用してください。"
   },
+  "errorQuotaContentTitle": { "message": "クリップがインスタンスの上限を超えています" },
+  "errorQuotaContentWhy": {
+    "message": "このメモは $USAGE$ ですが、インスタンスの上限はメモあたり $LIMIT$ です。",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": {
+    "message": "クリップを短くするか、管理者に Memos の「設定 › 使用量の上限」で上限を引き上げてもらってください。"
+  },
+  "errorQuotaCountTitle": { "message": "メモ数の上限に達しました" },
+  "errorQuotaCountWhy": {
+    "message": "アカウントのメモ数が上限の $LIMIT$ 件に達しました。",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": {
+    "message": "不要なメモを削除するか、管理者に Memos の「設定 › 使用量の上限」で上限を引き上げてもらってください。"
+  },
+  "errorQuotaTitle": { "message": "使用量の上限に達しました" },
+  "errorQuotaWhy": { "message": "使用量の上限に達したため、インスタンスが保存を拒否しました。" },
+  "errorQuotaFix": { "message": "管理者に Memos の「設定 › 使用量の上限」で上限を引き上げてもらってください。" },
+  "errorRateLimitedTitle": { "message": "リクエストが多すぎます" },
+  "errorRateLimitedWhy": { "message": "インスタンスが現在、保存の頻度を制限しています。" },
+  "errorRateLimitedFixWait": {
+    "message": "$SECONDS$ 秒後にもう一度お試しください。",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "しばらくしてからもう一度お試しください。" },
   "commonSpaceVisibility": { "message": "メンバー" },
   "popupSpaceDescription": { "message": "このスペースのメンバーに表示" },
   "popupAddToSpace": { "message": "スペースに追加" },

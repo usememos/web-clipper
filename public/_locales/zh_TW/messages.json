@@ -739,6 +739,28 @@
   "errorBadResponseFixRedirect": {
     "message": "如果伺服器會重新導向，請使用最終 URL。"
   },
+  "errorQuotaContentTitle": { "message": "剪藏超出執行個體限制" },
+  "errorQuotaContentWhy": {
+    "message": "這則 memo 大小為 $USAGE$，而執行個體允許每則 memo 最多 $LIMIT$。",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": { "message": "請縮短剪藏內容，或請管理員在 Memos 的「設定 › 使用限制」中提高限制。" },
+  "errorQuotaCountTitle": { "message": "已達到 memo 數量上限" },
+  "errorQuotaCountWhy": {
+    "message": "你的帳戶已達到 $LIMIT$ 則 memo 的上限。",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": { "message": "請刪除不再需要的 memo，或請管理員在 Memos 的「設定 › 使用限制」中提高限制。" },
+  "errorQuotaTitle": { "message": "已達到使用限制" },
+  "errorQuotaWhy": { "message": "由於達到使用限制，執行個體拒絕了儲存。" },
+  "errorQuotaFix": { "message": "請聯絡管理員在 Memos 的「設定 › 使用限制」中提高限制。" },
+  "errorRateLimitedTitle": { "message": "請求過於頻繁" },
+  "errorRateLimitedWhy": { "message": "執行個體目前正在限制你的儲存頻率。" },
+  "errorRateLimitedFixWait": {
+    "message": "請在 $SECONDS$ 秒後重試。",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "請稍後重試。" },
   "commonSpaceVisibility": { "message": "成員" },
   "popupSpaceDescription": { "message": "僅此 Space 的成員可見" },
   "popupAddToSpace": { "message": "加入 Space" },

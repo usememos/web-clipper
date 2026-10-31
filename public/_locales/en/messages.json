@@ -348,6 +348,35 @@
   "errorBadResponseWhy": { "message": "The instance returned something that isn't a valid API response." },
   "errorBadResponseFixApi": { "message": "Confirm the URL points at your Memos API." },
   "errorBadResponseFixRedirect": { "message": "If your server redirects, use the final URL." },
+  "errorQuotaContentTitle": { "message": "Clip too large for your instance" },
+  "errorQuotaContentWhy": {
+    "message": "This memo is $USAGE$, and your instance allows $LIMIT$ per memo.",
+    "description": "Explains a memo refused by the per-memo size limit; both values are formatted byte sizes.",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": {
+    "message": "Shorten the clip, or ask your administrator to raise the limit under Settings › Usage limits in Memos."
+  },
+  "errorQuotaCountTitle": { "message": "Memo limit reached" },
+  "errorQuotaCountWhy": {
+    "message": "Your account has reached its limit of $LIMIT$ memos.",
+    "description": "Explains a save refused because the account's memo count limit was reached.",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": {
+    "message": "Delete memos you no longer need, or ask your administrator to raise the limit under Settings › Usage limits in Memos."
+  },
+  "errorQuotaTitle": { "message": "Usage limit reached" },
+  "errorQuotaWhy": { "message": "Your instance refused the save because a usage limit was reached." },
+  "errorQuotaFix": { "message": "Ask your administrator to raise the limit under Settings › Usage limits in Memos." },
+  "errorRateLimitedTitle": { "message": "Too many requests" },
+  "errorRateLimitedWhy": { "message": "Your instance is limiting how often you can save right now." },
+  "errorRateLimitedFixWait": {
+    "message": "Try again in $SECONDS$ seconds.",
+    "description": "Recovery instruction with the server's advertised delay in seconds.",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "Try again in a moment." },
   "commonSpaceVisibility": { "message": "Members" },
   "popupSpaceDescription": { "message": "Visible to members of this Space" },
   "popupAddToSpace": { "message": "Add to space" },

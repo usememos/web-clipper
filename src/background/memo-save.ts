@@ -3,7 +3,7 @@ import { OAuthUnavailableError } from "@/auth/oauth-session";
 import { resolveActiveConnection } from "@/background/connection-source";
 import { type ClipCaptureInput, recordSuccessfulClip } from "@/lib/clip-records";
 import type { ConnectionSource } from "@/lib/connection-config";
-import { toSaveErrorKind } from "@/lib/errors";
+import { toSaveFailure } from "@/lib/errors";
 import { composeMemoContent } from "@/lib/format";
 import {
   createAttachment,
@@ -176,7 +176,7 @@ async function savePopupMemoOnce(
       }
     } catch (error) {
       // Do not issue another create while reconciliation itself is unavailable.
-      return { ok: false, errorKind: toSaveErrorKind(error) };
+      return toSaveFailure(error);
     }
   }
 
@@ -185,7 +185,7 @@ async function savePopupMemoOnce(
     try {
       placement.title = (await getSpace(credentials, space)).title;
     } catch (error) {
-      return { ok: false, errorKind: toSaveErrorKind(error) };
+      return toSaveFailure(error);
     }
   }
 
@@ -400,9 +400,9 @@ async function createMemoWithAttachments(
     });
     return { ok: true, webUrl: memoWebUrl(credentials.instanceUrl, memo) };
   } catch (error) {
-    const errorKind = toSaveErrorKind(error);
+    const failure = toSaveFailure(error);
     const errorName = typeof error === "object" && error !== null && "name" in error ? String(error.name) : "Error";
-    console.error("[memos-web-clipper] save failed", { errorKind, errorName });
-    return { ok: false, errorKind };
+    console.error("[memos-web-clipper] save failed", { errorKind: failure.errorKind, errorName });
+    return failure;
   }
 }

@@ -738,6 +738,32 @@
   "errorBadResponseFixRedirect": {
     "message": "Si su servidor redirige, utilice la URL final."
   },
+  "errorQuotaContentTitle": { "message": "Clip demasiado grande para su instancia" },
+  "errorQuotaContentWhy": {
+    "message": "Este memo ocupa $USAGE$ y su instancia permite $LIMIT$ por memo.",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": {
+    "message": "Acorte el clip o pida a su administrador que aumente el límite en Memos, en Ajustes › Límites de uso."
+  },
+  "errorQuotaCountTitle": { "message": "Límite de memos alcanzado" },
+  "errorQuotaCountWhy": {
+    "message": "Su cuenta ha alcanzado su límite de $LIMIT$ memos.",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": {
+    "message": "Elimine los memos que ya no necesite o pida a su administrador que aumente el límite en Memos, en Ajustes › Límites de uso."
+  },
+  "errorQuotaTitle": { "message": "Límite de uso alcanzado" },
+  "errorQuotaWhy": { "message": "Su instancia rechazó el guardado porque se alcanzó un límite de uso." },
+  "errorQuotaFix": { "message": "Pida a su administrador que aumente el límite en Memos, en Ajustes › Límites de uso." },
+  "errorRateLimitedTitle": { "message": "Demasiadas solicitudes" },
+  "errorRateLimitedWhy": { "message": "Su instancia está limitando con qué frecuencia puede guardar en este momento." },
+  "errorRateLimitedFixWait": {
+    "message": "Inténtelo de nuevo en $SECONDS$ segundos.",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "Inténtelo de nuevo en un momento." },
   "commonSpaceVisibility": { "message": "Miembros" },
   "popupSpaceDescription": { "message": "Visible para los miembros de este espacio" },
   "popupAddToSpace": { "message": "Añadir a un espacio" },

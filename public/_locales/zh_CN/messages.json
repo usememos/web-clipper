@@ -739,6 +739,28 @@
   "errorBadResponseFixRedirect": {
     "message": "如果服务器会重定向，请使用最终 URL。"
   },
+  "errorQuotaContentTitle": { "message": "剪藏超出实例限制" },
+  "errorQuotaContentWhy": {
+    "message": "这条 memo 大小为 $USAGE$，而实例允许每条 memo 最多 $LIMIT$。",
+    "placeholders": { "usage": { "content": "$1", "example": "24.6 kB" }, "limit": { "content": "$2", "example": "8.2 kB" } }
+  },
+  "errorQuotaContentFix": { "message": "请缩短剪藏内容，或请管理员在 Memos 的「设置 › 使用限制」中提高限制。" },
+  "errorQuotaCountTitle": { "message": "已达到 memo 数量上限" },
+  "errorQuotaCountWhy": {
+    "message": "你的账户已达到 $LIMIT$ 条 memo 的上限。",
+    "placeholders": { "limit": { "content": "$1", "example": "1000" } }
+  },
+  "errorQuotaCountFix": { "message": "请删除不再需要的 memo，或请管理员在 Memos 的「设置 › 使用限制」中提高限制。" },
+  "errorQuotaTitle": { "message": "已达到使用限制" },
+  "errorQuotaWhy": { "message": "由于达到使用限制，实例拒绝了保存。" },
+  "errorQuotaFix": { "message": "请联系管理员在 Memos 的「设置 › 使用限制」中提高限制。" },
+  "errorRateLimitedTitle": { "message": "请求过于频繁" },
+  "errorRateLimitedWhy": { "message": "实例目前正在限制你的保存频率。" },
+  "errorRateLimitedFixWait": {
+    "message": "请在 $SECONDS$ 秒后重试。",
+    "placeholders": { "seconds": { "content": "$1", "example": "30" } }
+  },
+  "errorRateLimitedFixRetry": { "message": "请稍后重试。" },
   "commonSpaceVisibility": { "message": "成员" },
   "popupSpaceDescription": { "message": "仅此 Space 的成员可见" },
   "popupAddToSpace": { "message": "添加到 Space" },

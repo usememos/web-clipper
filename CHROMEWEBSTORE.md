@@ -1,6 +1,6 @@
 # Chrome Web Store listing — Memos Web Clipper
 
-Last updated: 2026-11-01. Version 0.6.1 is prepared locally and not yet submitted; see [the release record](docs/releases/0.6.1.md) for package hashes and verification once it exists. Version 0.6.0 was submitted to Chrome on 2026-10-30 (automatic publication after approval) and is approved/live on Firefox ([record](docs/releases/0.6.0.md)).
+Last updated: 2026-11-01. Version 0.6.1 is submitted to Chrome (pending review, automatic publication after approval) and approved/live on Firefox. See [the release record](docs/releases/0.6.1.md) for package hashes and verification. Version 0.6.0 is published on Chrome.
 
 ## Store listing
 
@@ -51,8 +51,8 @@ Brand sources and regeneration are documented in [assets/brand/README.md](assets
 
 | Version | Date | Changes | Status |
 | --- | --- | --- | --- |
-| 0.6.1 | 2026-11-01 | Explain saves that Memos 26.10 refuses for a usage limit, naming the memo size against the per-memo limit or the memo count limit, and say how long to wait when rate limited, in all nine languages; Memos Markdown editor 26.10.30 | Prepared locally; not submitted |
-| 0.6.0 | 2026-10-30 | Edit clips in the Memos Markdown editor; templates control quotation (`> {{content}}` quotes, `{{content}}` keeps the original Markdown) in all nine languages; popup, settings, saved clips, and the in-page notice rebuilt on the shared Memos design system; refreshed screenshots and marquee tile | Chrome pending review with automatic publication; Firefox approved/live |
+| 0.6.1 | 2026-11-01 | Explain saves that Memos 26.10 refuses for a usage limit, naming the memo size against the per-memo limit or the memo count limit, and say how long to wait when rate limited, in all nine languages; Memos Markdown editor 26.10.30 | Chrome pending review with automatic publication; Firefox approved/live |
+| 0.6.0 | 2026-10-30 | Edit clips in the Memos Markdown editor; templates control quotation (`> {{content}}` quotes, `{{content}}` keeps the original Markdown) in all nine languages; popup, settings, saved clips, and the in-page notice rebuilt on the shared Memos design system; refreshed screenshots and marquee tile | Chrome published; Firefox approved/live |
 | 0.5.3 | 2026-10-21 | Preserve confirmed HTTP connections in Firefox; show a non-blocking amber HTTP warning with clearer copy in all nine languages | Chrome pending review with automatic publication; Firefox approved/live |
 | 0.5.1 | 2026-10-18 | Indigo bird icons that read on light and dark toolbars and stay sharp on HiDPI screens, serif Memos lockup, aligned extension descriptions in all locales, three store screenshots, both promo tile sizes, compatibility with current Memos calendar releases and development builds, detected versions in unsupported-version connection errors, the Astroid default Space icon, and a persistent popup error with saving disabled when an access token is rejected | Prepared locally; not submitted |
 

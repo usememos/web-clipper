@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.6.1](https://github.com/usememos/web-clipper/compare/v0.6.0...v0.6.1) (2026-11-01)
 
 ### Improvements
 

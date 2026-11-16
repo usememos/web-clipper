@@ -1,4 +1,10 @@
 {
+  "optionsQuickSaveVisibility": { "message": "既定の公開範囲" },
+  "optionsQuickSaveDescription": {
+    "message": "コンテキストメニューから保存するテキストと画像に適用します。変更するまで非公開です。このブラウザーにのみ保存されます。"
+  },
+  "optionsQuickSaveReadError": { "message": "既定の公開範囲を読み込めませんでした。設定を再読み込みして、もう一度お試しください。" },
+  "optionsQuickSaveWriteError": { "message": "既定の公開範囲を保存できませんでした。もう一度お試しください。" },
   "extensionName": {
     "message": "Memos Web Clipper",
     "description": "Extension name shown by the browser."

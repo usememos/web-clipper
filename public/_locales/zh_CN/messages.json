@@ -1,4 +1,8 @@
 {
+  "optionsQuickSaveVisibility": { "message": "默认可见性" },
+  "optionsQuickSaveDescription": { "message": "用于通过右键菜单保存的文本和图片。选择其他选项前保持私密。此设置仅保存在当前浏览器中。" },
+  "optionsQuickSaveReadError": { "message": "无法加载默认可见性。请重新加载设置后重试。" },
+  "optionsQuickSaveWriteError": { "message": "无法保存默认可见性。请重试。" },
   "extensionName": {
     "message": "Memos 网页剪藏器",
     "description": "Extension name shown by the browser."

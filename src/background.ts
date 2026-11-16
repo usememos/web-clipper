@@ -27,6 +27,7 @@ import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
 import { listSpaces, memosUserDisplayName } from "@/lib/memos-client";
 import type { ConnectionStateResult, Request, SaveResult, SelectionClip, SpacesResult } from "@/lib/messages";
 import { clearPopupState } from "@/lib/popup-state";
+import { readQuickSaveVisibility } from "@/lib/quick-save-settings";
 import { readClipTemplate } from "@/lib/template-settings";
 import { isSupportedVersion, supportsSpaces } from "@/lib/versions";
 
@@ -337,9 +338,10 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     }
 
     const template = await readClipTemplate();
+    const visibility = await readQuickSaveVisibility();
     const title = tab?.title ?? "";
     const url = info.pageUrl ?? tab?.url ?? "";
-    result = await saveSelectionClip(await clipPromise, title, url, credentials, template);
+    result = await saveSelectionClip(await clipPromise, title, url, credentials, template, visibility);
   } catch (error) {
     // A quick-save has no UI of its own, so anything that throws on the way to the save — an OAuth
     // outage, a failed storage read, an unexpected error — must still surface as a failed save

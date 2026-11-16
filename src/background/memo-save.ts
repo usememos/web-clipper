@@ -16,6 +16,7 @@ import {
   type Visibility,
 } from "@/lib/memos-client";
 import type { SaveResult, SelectionClip } from "@/lib/messages";
+import type { QuickSaveVisibility } from "@/lib/quick-save-settings";
 
 export type SaveExpectation = { source: ConnectionSource; connectionId: string; instanceUrl: string };
 export type SaveOperation = { requestId: string; startedAt: number; serverMemoId?: string };
@@ -368,6 +369,7 @@ export async function saveSelectionClip(
   url: string,
   credentials: MemosCredentials,
   template: string | null,
+  visibility: QuickSaveVisibility = "PRIVATE",
 ): Promise<SaveResult> {
   const { names, failed } = await uploadImages(clip.images, credentials);
   if (!clip.markdown && names.length === 0) return { ok: false, errorKind: "bad-response" };
@@ -378,7 +380,7 @@ export async function saveSelectionClip(
     description: clip.description,
     template,
   });
-  const result = await createMemoWithAttachments(content, names, credentials, "PRIVATE");
+  const result = await createMemoWithAttachments(content, names, credentials, visibility);
   return result.ok && failed > 0 ? { ...result, failedImages: failed } : result;
 }
 

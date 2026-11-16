@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ConnectionStateResult } from "@/lib/messages";
+import { QUICK_SAVE_VISIBILITY_KEY } from "@/lib/quick-save-settings";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { Options } from "@/options/Options";
 import { oauthUserWithMemos, setMockOAuthUser } from "@/test/auth-mock";
-import { browserMock, setBrowserLocale } from "@/test/browser-mock";
+import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { renderWithUser, screen, waitFor, within } from "@/test/render";
 import simplifiedChineseMessages from "../../../public/_locales/zh_CN/messages.json" with { type: "json" };
 
@@ -88,6 +89,77 @@ describe("Options connection methods", () => {
     expect(screen.queryByLabelText("Access token")).not.toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("Browser language");
     expect(screen.queryByRole("link", { name: /open memos/i })).not.toBeInTheDocument();
+  });
+
+  it("keeps quick saves private until a visibility is selected and persists the choice", async () => {
+    const { user, unmount } = renderWithUser(<Options />);
+    const privateOption = await screen.findByRole("radio", { name: "Private" });
+    await waitFor(() => expect(privateOption).not.toHaveAttribute("aria-disabled", "true"));
+    expect(privateOption).toBeChecked();
+    expect(browserMock.storage.local.set).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("radio", { name: "Public" }));
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Public" })).toBeChecked());
+    expect(browserMock.storage.local.set).toHaveBeenCalledWith({ [QUICK_SAVE_VISIBILITY_KEY]: "PUBLIC" });
+
+    unmount();
+    renderWithUser(<Options />);
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Public" })).toBeChecked());
+  });
+
+  it("retains the saved visibility and reports a write failure", async () => {
+    seedStorage({ [QUICK_SAVE_VISIBILITY_KEY]: "PROTECTED" });
+    const { user } = renderWithUser(<Options />);
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Protected" })).toBeChecked());
+    browserMock.storage.local.set.mockRejectedValueOnce(new Error("storage unavailable"));
+
+    await user.click(screen.getByRole("radio", { name: "Public" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("The extension could not save the default visibility. Try again.");
+    expect(screen.getByRole("radio", { name: "Protected" })).toBeChecked();
+  });
+
+  it("retains the current visibility while the new choice is being saved", async () => {
+    const { user } = renderWithUser(<Options />);
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Private" })).not.toHaveAttribute("aria-disabled", "true"));
+    let finishWrite!: () => void;
+    browserMock.storage.local.set.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finishWrite = resolve;
+        }),
+    );
+
+    await user.click(screen.getByRole("radio", { name: "Public" }));
+
+    expect(screen.getByRole("radio", { name: "Private" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Public" })).toHaveAttribute("aria-disabled", "true");
+    finishWrite();
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Public" })).toBeChecked());
+  });
+
+  it("reports a visibility read failure and disables choices until settings are reloaded", async () => {
+    const get = browserMock.storage.local.get.getMockImplementation()!;
+    browserMock.storage.local.get.mockImplementation(async (keys) => {
+      if (keys === QUICK_SAVE_VISIBILITY_KEY) throw new Error("storage unavailable");
+      return get(keys);
+    });
+    renderWithUser(<Options />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The extension could not read the default visibility. Reload the settings. Try again.",
+    );
+    for (const radio of screen.getAllByRole("radio")) expect(radio).toHaveAttribute("aria-disabled", "true");
+    expect(browserMock.storage.local.set).not.toHaveBeenCalled();
+  });
+
+  it.each([undefined, "SPACE", "invalid"])("shows Private for an absent or invalid default visibility (%s)", async (stored) => {
+    seedStorage({ [QUICK_SAVE_VISIBILITY_KEY]: stored });
+    renderWithUser(<Options />);
+
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Private" })).not.toHaveAttribute("aria-disabled", "true"));
+    expect(screen.getByRole("radio", { name: "Private" })).toBeChecked();
+    expect(browserMock.storage.local.set).not.toHaveBeenCalled();
   });
 
   it("persists a language choice and applies it immediately", async () => {

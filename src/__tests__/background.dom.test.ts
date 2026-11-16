@@ -4,6 +4,7 @@ import { CONNECTION_CONFIG_KEY } from "@/lib/connection-config";
 import { LOCALE_PREFERENCE_KEY } from "@/lib/i18n";
 import { VERSION_CACHE_KEY } from "@/lib/instance-version";
 import { POPUP_STATE_KEY } from "@/lib/popup-state";
+import { QUICK_SAVE_VISIBILITY_KEY } from "@/lib/quick-save-settings";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { jsonResponse, testCreds } from "@/test/fixtures";
@@ -933,6 +934,58 @@ describe("background — context menu quick save", () => {
       { menuItemId: "save-selection", selectionText: "clip me", pageUrl: "https://example.com/post" },
       { id: 5, title: "Post" },
     );
+
+  it.each([
+    undefined,
+    "PRIVATE",
+    "PROTECTED",
+    "PUBLIC",
+    "SPACE",
+    "invalid",
+    null,
+    42,
+    { visibility: "PUBLIC" },
+  ])("uses the quick-save visibility for text and bare images (%j)", async (stored) => {
+    ready();
+    seedStorage({ [QUICK_SAVE_VISIBILITY_KEY]: stored });
+    const fetchMock = vi.fn(async (url: unknown, _init?: RequestInit) => {
+      if (String(url) === "https://cdn.example.com/pic.png") {
+        return new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/png" } });
+      }
+      if (String(url).endsWith("/api/attachments")) return jsonResponse({ name: "attachments/9" });
+      return jsonResponse({ name: "memos/7" });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+    await browserMock.contextMenus.onClicked.emit(
+      { menuItemId: "save-selection", srcUrl: "https://cdn.example.com/pic.png", pageUrl: "https://example.com/post" },
+      { id: 5, title: "Post" },
+    );
+
+    const posts = fetchMock.mock.calls.filter(([url]) => String(url).endsWith("/api/memos"));
+    expect(posts).toHaveLength(2);
+    for (const [, init] of posts) {
+      expect(JSON.parse(init!.body as string).visibility).toBe(stored === "PROTECTED" || stored === "PUBLIC" ? stored : "PRIVATE");
+    }
+  });
+
+  it("reports a visibility storage failure before creating a quick-save memo", async () => {
+    ready();
+    const get = browserMock.storage.local.get.getMockImplementation()!;
+    browserMock.storage.local.get.mockImplementation(async (keys) => {
+      if (keys === QUICK_SAVE_VISIBILITY_KEY) throw new Error("storage unavailable");
+      return get(keys);
+    });
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/7" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(browserMock.action.setBadgeText).toHaveBeenCalledWith({ text: "!" });
+    expect(browserMock.tabs.sendMessage).toHaveBeenCalledWith(5, expect.objectContaining({ type: "SHOW_SAVE_RESULT", ok: false }));
+  });
 
   it("ready → saves the selection through the template and flashes a success badge", async () => {
     ready();

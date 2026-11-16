@@ -1,4 +1,8 @@
 {
+  "optionsQuickSaveVisibility": { "message": "預設可見性" },
+  "optionsQuickSaveDescription": { "message": "用於透過右鍵選單儲存的文字和圖片。選擇其他選項前維持私人。此設定僅儲存在目前瀏覽器中。" },
+  "optionsQuickSaveReadError": { "message": "無法載入預設可見性。請重新載入設定後再試。" },
+  "optionsQuickSaveWriteError": { "message": "無法儲存預設可見性。請再試一次。" },
   "extensionName": {
     "message": "Memos 網頁剪藏器",
     "description": "Extension name shown by the browser."

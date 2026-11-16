@@ -1,4 +1,10 @@
 {
+  "optionsQuickSaveVisibility": { "message": "Видимость по умолчанию" },
+  "optionsQuickSaveDescription": {
+    "message": "Для текста и изображений, сохранённых через контекстное меню. По умолчанию доступно только вам, пока вы не выберете другой вариант. Настройка сохраняется только в этом браузере."
+  },
+  "optionsQuickSaveReadError": { "message": "Не удалось загрузить видимость по умолчанию. Перезагрузите настройки и попробуйте ещё раз." },
+  "optionsQuickSaveWriteError": { "message": "Не удалось сохранить видимость по умолчанию. Попробуйте ещё раз." },
   "extensionName": { "message": "Memos Web Clipper" },
   "extensionDescription": {
     "message": "Сохраняйте страницы, выделенный текст и изображения из Chrome или Firefox в Memos как Markdown со ссылкой на источник."

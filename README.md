@@ -41,7 +41,7 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 - Save as Private, Protected, or Public.
 - Choose a space and optionally limit visibility to its members on Memos 0.31 or later. The popup remembers your last successful space and visibility for each connection.
 - Customize the clip format with a local template.
-- Quick-save selected text or images from the context menu.
+- Quick-save selected text or images from the context menu with a default visibility set in extension settings.
 - Browse and search clips saved locally from the popup.
 - See when a page was saved before, with the option to save it again.
 
@@ -67,7 +67,7 @@ Open **Saved clips** from the popup or extension settings to review previous sav
 
 For a direct connection, create a PAT in your Memos user settings at `/setting#access-token`. The clipper tests the instance URL, supported Memos version, and token before saving the connection. The saved token is never displayed again in the extension UI.
 
-You can also right-click selected text or an image and choose **Save selection to Memos**. Context-menu saves are always private.
+You can also right-click selected text or an image and choose **Save selection to Memos**. Context-menu saves use **Private** until you select another **Default visibility** in extension settings. Choose Private, Protected, or Public. This preference stays in the current browser profile and applies to both text and image saves.
 
 Browser-owned pages, such as extension stores and internal browser URLs, may block page capture. The clipper falls back to the page title and URL when available.
 

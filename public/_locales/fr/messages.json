@@ -1,4 +1,10 @@
 {
+  "optionsQuickSaveVisibility": { "message": "Visibilité par défaut" },
+  "optionsQuickSaveDescription": {
+    "message": "Pour le texte et les images enregistrés depuis le menu contextuel. Privé tant que vous ne choisissez pas une autre option. Enregistré uniquement dans ce navigateur."
+  },
+  "optionsQuickSaveReadError": { "message": "Impossible de charger la visibilité par défaut. Rechargez les paramètres et réessayez." },
+  "optionsQuickSaveWriteError": { "message": "Impossible d'enregistrer la visibilité par défaut. Réessayez." },
   "extensionName": {
     "message": "Memos Web Clipper"
   },

@@ -1,4 +1,10 @@
 {
+  "optionsQuickSaveVisibility": { "message": "기본 공개 범위" },
+  "optionsQuickSaveDescription": {
+    "message": "컨텍스트 메뉴에서 저장하는 텍스트와 이미지에 적용됩니다. 다른 옵션을 선택할 때까지 비공개입니다. 이 브라우저에만 저장됩니다."
+  },
+  "optionsQuickSaveReadError": { "message": "기본 공개 범위를 불러오지 못했습니다. 설정을 새로고침하고 다시 시도하세요." },
+  "optionsQuickSaveWriteError": { "message": "기본 공개 범위를 저장하지 못했습니다. 다시 시도하세요." },
   "extensionName": { "message": "Memos Web Clipper", "description": "Extension name shown by the browser." },
   "extensionDescription": {
     "message": "Chrome이나 Firefox의 페이지, 선택한 텍스트와 이미지를 원본 링크가 있는 Markdown으로 Memos에 저장합니다.",

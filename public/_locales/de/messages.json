@@ -1,4 +1,12 @@
 {
+  "optionsQuickSaveVisibility": { "message": "Standardsichtbarkeit" },
+  "optionsQuickSaveDescription": {
+    "message": "Für Text und Bilder, die über das Kontextmenü gespeichert werden. Privat, bis du etwas anderes wählst. Nur in diesem Browser gespeichert."
+  },
+  "optionsQuickSaveReadError": {
+    "message": "Die Standardsichtbarkeit konnte nicht geladen werden. Lade die Einstellungen neu und versuche es erneut."
+  },
+  "optionsQuickSaveWriteError": { "message": "Die Standardsichtbarkeit konnte nicht gespeichert werden. Versuche es erneut." },
   "extensionName": {
     "message": "Memos Web Clipper"
   },

@@ -134,6 +134,12 @@
   "historyEmptyDescription": { "message": "Save a web page with the clipper and it will appear here." },
   "historyNoResults": { "message": "No saved clips match your search." },
 
+  "optionsQuickSaveVisibility": { "message": "Default visibility" },
+  "optionsQuickSaveDescription": {
+    "message": "Context menu text and image saves use this setting. Private is the initial value. This browser stores the preference."
+  },
+  "optionsQuickSaveReadError": { "message": "The extension could not read the default visibility. Reload the settings. Try again." },
+  "optionsQuickSaveWriteError": { "message": "The extension could not save the default visibility. Try again." },
   "optionsClipTemplate": { "message": "Clip template" },
   "optionsTemplateLocked": { "message": "Connect a supported Memos instance first; then you can configure how clips are formatted." },
   "optionsTemplateDescription": {

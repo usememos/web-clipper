@@ -36,6 +36,7 @@ import type { ConnectionActionResult } from "@/lib/messages";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
 import { ErrorNotice, HttpConnectionWarning, StepRow } from "./connection-controls";
+import { QuickSaveSettings } from "./quick-save-settings";
 import { TemplateEditor } from "./template-editor";
 
 const SETUP_PENDING_KEY = "memosConnectionSetupStartedAt";
@@ -695,6 +696,8 @@ export function Options() {
         </StepRow>
         <LocalTemplateStep enabled={ready && active.verificationError !== "unauthorized"} />
       </div>
+      <Separator />
+      <QuickSaveSettings />
     </div>
   );
 }

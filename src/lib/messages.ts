@@ -82,6 +82,8 @@ export type MemosConnectionStatus = "disconnected" | "invalid" | "unsupported" |
 /** Sanitized options-page state: credentials never leave the background service worker. */
 export type ConnectionStateResult = {
   source: ConnectionSource | null;
+  connectionId?: string | null;
+  accountId?: string | null;
   instanceUrl: string | null;
   version: string | null;
   displayName: string | null;

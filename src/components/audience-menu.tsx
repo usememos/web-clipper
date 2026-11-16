@@ -21,9 +21,37 @@ type Props = {
   spaces: { status: "loading" | "ready" | "error"; items: SpaceSummary[]; errorKind?: SaveErrorKind };
   supportsSpaces: boolean;
   onRetry: () => void;
-  onOpenSettings: () => void;
+  onOpenSettings?: () => void;
   disabled?: boolean;
+  popupSide?: "top" | "bottom";
+  triggerClassName?: string;
+  triggerAriaLabel?: string;
 };
+
+function visibilityOptions() {
+  return {
+    PRIVATE: { label: t("commonPrivate"), description: t("popupPrivateDescription"), icon: LockIcon },
+    PROTECTED: { label: t("commonProtected"), description: t("popupProtectedDescription"), icon: UsersRoundIcon },
+    PUBLIC: { label: t("commonPublic"), description: t("popupPublicDescription"), icon: EarthIcon },
+    SPACE: { label: t("commonSpaceVisibility"), description: t("popupSpaceDescription"), icon: UserLockIcon },
+  };
+}
+
+function resolveAudienceDisplay(visibility: Visibility, space: string | undefined, items: SpaceSummary[]) {
+  const options = visibilityOptions();
+  const selected = options[visibility];
+  const titleCounts = new Map<string, number>();
+  for (const item of items) titleCounts.set(item.title, (titleCounts.get(item.title) ?? 0) + 1);
+  const label = (item: SpaceSummary) => ((titleCounts.get(item.title) ?? 0) > 1 ? `${item.title} (${item.name.slice(7)})` : item.title);
+  const selectedSpace = items.find((item) => item.name === space);
+  const destination = selectedSpace ? label(selectedSpace) : space?.slice(7);
+  const summary = destination ? t("popupAudienceSummary", [destination, selected.label]) : selected.label;
+  return { options, selected, label, selectedSpace, destination, summary };
+}
+
+export function formatAudienceSummary(visibility: Visibility, space: string | undefined, items: SpaceSummary[]): string {
+  return resolveAudienceDisplay(visibility, space, items).summary;
+}
 
 export function AudienceMenu({
   visibility,
@@ -35,21 +63,12 @@ export function AudienceMenu({
   onRetry,
   onOpenSettings,
   disabled,
+  popupSide = "top",
+  triggerClassName = "min-w-0 max-w-52 shrink justify-start",
+  triggerAriaLabel,
 }: Props) {
-  const options = {
-    PRIVATE: { label: t("commonPrivate"), description: t("popupPrivateDescription"), icon: LockIcon },
-    PROTECTED: { label: t("commonProtected"), description: t("popupProtectedDescription"), icon: UsersRoundIcon },
-    PUBLIC: { label: t("commonPublic"), description: t("popupPublicDescription"), icon: EarthIcon },
-    SPACE: { label: t("commonSpaceVisibility"), description: t("popupSpaceDescription"), icon: UserLockIcon },
-  };
-  const selected = options[visibility];
+  const { options, selected, label, selectedSpace, destination, summary } = resolveAudienceDisplay(visibility, space, spaces.items);
   const SelectedIcon = selected.icon;
-  const titleCounts = new Map<string, number>();
-  for (const item of spaces.items) titleCounts.set(item.title, (titleCounts.get(item.title) ?? 0) + 1);
-  const label = (item: SpaceSummary) => ((titleCounts.get(item.title) ?? 0) > 1 ? `${item.title} (${item.name.slice(7)})` : item.title);
-  const selectedSpace = spaces.items.find((item) => item.name === space);
-  const destination = selectedSpace ? label(selectedSpace) : space?.slice(7);
-  const summary = destination ? t("popupAudienceSummary", [destination, selected.label]) : selected.label;
   const choices = space && !selectedSpace ? [{ name: space, title: destination ?? space }, ...spaces.items] : spaces.items;
   const showSpace = supportsSpaces && (Boolean(space) || spaces.status !== "ready" || spaces.items.length > 0);
   const values: Visibility[] = ["PRIVATE", ...(supportsSpaces && space ? ["SPACE" as const] : []), "PROTECTED", "PUBLIC"];
@@ -58,9 +77,9 @@ export function AudienceMenu({
   return (
     <Menu.Root>
       <Menu.Trigger
-        render={<Button className="min-w-0 max-w-52 shrink justify-start" disabled={disabled} />}
+        render={<Button className={triggerClassName} disabled={disabled} />}
         title={summary}
-        aria-label={t("popupAudienceLabel", [t("popupVisibility"), summary])}
+        aria-label={triggerAriaLabel ?? t("popupAudienceLabel", [t("popupVisibility"), summary])}
       >
         {/* Button puts children in one label span; this keeps them on one line. */}
         <span className="flex min-w-0 items-center gap-1">
@@ -79,7 +98,7 @@ export function AudienceMenu({
         </span>
       </Menu.Trigger>
       {/* Intrinsic width: descriptions stay on one line and wrap only when the popup window is narrower. */}
-      <Menu.Popup side="top" align="start" className="w-max max-w-(--available-width)" aria-label={t("popupVisibility")}>
+      <Menu.Popup side={popupSide} align="start" className="w-max max-w-(--available-width)" aria-label={t("popupVisibility")}>
         <Menu.RadioGroup value={visibility} onValueChange={(value) => onVisibilityChange(value as Visibility)}>
           {values.map((value) => {
             const option = options[value];
@@ -160,12 +179,15 @@ export function AudienceMenu({
                 {spaces.status === "error" && (
                   <Menu.Item
                     className={tokenRejected ? "h-auto py-1" : undefined}
+                    disabled={tokenRejected && !onOpenSettings}
                     closeOnClick={tokenRejected}
                     onClick={tokenRejected ? onOpenSettings : onRetry}
                   >
                     <span className={cn("flex min-w-0 gap-2", tokenRejected ? "flex-col" : "items-center")}>
                       <span className="flex-1 text-mu-danger">{t(tokenRejected ? "errorUnauthorizedTitle" : "popupSpacesLoadError")}</span>
-                      <span className="text-mu-ink-muted">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
+                      {!tokenRejected || onOpenSettings ? (
+                        <span className="text-mu-ink-muted">{t(tokenRejected ? "commonOpenSettings" : "popupRetry")}</span>
+                      ) : null}
                     </span>
                   </Menu.Item>
                 )}

@@ -35,6 +35,7 @@ import { isValidInstanceUrl, normalizeInstanceUrl, requiresInsecureHttpConfirmat
 import type { ConnectionActionResult } from "@/lib/messages";
 import { sendBackgroundRequest } from "@/lib/runtime-client";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
+import { supportsSpaces } from "@/lib/versions";
 import { ErrorNotice, HttpConnectionWarning, StepRow } from "./connection-controls";
 import { QuickSaveSettings } from "./quick-save-settings";
 import { TemplateEditor } from "./template-editor";
@@ -608,6 +609,17 @@ export function Options() {
   const [localePreference, setLocalePreference] = useState<LocalePreference>(getLocalePreference);
   const [localeError, setLocaleError] = useState(false);
   const ready = active.status === "ready";
+  const connectionReady = ready && active.verificationError !== "unauthorized";
+  const destinationConnection =
+    connectionReady && active.source && active.connectionId && active.instanceUrl
+      ? {
+          source: active.source,
+          connectionId: active.connectionId,
+          instanceUrl: active.instanceUrl,
+          ...(active.accountId ? { accountId: active.accountId } : {}),
+        }
+      : null;
+  const spacesSupported = Boolean(destinationConnection && active.version && supportsSpaces(active.version));
   const host = safeHost(active.instanceUrl);
 
   useEffect(() => {
@@ -694,10 +706,10 @@ export function Options() {
             />
           )}
         </StepRow>
-        <LocalTemplateStep enabled={ready && active.verificationError !== "unauthorized"} />
+        <LocalTemplateStep enabled={connectionReady} />
       </div>
       <Separator />
-      <QuickSaveSettings />
+      <QuickSaveSettings connection={destinationConnection} supportsSpaces={spacesSupported} />
     </div>
   );
 }

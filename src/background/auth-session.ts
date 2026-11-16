@@ -100,12 +100,17 @@ export async function getOptionsConnectionState(
 
   let credentials: ReturnType<typeof readCredentials>;
   let displayName: string | null;
+  let connectionId: string;
+  let accountId: string | undefined;
   if (direct) {
     credentials = direct.credentials;
     displayName = memosUserDisplayName(direct.user);
+    connectionId = direct.connectionId;
+    accountId = direct.user.name;
   } else {
     if (!user) return disconnected(source);
     displayName = user.displayName;
+    connectionId = user.id;
     const memosObject = readMemosObject(user.unsafeMetadata);
     credentials = readCredentials(user.unsafeMetadata);
     if (!credentials) return disconnected(source, memosObject ? "invalid" : "disconnected");
@@ -116,7 +121,10 @@ export async function getOptionsConnectionState(
   if (refresh && !verificationError && result.version && isSupportedVersion(result.version)) {
     try {
       const user = await getCurrentUser(credentials);
-      if (source === "direct") displayName = memosUserDisplayName(user);
+      if (source === "direct") {
+        displayName = memosUserDisplayName(user);
+        accountId = user.name;
+      }
     } catch (error) {
       verificationError = toSaveErrorKind(error);
     }
@@ -124,6 +132,8 @@ export async function getOptionsConnectionState(
   const status = result.version && isSupportedVersion(result.version) ? "ready" : verificationError ? "error" : "unsupported";
   return {
     source,
+    connectionId,
+    ...(accountId ? { accountId } : {}),
     instanceUrl: credentials.instanceUrl,
     version: result.version,
     displayName,

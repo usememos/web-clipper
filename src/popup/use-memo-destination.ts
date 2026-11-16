@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { SaveErrorKind } from "@/lib/errors";
-import { type DestinationConnection, destinationStorageKey, type MemoDestination, readMemoDestination } from "@/lib/memo-destination";
-import type { SpaceSummary, Visibility } from "@/lib/memos-client";
-import { sendBackgroundRequest } from "@/lib/runtime-client";
-
-type SpaceList = { key: string | null; status: "loading" | "ready" | "error"; items: SpaceSummary[]; errorKind?: SaveErrorKind };
+import { useSpaceList } from "@/hooks/use-space-list";
+import {
+  adaptDestinationForVersion,
+  applySpaceChange,
+  applyVisibilityChange,
+  type DestinationConnection,
+  destinationStorageKey,
+  type MemoDestination,
+  readMemoDestination,
+} from "@/lib/memo-destination";
+import type { Visibility } from "@/lib/memos-client";
 
 export function useMemoDestination(connection: DestinationConnection | null, supportsSpaces: boolean) {
   const key = connection ? destinationStorageKey(connection) : null;
@@ -12,17 +17,13 @@ export function useMemoDestination(connection: DestinationConnection | null, sup
     key: null,
     value: { visibility: "PRIVATE" },
   });
-  const [spaceList, setSpaceList] = useState<SpaceList>({ key: null, status: "loading", items: [] });
-  const [reload, setReload] = useState(0);
+  const { spaces, reloadSpaces } = useSpaceList(connection, supportsSpaces);
   // The connection whose choice the user has made by hand; stored values never replace it, and a
   // gate transition (key → null → same key) must not reset it either.
   const touchedKey = useRef<string | null>(null);
   // Never render another connection's choices while its replacement is loading.
   const current = selection.key === key ? selection.value : { visibility: "PRIVATE" as const };
-  const destination: MemoDestination = supportsSpaces
-    ? current
-    : { visibility: current.visibility === "SPACE" ? "PRIVATE" : current.visibility };
-  const spaces: SpaceList = spaceList.key === key ? spaceList : { key, status: "loading", items: [] };
+  const destination: MemoDestination = adaptDestinationForVersion(current, supportsSpaces);
 
   useEffect(() => {
     if (!key || touchedKey.current === key) return;
@@ -37,36 +38,6 @@ export function useMemoDestination(connection: DestinationConnection | null, sup
     };
   }, [key, supportsSpaces]);
 
-  const source = connection?.source;
-  const connectionId = connection?.connectionId;
-  const instanceUrl = connection?.instanceUrl;
-  useEffect(() => {
-    let active = true;
-    setSpaceList((previous) => ({ key, status: "loading", items: previous.key === key ? previous.items : [] }));
-    if (supportsSpaces && key && source && connectionId && instanceUrl) {
-      void sendBackgroundRequest({
-        type: "LIST_SPACES",
-        expectedSource: source,
-        expectedConnectionId: connectionId,
-        expectedInstanceUrl: instanceUrl,
-      })
-        .then((result) => {
-          if (active)
-            setSpaceList(
-              result?.ok
-                ? { key, status: "ready", items: result.spaces }
-                : { key, status: "error", items: [], errorKind: result?.errorKind ?? "extension-error" },
-            );
-        })
-        .catch(() => {
-          if (active) setSpaceList({ key, status: "error", items: [], errorKind: "extension-error" });
-        });
-    }
-    return () => {
-      active = false;
-    };
-  }, [key, source, connectionId, instanceUrl, supportsSpaces, reload]);
-
   const markTouched = useCallback(() => {
     touchedKey.current = key;
   }, [key]);
@@ -75,7 +46,8 @@ export function useMemoDestination(connection: DestinationConnection | null, sup
       markTouched();
       setSelection((previous) => {
         const value: MemoDestination = previous.key === key ? previous.value : { visibility: "PRIVATE" };
-        return visibility === "SPACE" && !value.space ? previous : { key, value: { ...value, visibility } };
+        const next = applyVisibilityChange(value, visibility);
+        return next === value && previous.key === key ? previous : { key, value: next };
       });
     },
     [key, markTouched],
@@ -83,13 +55,10 @@ export function useMemoDestination(connection: DestinationConnection | null, sup
   const changeSpace = useCallback(
     (space?: string) => {
       markTouched();
-      setSelection((previous) => ({
-        key,
-        value: {
-          visibility: previous.key !== key || (!space && previous.value.visibility === "SPACE") ? "PRIVATE" : previous.value.visibility,
-          ...(space ? { space } : {}),
-        },
-      }));
+      setSelection((previous) => {
+        const value: MemoDestination = previous.key === key ? previous.value : { visibility: "PRIVATE" };
+        return { key, value: applySpaceChange(value, space) };
+      });
     },
     [key, markTouched],
   );
@@ -103,7 +72,7 @@ export function useMemoDestination(connection: DestinationConnection | null, sup
     ),
     changeVisibility,
     changeSpace,
-    reloadSpaces: () => setReload((value) => value + 1),
+    reloadSpaces,
     markTouched,
   };
 }

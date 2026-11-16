@@ -1,10 +1,21 @@
 {
-  "optionsQuickSaveVisibility": { "message": "Visibilidad predeterminada" },
+  "optionsQuickSaveDestination": { "message": "Destino de guardado rápido" },
   "optionsQuickSaveDescription": {
     "message": "Para guardar texto e imágenes desde el menú contextual. Privado hasta que elijas otra opción. Se guarda solo en este navegador."
   },
-  "optionsQuickSaveReadError": { "message": "No se pudo cargar la visibilidad predeterminada. Recarga los ajustes e inténtalo de nuevo." },
-  "optionsQuickSaveWriteError": { "message": "No se pudo guardar la visibilidad predeterminada. Inténtalo de nuevo." },
+  "optionsQuickSaveFollowPopup": { "message": "Usar el último destino de la ventana emergente" },
+  "optionsQuickSaveFollowPopupDescription": {
+    "message": "Usa la visibilidad y el Space del último guardado correcto desde la ventana emergente en esta conexión."
+  },
+  "optionsQuickSaveCurrentPopup": {
+    "message": "Destino actual de la ventana emergente: $DESTINATION$",
+    "placeholders": { "destination": { "content": "$1", "example": "Team · Members" } }
+  },
+  "optionsQuickSaveCustom": { "message": "Destino personalizado" },
+  "optionsQuickSaveCustomDescription": { "message": "Usa siempre la visibilidad y el Space que elijas abajo." },
+  "optionsQuickSaveCustomLabel": { "message": "Destino de guardado rápido" },
+  "optionsQuickSaveReadError": { "message": "No se pudo cargar el destino de guardado rápido. Recarga los ajustes e inténtalo de nuevo." },
+  "optionsQuickSaveWriteError": { "message": "No se pudo guardar el destino de guardado rápido. Inténtalo de nuevo." },
   "extensionName": {
     "message": "Memos Web Clipper"
   },

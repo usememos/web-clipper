@@ -1,8 +1,17 @@
 {
-  "optionsQuickSaveVisibility": { "message": "默认可见性" },
+  "optionsQuickSaveDestination": { "message": "快速保存目标" },
   "optionsQuickSaveDescription": { "message": "用于通过右键菜单保存的文本和图片。选择其他选项前保持私密。此设置仅保存在当前浏览器中。" },
-  "optionsQuickSaveReadError": { "message": "无法加载默认可见性。请重新加载设置后重试。" },
-  "optionsQuickSaveWriteError": { "message": "无法保存默认可见性。请重试。" },
+  "optionsQuickSaveFollowPopup": { "message": "跟随弹窗上次选择" },
+  "optionsQuickSaveFollowPopupDescription": { "message": "使用当前连接在弹窗中上次成功保存时的可见性与 Space。" },
+  "optionsQuickSaveCurrentPopup": {
+    "message": "当前弹窗目标：$DESTINATION$",
+    "placeholders": { "destination": { "content": "$1", "example": "Team · Members" } }
+  },
+  "optionsQuickSaveCustom": { "message": "单独指定默认目标" },
+  "optionsQuickSaveCustomDescription": { "message": "始终使用下方选择的可见性与 Space。" },
+  "optionsQuickSaveCustomLabel": { "message": "快速保存目标" },
+  "optionsQuickSaveReadError": { "message": "无法加载快速保存目标。请重新加载设置后重试。" },
+  "optionsQuickSaveWriteError": { "message": "无法保存快速保存目标。请重试。" },
   "extensionName": {
     "message": "Memos 网页剪藏器",
     "description": "Extension name shown by the browser."

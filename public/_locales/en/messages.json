@@ -134,12 +134,23 @@
   "historyEmptyDescription": { "message": "Save a web page with the clipper and it will appear here." },
   "historyNoResults": { "message": "No saved clips match your search." },
 
-  "optionsQuickSaveVisibility": { "message": "Default visibility" },
+  "optionsQuickSaveDestination": { "message": "Quick save destination" },
   "optionsQuickSaveDescription": {
     "message": "Context menu text and image saves use this setting. Private is the initial value. This browser stores the preference."
   },
-  "optionsQuickSaveReadError": { "message": "The extension could not read the default visibility. Reload the settings. Try again." },
-  "optionsQuickSaveWriteError": { "message": "The extension could not save the default visibility. Try again." },
+  "optionsQuickSaveFollowPopup": { "message": "Match last popup save" },
+  "optionsQuickSaveFollowPopupDescription": {
+    "message": "Use the visibility and Space from the last successful popup save on this connection."
+  },
+  "optionsQuickSaveCurrentPopup": {
+    "message": "Current popup destination: $DESTINATION$",
+    "placeholders": { "destination": { "content": "$1", "example": "Team · Members" } }
+  },
+  "optionsQuickSaveCustom": { "message": "Custom destination" },
+  "optionsQuickSaveCustomDescription": { "message": "Always use the visibility and Space you choose below." },
+  "optionsQuickSaveCustomLabel": { "message": "Quick save destination" },
+  "optionsQuickSaveReadError": { "message": "The extension could not read the quick save destination. Reload the settings. Try again." },
+  "optionsQuickSaveWriteError": { "message": "The extension could not save the quick save destination. Try again." },
   "optionsClipTemplate": { "message": "Clip template" },
   "optionsTemplateLocked": { "message": "Connect a supported Memos instance first; then you can configure how clips are formatted." },
   "optionsTemplateDescription": {

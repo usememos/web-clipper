@@ -64,6 +64,8 @@ export function useMemosConnection(source: "active" | "usememos" = "active") {
 
   return {
     source: connection.source,
+    connectionId: connection.connectionId ?? null,
+    accountId: connection.accountId ?? null,
     instanceUrl: connection.instanceUrl,
     version: connection.version,
     displayName: connection.displayName,

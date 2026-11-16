@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AudienceMenu } from "@/components/audience-menu";
 import type { ClipSaveStatus } from "@/lib/clip-records";
 import { POPUP_STATE_KEY, type PopupState } from "@/lib/popup-state";
 import { App } from "@/popup/App";
-import { AudienceMenu } from "@/popup/audience-menu";
 import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { act, renderWithUser, screen, waitFor } from "@/test/render";
 import japaneseMessages from "../../../public/_locales/ja/messages.json" with { type: "json" };

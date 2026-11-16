@@ -1,10 +1,23 @@
 {
-  "optionsQuickSaveVisibility": { "message": "Visibilité par défaut" },
+  "optionsQuickSaveDestination": { "message": "Destination d'enregistrement rapide" },
   "optionsQuickSaveDescription": {
     "message": "Pour le texte et les images enregistrés depuis le menu contextuel. Privé tant que vous ne choisissez pas une autre option. Enregistré uniquement dans ce navigateur."
   },
-  "optionsQuickSaveReadError": { "message": "Impossible de charger la visibilité par défaut. Rechargez les paramètres et réessayez." },
-  "optionsQuickSaveWriteError": { "message": "Impossible d'enregistrer la visibilité par défaut. Réessayez." },
+  "optionsQuickSaveFollowPopup": { "message": "Suivre le dernier choix de la fenêtre contextuelle" },
+  "optionsQuickSaveFollowPopupDescription": {
+    "message": "Utilise la visibilité et le Space du dernier enregistrement réussi depuis la fenêtre contextuelle sur cette connexion."
+  },
+  "optionsQuickSaveCurrentPopup": {
+    "message": "Destination actuelle de la fenêtre contextuelle : $DESTINATION$",
+    "placeholders": { "destination": { "content": "$1", "example": "Team · Members" } }
+  },
+  "optionsQuickSaveCustom": { "message": "Destination personnalisée" },
+  "optionsQuickSaveCustomDescription": { "message": "Utilise toujours la visibilité et le Space choisis ci-dessous." },
+  "optionsQuickSaveCustomLabel": { "message": "Destination d'enregistrement rapide" },
+  "optionsQuickSaveReadError": {
+    "message": "Impossible de charger la destination d'enregistrement rapide. Rechargez les paramètres et réessayez."
+  },
+  "optionsQuickSaveWriteError": { "message": "Impossible d'enregistrer la destination d'enregistrement rapide. Réessayez." },
   "extensionName": {
     "message": "Memos Web Clipper"
   },

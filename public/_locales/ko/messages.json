@@ -1,10 +1,21 @@
 {
-  "optionsQuickSaveVisibility": { "message": "기본 공개 범위" },
+  "optionsQuickSaveDestination": { "message": "빠른 저장 대상" },
   "optionsQuickSaveDescription": {
     "message": "컨텍스트 메뉴에서 저장하는 텍스트와 이미지에 적용됩니다. 다른 옵션을 선택할 때까지 비공개입니다. 이 브라우저에만 저장됩니다."
   },
-  "optionsQuickSaveReadError": { "message": "기본 공개 범위를 불러오지 못했습니다. 설정을 새로고침하고 다시 시도하세요." },
-  "optionsQuickSaveWriteError": { "message": "기본 공개 범위를 저장하지 못했습니다. 다시 시도하세요." },
+  "optionsQuickSaveFollowPopup": { "message": "팝업의 마지막 저장 대상 따라가기" },
+  "optionsQuickSaveFollowPopupDescription": {
+    "message": "현재 연결에서 팝업으로 마지막에 성공한 저장의 공개 범위와 Space를 사용합니다."
+  },
+  "optionsQuickSaveCurrentPopup": {
+    "message": "현재 팝업 대상: $DESTINATION$",
+    "placeholders": { "destination": { "content": "$1", "example": "Team · Members" } }
+  },
+  "optionsQuickSaveCustom": { "message": "사용자 지정 기본 대상" },
+  "optionsQuickSaveCustomDescription": { "message": "아래에서 선택한 공개 범위와 Space를 항상 사용합니다." },
+  "optionsQuickSaveCustomLabel": { "message": "빠른 저장 대상" },
+  "optionsQuickSaveReadError": { "message": "빠른 저장 대상을 불러오지 못했습니다. 설정을 새로고침하고 다시 시도하세요." },
+  "optionsQuickSaveWriteError": { "message": "빠른 저장 대상을 저장하지 못했습니다. 다시 시도하세요." },
   "extensionName": { "message": "Memos Web Clipper", "description": "Extension name shown by the browser." },
   "extensionDescription": {
     "message": "Chrome이나 Firefox의 페이지, 선택한 텍스트와 이미지를 원본 링크가 있는 Markdown으로 Memos에 저장합니다.",

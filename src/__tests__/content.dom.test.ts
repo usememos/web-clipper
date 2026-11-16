@@ -5,6 +5,7 @@ import frenchMessages from "../../public/_locales/fr/messages.json" with { type:
 // Content script registers its message listeners on the shared browser mock at import.
 beforeEach(async () => {
   await import("@/content");
+  window.getSelection()?.removeAllRanges();
   document.title = "Test Article";
   document.body.innerHTML = "<article><h1>Headline</h1><p>Some body copy here.</p></article>";
 });
@@ -88,6 +89,23 @@ describe("content script — CLEAR_SELECTION", () => {
 });
 
 describe("content script — GET_SELECTION", () => {
+  it("caps long page metadata before it enters a selection save request", async () => {
+    const meta = document.createElement("meta");
+    meta.name = "description";
+    meta.content = "x".repeat(9_000);
+    document.head.append(meta);
+    const range = document.createRange();
+    range.selectNodeContents(document.querySelector("p")!);
+    window.getSelection()?.removeAllRanges();
+    window.getSelection()?.addRange(range);
+    try {
+      const result = (await browserMock.runtime.onMessage.emitFirst({ type: "GET_SELECTION" })) as { description: string };
+      expect(result.description).toHaveLength(500);
+    } finally {
+      meta.remove();
+    }
+  });
+
   it("parses selected markup inertly and resolves relative image attachments", async () => {
     document.body.innerHTML = '<p>Hello<script>window.bad = true</script><img src="/clip.png" alt="clip"></p>';
     const range = document.createRange();

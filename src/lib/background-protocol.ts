@@ -19,10 +19,11 @@ export type BackgroundRequest = Extract<
       | "GET_CONNECTION_STATE"
       | "GET_CLIP_STATUS"
       | "LIST_CLIP_RECORDS"
-      | "SAVE_MEMO";
+      | "SAVE_MEMO"
+      | "SAVE_SELECTION";
   }
 >;
-export type RuntimeSender = { id?: string; url?: string };
+export type RuntimeSender = { id?: string; url?: string; tab?: { id?: number; title?: string }; frameId?: number };
 
 const MAX_REMOTE_IMAGE_URL_CHARS = 8_192;
 const MAX_DATA_IMAGE_URL_CHARS = 14 * 1024 * 1024;
@@ -72,6 +73,23 @@ function parseClipCapture(value: unknown): ClipCaptureInput | null {
 export function parseBackgroundRequest(value: unknown): BackgroundRequest | null {
   if (!value || typeof value !== "object") return null;
   const request = value as Record<string, unknown>;
+  if (request.type === "SAVE_SELECTION") {
+    if (!request.clip || typeof request.clip !== "object" || Array.isArray(request.clip)) return null;
+    const clip = request.clip as Record<string, unknown>;
+    if (typeof clip.markdown !== "string" || !clip.markdown.trim() || clip.markdown.length > MAX_CLIP_SELECTION_CHARS) return null;
+    if (!validImageSources(clip.images)) return null;
+    if (clip.description !== undefined && (typeof clip.description !== "string" || clip.description.length > MAX_CLIP_SOURCE_URL_CHARS)) {
+      return null;
+    }
+    return {
+      type: "SAVE_SELECTION",
+      clip: {
+        markdown: clip.markdown,
+        images: clip.images,
+        ...(typeof clip.description === "string" ? { description: clip.description } : {}),
+      },
+    };
+  }
   if (
     request.type === "GET_POPUP_STATE" ||
     request.type === "OPEN_SIGN_IN" ||
@@ -138,16 +156,7 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
     return null;
   }
   if (request.images !== undefined) {
-    if (!Array.isArray(request.images) || request.images.length > 100 || !request.images.every((image) => typeof image === "string")) {
-      return null;
-    }
-    const images = request.images as string[];
-    if (
-      images.some((image) => image.length > (image.startsWith("data:") ? MAX_DATA_IMAGE_URL_CHARS : MAX_REMOTE_IMAGE_URL_CHARS)) ||
-      images.reduce((total, image) => total + image.length, 0) > MAX_TOTAL_IMAGE_SOURCE_CHARS
-    ) {
-      return null;
-    }
+    if (!validImageSources(request.images)) return null;
   }
   const clip = request.clip === undefined ? undefined : parseClipCapture(request.clip);
   if (request.clip !== undefined && !clip) return null;
@@ -165,9 +174,29 @@ export function parseBackgroundRequest(value: unknown): BackgroundRequest | null
   };
 }
 
+function validImageSources(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.length <= 100 &&
+    value.every(
+      (image) =>
+        typeof image === "string" && image.length <= (image.startsWith("data:") ? MAX_DATA_IMAGE_URL_CHARS : MAX_REMOTE_IMAGE_URL_CHARS),
+    ) &&
+    value.reduce((total, image) => total + image.length, 0) <= MAX_TOTAL_IMAGE_SOURCE_CHARS
+  );
+}
+
 /** Content scripts share the extension ID, so privileged popup commands also require a page URL. */
 export function isTrustedBackgroundRequest(request: BackgroundRequest, sender: RuntimeSender, runtimeId: string): boolean {
   if (sender.id !== runtimeId || !sender.url) return false;
+  if (request.type === "SAVE_SELECTION") {
+    try {
+      const url = new URL(sender.url);
+      return (url.protocol === "https:" || url.protocol === "http:") && Number.isInteger(sender.tab?.id) && sender.frameId === 0;
+    } catch {
+      return false;
+    }
+  }
   let path: string;
   try {
     const url = new URL(sender.url);

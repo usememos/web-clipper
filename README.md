@@ -35,6 +35,7 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 ## Features
 
 - Capture a page’s main content as Markdown, with its title, URL, and readable description.
+- Save selected text with the Memos button next to the end of the selection.
 - Convert selected text, links, lists, code, and tables to Markdown.
 - Upload selected images as Memos attachments.
 - Review and edit every clip before saving.
@@ -68,6 +69,8 @@ Open **Saved clips** from the popup or extension settings to review previous sav
 For a direct connection, create a PAT in your Memos user settings at `/setting#access-token`. The clipper tests the instance URL, supported Memos version, and token before saving the connection. The saved token is never displayed again in the extension UI.
 
 You can also right-click selected text or an image and choose **Save selection to Memos**. Context-menu saves are always private.
+
+Select text on a webpage to show a Memos button next to the end of the selection. Click it to save the excerpt with its source link. The button uses the same template, attachments, and save feedback as the context menu. It hides when the selection clears and stays hidden in text editors and input fields.
 
 Browser-owned pages, such as extension stores and internal browser URLs, may block page capture. The clipper falls back to the page title and URL when available.
 

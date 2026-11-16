@@ -26,6 +26,7 @@ export type CapturePayload = {
 export type SelectionClip = { markdown: string; images: string[]; description?: string };
 
 export type Request =
+  | { type: "SAVE_SELECTION"; clip: SelectionClip }
   | { type: "GET_SELECTION" } // background → content script: markdown + image URLs for the selection
   | { type: "CLEAR_SELECTION" } // background → content script: drop the page selection after a save
   | { type: "SHOW_SAVE_RESULT"; ok: boolean; title: string; webUrl?: string; openLabel?: string; direction?: "ltr" | "rtl" } // background → content script: in-page toast

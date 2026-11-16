@@ -928,6 +928,24 @@ describe("background — onInstalled", () => {
 });
 
 describe("background — context menu quick save", () => {
+  it("saves a captured selection from a content button through the quick-save flow", async () => {
+    ready();
+    seedStorage({ [CLIP_TEMPLATE_KEY]: "{{content}}\n\nSource: {{url}}" });
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/7", uid: "xy" }));
+    vi.stubGlobal("fetch", fetchMock);
+    await browserMock.runtime.onMessage.emitFirst(
+      { type: "SAVE_SELECTION", clip: { markdown: "**Captured text**", images: [] } },
+      { id: "test-id", url: "https://example.com/post", tab: { id: 5, title: "Post" }, frameId: 0 },
+    );
+    expect(JSON.parse(fetchMock.mock.calls[0]![1].body)).toMatchObject({
+      content: "**Captured text**\n\nSource: https://example.com/post",
+      visibility: "PRIVATE",
+    });
+    expect(browserMock.tabs.sendMessage).not.toHaveBeenCalledWith(5, { type: "GET_SELECTION" });
+    expect(browserMock.tabs.sendMessage).toHaveBeenCalledWith(5, { type: "CLEAR_SELECTION" });
+    expect(browserMock.action.setBadgeText).toHaveBeenCalledWith({ text: "✓" });
+  });
+
   const click = () =>
     browserMock.contextMenus.onClicked.emit(
       { menuItemId: "save-selection", selectionText: "clip me", pageUrl: "https://example.com/post" },

@@ -103,6 +103,7 @@ async function activateConnection(verify: () => Promise<VerifiedConnection>) {
 browser.runtime.onMessage.addListener((message: unknown, sender: RuntimeSender) => {
   const req = parseBackgroundRequest(message);
   if (!req || !isTrustedBackgroundRequest(req, sender, browser.runtime.id)) return undefined;
+  if (req.type === "SAVE_SELECTION") return quickSaveSelection(Promise.resolve(req.clip), sender.tab, { pageUrl: sender.url });
   if (req.type === "GET_POPUP_STATE") return reconcilePopupState();
   if (req.type === "LIST_SPACES") {
     return (async (): Promise<SpacesResult> => {
@@ -316,6 +317,14 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
       ? Promise.resolve({ markdown: "", images: [info.srcUrl] }) // a bare image is just a clip with one image
       : getSelectionClip(tab?.id, selectionText ?? "");
 
+  await quickSaveSelection(clipPromise, tab, info);
+});
+
+async function quickSaveSelection(
+  clipPromise: Promise<SelectionClip>,
+  tab: { id?: number; title?: string; url?: string } | undefined,
+  info: { pageUrl?: string },
+): Promise<void> {
   // The item follows the same gate as the popup. When a setup gate isn't met we open the place
   // that resolves it (opening the tab is the feedback).
   let result: SaveResult;
@@ -356,7 +365,7 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     result.ok ? flashBadge("✓", BADGE_SUCCESS) : flashBadge("!", BADGE_DANGER),
     showSaveResultInTab(tab?.id, result, source),
   ]);
-});
+}
 
 /** Maps a throw from the quick-save gate to user-facing copy; unknown errors are the extension's own fault, not the instance's. */
 function quickSaveErrorKind(error: unknown): SaveErrorKind {

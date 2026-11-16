@@ -11,6 +11,32 @@ const save = {
 } as const;
 
 describe("background protocol", () => {
+  it("accepts selection saves only from the extension content script in a web tab", () => {
+    const input = { type: "SAVE_SELECTION", clip: { markdown: "An excerpt", images: [] } };
+    const request = parseBackgroundRequest(input)!;
+    expect(request).toEqual(input);
+    const sender = { id: "ext", url: "https://example.com/post", tab: { id: 5 }, frameId: 0 };
+    expect(isTrustedBackgroundRequest(request, sender, "ext")).toBe(true);
+    expect(isTrustedBackgroundRequest(request, { ...sender, id: "other" }, "ext")).toBe(false);
+    expect(isTrustedBackgroundRequest(request, { ...sender, frameId: 1 }, "ext")).toBe(false);
+    expect(isTrustedBackgroundRequest(request, { ...sender, tab: undefined }, "ext")).toBe(false);
+    expect(isTrustedBackgroundRequest(request, { ...sender, url: "file:///private.txt" }, "ext")).toBe(false);
+    expect(isTrustedBackgroundRequest(request, { id: "ext", url: "chrome-extension://ext/src/popup/index.html" }, "ext")).toBe(false);
+  });
+
+  it.each([
+    undefined,
+    null,
+    { markdown: "", images: [] },
+    { markdown: "   ", images: [] },
+    { markdown: "x".repeat(2 * 1024 * 1024 + 1), images: [] },
+    { markdown: "text", images: [2] },
+    { markdown: "text", images: Array(101).fill("https://example.com/a.png") },
+    { markdown: "text", images: [], description: 42 },
+  ])("rejects an invalid selection save %#", (clip) => {
+    expect(parseBackgroundRequest({ type: "SAVE_SELECTION", clip })).toBeNull();
+  });
+
   it("parses valid popup requests", () => {
     expect(parseBackgroundRequest({ type: "GET_POPUP_STATE" })).toEqual({ type: "GET_POPUP_STATE" });
     expect(parseBackgroundRequest({ type: "GET_CONNECTION_STATE", refresh: true })).toEqual({

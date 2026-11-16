@@ -35,6 +35,7 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 ## Features
 
 - Capture a page’s main content as Markdown, with its title, URL, and readable description.
+- Save selected text with the Memos button next to the end of the selection.
 - Convert selected text, links, lists, code, and tables to Markdown.
 - Upload selected images as Memos attachments.
 - Review and edit every clip before saving.
@@ -42,7 +43,6 @@ To verify a download on Linux, run `sha256sum --ignore-missing -c SHA256SUMS` in
 - Choose a space and optionally limit visibility to its members on Memos 0.31 or later. The popup remembers your last successful space and visibility for each connection.
 - Customize the clip format with a local template.
 - Quick-save selected text or images from the context menu.
-- Save selected text with the Memos button next to the end of the selection.
 - Browse and search clips saved locally from the popup.
 - See when a page was saved before, with the option to save it again.
 

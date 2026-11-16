@@ -34,7 +34,7 @@ async function clipSelection(): Promise<SelectionClip> {
   for (const img of imgs) img.remove();
   // Turndown is loaded lazily: this script runs on every page, but markdown conversion is only
   // needed on the rare context-menu save — keep the per-page cost to this thin shell.
-  const { htmlToMarkdown } = await import("@/lib/format");
+  const { htmlToMarkdown, DESCRIPTION_MAX_CHARS } = await import("@/lib/format");
   // Same {{description}} source as the popup capture, so both paths compose identically.
   const normalized = (value: string | null | undefined) => value?.replace(/\s+/g, " ").trim() || undefined;
   const meta = (s: string) => normalized(document.querySelector<HTMLMetaElement>(s)?.content);
@@ -55,7 +55,7 @@ async function clipSelection(): Promise<SelectionClip> {
     return undefined;
   };
   const description = meta('meta[property="og:description"]') ?? meta('meta[name="description"]') ?? firstReadableParagraph();
-  return { markdown: htmlToMarkdown(container.innerHTML), images, description };
+  return { markdown: htmlToMarkdown(container.innerHTML), images, description: description?.slice(0, DESCRIPTION_MAX_CHARS) };
 }
 
 let toastHost: HTMLElement | null = null;
@@ -144,8 +144,37 @@ browser.runtime.onMessage.addListener((message: unknown) => {
   if (req?.type === "CLEAR_SELECTION") {
     // Drop the highlight and unfocus after a save so the page returns to a clean state.
     window.getSelection()?.removeAllRanges();
+    void selectionButton?.then((button) => button.update()).catch(() => {});
     (document.activeElement as HTMLElement | null)?.blur?.();
     return undefined;
   }
   return undefined;
 });
+
+let selectionButton: Promise<ReturnType<typeof import("@/content/selection-save").createSelectionSaveButton>> | undefined;
+
+function updateSelectionButton(): void {
+  if (!selectionButton && !window.getSelection()?.toString().trim()) return;
+  selectionButton ??= import("@/content/selection-save")
+    .then(({ createSelectionSaveButton }) =>
+      createSelectionSaveButton(async () => {
+        try {
+          const clip = await clipSelection();
+          if (!clip.markdown.trim()) return;
+          const request: Request = { type: "SAVE_SELECTION", clip };
+          await browser.runtime.sendMessage(request);
+        } catch {
+          showSaveToast({ ok: false, title: browser.i18n.getMessage("errorExtensionTitle") });
+        }
+      }),
+    )
+    .catch((error) => {
+      selectionButton = undefined;
+      throw error;
+    });
+  void selectionButton.then((button) => button.update()).catch(() => {});
+}
+
+document.addEventListener("selectionchange", updateSelectionButton);
+document.addEventListener("pointerup", updateSelectionButton);
+document.addEventListener("keyup", updateSelectionButton);

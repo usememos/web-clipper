@@ -10,10 +10,49 @@ export type DestinationConnection = { source: ConnectionSource; connectionId: st
  * account arrives with the live popup state; a snapshot cached by an older release has none, so
  * the key is unknown (null) until then rather than a throwaway one that would strand the choice.
  */
-export function destinationStorageKey(connection: DestinationConnection): string | null {
+export function destinationStorageKey(connection: DestinationConnection, prefix = "memoDestinationV1"): string | null {
   const accountId = connection.source === "direct" ? connection.accountId : connection.connectionId;
   if (!accountId) return null;
-  return `memoDestinationV1:${JSON.stringify([connection.source, connection.instanceUrl, accountId])}`;
+  return `${prefix}:${JSON.stringify([connection.source, connection.instanceUrl, accountId])}`;
+}
+
+export function quickSaveDestinationStorageKey(connection: DestinationConnection): string | null {
+  return destinationStorageKey(connection, "quickSaveDestinationV1");
+}
+
+export function normalizeMemoDestination(value: unknown): MemoDestination {
+  if (!value || typeof value !== "object") return { visibility: "PRIVATE" };
+  const candidate = value as Partial<MemoDestination>;
+  if (!isVisibility(candidate.visibility) || (candidate.space !== undefined && !isSpaceName(candidate.space))) {
+    return { visibility: "PRIVATE" };
+  }
+  if (candidate.visibility === "SPACE" && !candidate.space) return { visibility: "PRIVATE" };
+  return { visibility: candidate.visibility, ...(candidate.space ? { space: candidate.space } : {}) };
+}
+
+export function adaptDestinationForVersion(destination: MemoDestination, supportsSpaces: boolean): MemoDestination {
+  return supportsSpaces ? destination : { visibility: destination.visibility === "SPACE" ? "PRIVATE" : destination.visibility };
+}
+
+export function applyVisibilityChange(current: MemoDestination, visibility: Visibility): MemoDestination {
+  if (visibility === "SPACE" && !current.space) return current;
+  return { ...current, visibility };
+}
+
+export function applySpaceChange(current: MemoDestination, space?: string): MemoDestination {
+  return {
+    visibility: !space && current.visibility === "SPACE" ? "PRIVATE" : current.visibility,
+    ...(space ? { space } : {}),
+  };
+}
+
+export async function peekMemoDestination(key: string): Promise<MemoDestination> {
+  const legacyKey = "lastSuccessfulVisibilityV1";
+  const stored = await browser.storage.local.get([key, legacyKey]);
+  if (stored[key] === undefined && isVisibility(stored[legacyKey]) && stored[legacyKey] !== "SPACE") {
+    return { visibility: stored[legacyKey] };
+  }
+  return normalizeMemoDestination(stored[key]);
 }
 
 export async function readMemoDestination(key: string): Promise<MemoDestination> {
@@ -26,11 +65,7 @@ export async function readMemoDestination(key: string): Promise<MemoDestination>
     await browser.storage.local.remove(legacyKey);
     return destination;
   }
-  const value = stored[key] as Partial<MemoDestination> | undefined;
-  if (!value || !isVisibility(value.visibility) || (value.space !== undefined && !isSpaceName(value.space)))
-    return { visibility: "PRIVATE" };
-  if (value.visibility === "SPACE" && !value.space) return { visibility: "PRIVATE" };
-  return { visibility: value.visibility, ...(value.space ? { space: value.space } : {}) };
+  return normalizeMemoDestination(stored[key]);
 }
 
 /** Persist only after the server confirms the save. */

@@ -1,4 +1,21 @@
 {
+  "optionsQuickSaveDestination": { "message": "クイック保存の保存先" },
+  "optionsQuickSaveDescription": {
+    "message": "コンテキストメニューから保存するテキストと画像に適用します。変更するまで非公開です。このブラウザーにのみ保存されます。"
+  },
+  "optionsQuickSaveFollowPopup": { "message": "ポップアップの最後の保存先に合わせる" },
+  "optionsQuickSaveFollowPopupDescription": {
+    "message": "現在の接続でポップアップから最後に成功した保存の公開範囲と Space を使用します。"
+  },
+  "optionsQuickSaveCurrentPopup": {
+    "message": "現在のポップアップ保存先: $DESTINATION$",
+    "placeholders": { "destination": { "content": "$1", "example": "Team · Members" } }
+  },
+  "optionsQuickSaveCustom": { "message": "個別の既定の保存先" },
+  "optionsQuickSaveCustomDescription": { "message": "下で選択した公開範囲と Space を常に使用します。" },
+  "optionsQuickSaveCustomLabel": { "message": "クイック保存の保存先" },
+  "optionsQuickSaveReadError": { "message": "クイック保存の保存先を読み込めませんでした。設定を再読み込みして、もう一度お試しください。" },
+  "optionsQuickSaveWriteError": { "message": "クイック保存の保存先を保存できませんでした。もう一度お試しください。" },
   "extensionName": {
     "message": "Memos Web Clipper",
     "description": "Extension name shown by the browser."

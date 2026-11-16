@@ -5,6 +5,7 @@ import { type ClipCaptureInput, recordSuccessfulClip } from "@/lib/clip-records"
 import type { ConnectionSource } from "@/lib/connection-config";
 import { toSaveFailure } from "@/lib/errors";
 import { composeMemoContent } from "@/lib/format";
+import { type MemoDestination, normalizeMemoDestination } from "@/lib/memo-destination";
 import {
   createAttachment,
   createMemo,
@@ -368,7 +369,16 @@ export async function saveSelectionClip(
   url: string,
   credentials: MemosCredentials,
   template: string | null,
+  destination: MemoDestination = { visibility: "PRIVATE" },
 ): Promise<SaveResult> {
+  const resolved = normalizeMemoDestination(destination);
+  if (resolved.space) {
+    try {
+      await getSpace(credentials, resolved.space);
+    } catch (error) {
+      return toSaveFailure(error);
+    }
+  }
   const { names, failed } = await uploadImages(clip.images, credentials);
   if (!clip.markdown && names.length === 0) return { ok: false, errorKind: "bad-response" };
   const content = composeMemoContent({
@@ -378,7 +388,7 @@ export async function saveSelectionClip(
     description: clip.description,
     template,
   });
-  const result = await createMemoWithAttachments(content, names, credentials, "PRIVATE");
+  const result = await createMemoWithAttachments(content, names, credentials, resolved.visibility, undefined, resolved.space);
   return result.ok && failed > 0 ? { ...result, failedImages: failed } : result;
 }
 

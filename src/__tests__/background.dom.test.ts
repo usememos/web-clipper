@@ -3,7 +3,9 @@ import { SAVE_ATTEMPTS_KEY } from "@/background/memo-save";
 import { CONNECTION_CONFIG_KEY } from "@/lib/connection-config";
 import { LOCALE_PREFERENCE_KEY } from "@/lib/i18n";
 import { VERSION_CACHE_KEY } from "@/lib/instance-version";
+import { destinationStorageKey, quickSaveDestinationStorageKey } from "@/lib/memo-destination";
 import { POPUP_STATE_KEY } from "@/lib/popup-state";
+import { QUICK_SAVE_SETTINGS_KEY } from "@/lib/quick-save-settings";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { jsonResponse, testCreds } from "@/test/fixtures";
@@ -609,6 +611,7 @@ describe("background — sanitized options protocol", () => {
 
     expect(result).toEqual({
       source: "usememos",
+      connectionId: "user_123",
       instanceUrl: testCreds.instanceUrl,
       version: "0.29.1",
       displayName: "Steven Li",
@@ -933,6 +936,163 @@ describe("background — context menu quick save", () => {
       { menuItemId: "save-selection", selectionText: "clip me", pageUrl: "https://example.com/post" },
       { id: 5, title: "Post" },
     );
+
+  it.each([
+    undefined,
+    { mode: "custom", visibility: "PRIVATE" },
+    { mode: "custom", visibility: "PROTECTED" },
+    { mode: "custom", visibility: "PUBLIC" },
+    "invalid",
+    null,
+    42,
+  ])("uses the custom quick-save visibility for text and bare images (%j)", async (stored) => {
+    ready();
+    seedStorage({ [QUICK_SAVE_SETTINGS_KEY]: stored });
+    const fetchMock = vi.fn(async (url: unknown, _init?: RequestInit) => {
+      if (String(url) === "https://cdn.example.com/pic.png") {
+        return new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/png" } });
+      }
+      if (String(url).endsWith("/api/attachments")) return jsonResponse({ name: "attachments/9" });
+      return jsonResponse({ name: "memos/7" });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+    await browserMock.contextMenus.onClicked.emit(
+      { menuItemId: "save-selection", srcUrl: "https://cdn.example.com/pic.png", pageUrl: "https://example.com/post" },
+      { id: 5, title: "Post" },
+    );
+
+    const posts = fetchMock.mock.calls.filter(([url]) => String(url).endsWith("/api/memos"));
+    expect(posts).toHaveLength(2);
+    const expectedVisibility =
+      stored &&
+      typeof stored === "object" &&
+      "visibility" in stored &&
+      (stored.visibility === "PROTECTED" || stored.visibility === "PUBLIC")
+        ? stored.visibility
+        : "PRIVATE";
+    for (const [, init] of posts) {
+      expect(JSON.parse(init!.body as string).visibility).toBe(expectedVisibility);
+    }
+  });
+
+  it("applies custom Space and Members visibility for text and images on Memos 0.31+", async () => {
+    ready();
+    seedVersion("0.31.0");
+    const customKey = quickSaveDestinationStorageKey({
+      source: "usememos",
+      connectionId: "user_123",
+      instanceUrl: testCreds.instanceUrl,
+    })!;
+    seedStorage({ [customKey]: { visibility: "SPACE", space: "spaces/team" } });
+    const fetchMock = vi.fn(async (url: unknown, _init?: RequestInit) => {
+      if (String(url).endsWith("/api/spaces/team")) return jsonResponse({ name: "spaces/team", title: "Team" });
+      if (String(url) === "https://cdn.example.com/pic.png") {
+        return new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/png" } });
+      }
+      if (String(url).endsWith("/api/attachments")) return jsonResponse({ name: "attachments/9" });
+      return jsonResponse({ name: "memos/7" });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+    await browserMock.contextMenus.onClicked.emit(
+      { menuItemId: "save-selection", srcUrl: "https://cdn.example.com/pic.png", pageUrl: "https://example.com/post" },
+      { id: 5, title: "Post" },
+    );
+
+    const posts = fetchMock.mock.calls.filter(([url]) => String(url).endsWith("/api/memos"));
+    expect(posts).toHaveLength(2);
+    for (const [, init] of posts) {
+      expect(JSON.parse(init!.body as string)).toMatchObject({ visibility: "SPACE", space: "spaces/team" });
+    }
+  });
+
+  it("follows the active connection's popup destination when follow-popup mode is enabled", async () => {
+    ready();
+    seedVersion("0.31.0");
+    const popupKey = destinationStorageKey({
+      source: "usememos",
+      connectionId: "user_123",
+      instanceUrl: testCreds.instanceUrl,
+    })!;
+    seedStorage({
+      [QUICK_SAVE_SETTINGS_KEY]: { mode: "follow-popup", visibility: "PRIVATE" },
+      [popupKey]: { visibility: "SPACE", space: "spaces/news" },
+    });
+    const fetchMock = vi.fn(async (url: unknown, _init?: RequestInit) => {
+      if (String(url).endsWith("/api/spaces/news")) return jsonResponse({ name: "spaces/news", title: "News" });
+      return jsonResponse({ name: "memos/7" });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+
+    const posts = fetchMock.mock.calls.filter(([url]) => String(url).endsWith("/api/memos"));
+    expect(posts).toHaveLength(1);
+    expect(JSON.parse(posts[0]![1]!.body as string)).toMatchObject({ visibility: "SPACE", space: "spaces/news" });
+  });
+
+  it("strips Space placement when quick-saving to an older Memos server", async () => {
+    ready();
+    const popupKey = destinationStorageKey({
+      source: "usememos",
+      connectionId: "user_123",
+      instanceUrl: testCreds.instanceUrl,
+    })!;
+    seedStorage({
+      [QUICK_SAVE_SETTINGS_KEY]: { mode: "follow-popup", visibility: "PRIVATE" },
+      [popupKey]: { visibility: "SPACE", space: "spaces/news" },
+    });
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/7" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+
+    const body = JSON.parse(fetchMock.mock.calls[0]![1].body as string);
+    expect(body.visibility).toBe("PRIVATE");
+    expect(body.space).toBeUndefined();
+  });
+
+  it("reports an unavailable Space before uploading attachments or creating a quick-save memo", async () => {
+    ready();
+    seedVersion("0.31.0");
+    const customKey = quickSaveDestinationStorageKey({
+      source: "usememos",
+      connectionId: "user_123",
+      instanceUrl: testCreds.instanceUrl,
+    })!;
+    seedStorage({ [customKey]: { visibility: "SPACE", space: "spaces/deleted" } });
+    const fetchMock = vi.fn(async (url: unknown) => {
+      if (String(url).endsWith("/spaces/deleted")) return jsonResponse({}, 404);
+      return jsonResponse({ name: "memos/7" });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+
+    expect(fetchMock.mock.calls.every(([url]) => String(url).endsWith("/spaces/deleted"))).toBe(true);
+    expect(browserMock.action.setBadgeText).toHaveBeenCalledWith({ text: "!" });
+    expect(browserMock.tabs.sendMessage).toHaveBeenCalledWith(5, expect.objectContaining({ type: "SHOW_SAVE_RESULT", ok: false }));
+  });
+
+  it("reports a destination storage failure before creating a quick-save memo", async () => {
+    ready();
+    const get = browserMock.storage.local.get.getMockImplementation()!;
+    browserMock.storage.local.get.mockImplementation(async (keys) => {
+      if (Array.isArray(keys) && keys.includes(QUICK_SAVE_SETTINGS_KEY)) throw new Error("storage unavailable");
+      return get(keys);
+    });
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ name: "memos/7" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await click();
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(browserMock.action.setBadgeText).toHaveBeenCalledWith({ text: "!" });
+    expect(browserMock.tabs.sendMessage).toHaveBeenCalledWith(5, expect.objectContaining({ type: "SHOW_SAVE_RESULT", ok: false }));
+  });
 
   it("ready → saves the selection through the template and flashes a success badge", async () => {
     ready();

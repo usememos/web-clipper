@@ -27,6 +27,7 @@ import { clearCachedVersion, resolveVersion } from "@/lib/instance-version";
 import { listSpaces, memosUserDisplayName } from "@/lib/memos-client";
 import type { ConnectionStateResult, Request, SaveResult, SelectionClip, SpacesResult } from "@/lib/messages";
 import { clearPopupState } from "@/lib/popup-state";
+import { resolveQuickSaveDestination } from "@/lib/quick-save-settings";
 import { readClipTemplate } from "@/lib/template-settings";
 import { isSupportedVersion, supportsSpaces } from "@/lib/versions";
 
@@ -70,6 +71,8 @@ function stateFromVerifiedConnection(connection: VerifiedConnection): Connection
   const displayName = connection.source === "direct" ? memosUserDisplayName(connection.user) : connection.displayName;
   return {
     source: connection.source,
+    connectionId: connection.connectionId,
+    ...(connection.source === "direct" ? { accountId: connection.user.name } : {}),
     instanceUrl: connection.credentials.instanceUrl,
     version: connection.version,
     displayName,
@@ -337,9 +340,18 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     }
 
     const template = await readClipTemplate();
+    const destination = await resolveQuickSaveDestination(
+      {
+        source: connection.source,
+        connectionId: connection.connectionId,
+        instanceUrl: credentials.instanceUrl,
+        ...(connection.source === "direct" ? { accountId: connection.user.name } : {}),
+      },
+      supportsSpaces(version),
+    );
     const title = tab?.title ?? "";
     const url = info.pageUrl ?? tab?.url ?? "";
-    result = await saveSelectionClip(await clipPromise, title, url, credentials, template);
+    result = await saveSelectionClip(await clipPromise, title, url, credentials, template, destination);
   } catch (error) {
     // A quick-save has no UI of its own, so anything that throws on the way to the save — an OAuth
     // outage, a failed storage read, an unexpected error — must still surface as a failed save

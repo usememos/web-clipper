@@ -191,7 +191,12 @@ export function isTrustedBackgroundRequest(request: BackgroundRequest, sender: R
   ) {
     return path === "/src/options/index.html";
   }
-  if (request.type === "OPEN_SIGN_IN" || request.type === "SIGN_OUT" || request.type === "GET_AUTH_USER") {
+  if (
+    request.type === "OPEN_SIGN_IN" ||
+    request.type === "SIGN_OUT" ||
+    request.type === "GET_AUTH_USER" ||
+    request.type === "LIST_SPACES"
+  ) {
     return path === "/src/popup/index.html" || path === "/src/options/index.html";
   }
   return path === "/src/popup/index.html";

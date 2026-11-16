@@ -30,7 +30,10 @@ describe("background protocol", () => {
       expectedInstanceUrl: save.expectedInstanceUrl,
     };
     expect(parseBackgroundRequest(list)).toEqual(list);
-    expect(isTrustedBackgroundRequest(parseBackgroundRequest(list)!, { id: "ext", url: "https://example.com" }, "ext")).toBe(false);
+    const parsedList = parseBackgroundRequest(list)!;
+    expect(isTrustedBackgroundRequest(parsedList, { id: "ext", url: "https://example.com" }, "ext")).toBe(false);
+    expect(isTrustedBackgroundRequest(parsedList, { id: "ext", url: "chrome-extension://ext/src/popup/index.html" }, "ext")).toBe(true);
+    expect(isTrustedBackgroundRequest(parsedList, { id: "ext", url: "chrome-extension://ext/src/options/index.html" }, "ext")).toBe(true);
     expect(
       parseBackgroundRequest({
         ...save,

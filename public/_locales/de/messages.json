@@ -1,4 +1,23 @@
 {
+  "optionsQuickSaveDestination": { "message": "Ziel für Schnellspeicherung" },
+  "optionsQuickSaveDescription": {
+    "message": "Für Text und Bilder, die über das Kontextmenü gespeichert werden. Privat, bis du etwas anderes wählst. Nur in diesem Browser gespeichert."
+  },
+  "optionsQuickSaveFollowPopup": { "message": "Letztem Popup-Ziel folgen" },
+  "optionsQuickSaveFollowPopupDescription": {
+    "message": "Verwendet Sichtbarkeit und Space der letzten erfolgreichen Popup-Speicherung dieser Verbindung."
+  },
+  "optionsQuickSaveCurrentPopup": {
+    "message": "Aktuelles Popup-Ziel: $DESTINATION$",
+    "placeholders": { "destination": { "content": "$1", "example": "Team · Members" } }
+  },
+  "optionsQuickSaveCustom": { "message": "Eigenes Standardziel" },
+  "optionsQuickSaveCustomDescription": { "message": "Verwendet immer Sichtbarkeit und Space aus der Auswahl unten." },
+  "optionsQuickSaveCustomLabel": { "message": "Ziel für Schnellspeicherung" },
+  "optionsQuickSaveReadError": {
+    "message": "Das Ziel für die Schnellspeicherung konnte nicht geladen werden. Lade die Einstellungen neu und versuche es erneut."
+  },
+  "optionsQuickSaveWriteError": { "message": "Das Ziel für die Schnellspeicherung konnte nicht gespeichert werden. Versuche es erneut." },
   "extensionName": {
     "message": "Memos Web Clipper"
   },

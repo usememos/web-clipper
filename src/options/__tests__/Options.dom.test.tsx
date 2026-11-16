@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { type DestinationConnection, destinationStorageKey, quickSaveDestinationStorageKey } from "@/lib/memo-destination";
 import type { ConnectionStateResult } from "@/lib/messages";
+import { QUICK_SAVE_SETTINGS_KEY } from "@/lib/quick-save-settings";
 import { DEFAULT_TEMPLATE } from "@/lib/template";
 import { CLIP_TEMPLATE_KEY } from "@/lib/template-settings";
 import { Options } from "@/options/Options";
 import { oauthUserWithMemos, setMockOAuthUser } from "@/test/auth-mock";
-import { browserMock, setBrowserLocale } from "@/test/browser-mock";
+import { browserMock, seedStorage, setBrowserLocale } from "@/test/browser-mock";
 import { renderWithUser, screen, waitFor, within } from "@/test/render";
 import simplifiedChineseMessages from "../../../public/_locales/zh_CN/messages.json" with { type: "json" };
 
@@ -12,6 +14,8 @@ vi.mock("@/auth/auth-provider", () => import("@/test/auth-mock"));
 
 type Conn = {
   source: "direct" | "usememos" | null;
+  connectionId: string | null;
+  accountId: string | null;
   instanceUrl: string | null;
   version: string | null;
   displayName: string | null;
@@ -24,6 +28,8 @@ type Conn = {
 
 const baseConn = (over: Partial<Conn> = {}): Conn => ({
   source: null,
+  connectionId: null,
+  accountId: null,
   instanceUrl: null,
   version: null,
   displayName: null,
@@ -38,6 +44,8 @@ const baseConn = (over: Partial<Conn> = {}): Conn => ({
 const readyConn = (source: "direct" | "usememos" = "usememos"): Conn =>
   baseConn({
     source,
+    connectionId: source === "direct" ? "direct_123" : "user_123",
+    ...(source === "direct" ? { accountId: "users/steven" } : {}),
     instanceUrl: "https://memos.example.com",
     version: "0.29.1",
     displayName: source === "direct" ? "Steven" : "Steven Li",
@@ -88,6 +96,178 @@ describe("Options connection methods", () => {
     expect(screen.queryByLabelText("Access token")).not.toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Language" })).toHaveTextContent("Browser language");
     expect(screen.queryByRole("link", { name: /open memos/i })).not.toBeInTheDocument();
+  });
+
+  it("keeps quick saves private until a custom destination or follow-popup mode is selected", async () => {
+    const { user, unmount } = renderWithUser(<Options />);
+    const customRadio = await screen.findByRole("radio", { name: "Custom destination" });
+    await waitFor(() => expect(customRadio).not.toHaveAttribute("aria-disabled", "true"));
+    expect(customRadio).toBeChecked();
+    expect(screen.getByRole("button", { name: "Quick save destination: Private" })).toBeInTheDocument();
+    expect(browserMock.storage.local.set).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Quick save destination: Private" }));
+    await user.click(await screen.findByRole("menuitemradio", { name: /Public/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Quick save destination: Public" })).toBeInTheDocument());
+    expect(browserMock.storage.local.set).toHaveBeenCalledWith({
+      [QUICK_SAVE_SETTINGS_KEY]: { mode: "custom", visibility: "PUBLIC" },
+    });
+
+    unmount();
+    renderWithUser(<Options />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "Quick save destination: Public" })).toBeInTheDocument());
+  });
+
+  it("configures a Space and Members visibility in quick-save settings on Memos 0.31+", async () => {
+    active = { ...readyConn("direct"), version: "0.31.0" };
+    const connection: DestinationConnection = {
+      source: "direct",
+      connectionId: "direct_123",
+      instanceUrl: "https://memos.example.com",
+      accountId: "users/steven",
+    };
+    const customKey = quickSaveDestinationStorageKey(connection)!;
+    browserMock.runtime.sendMessage.mockImplementation(async (message: unknown) => {
+      if ((message as { type?: string }).type === "LIST_SPACES") {
+        return { ok: true, spaces: [{ name: "spaces/team", title: "Team" }] };
+      }
+      return undefined;
+    });
+
+    const { user, unmount } = renderWithUser(<Options />);
+    const trigger = await screen.findByRole("button", { name: "Quick save destination: Private" });
+    await waitFor(() => expect(trigger).toBeEnabled());
+
+    await user.click(trigger);
+    (await screen.findByRole("menuitem", { name: /Add to space/i })).focus();
+    await user.keyboard("{ArrowRight}");
+    await waitFor(() => expect(screen.getByRole("menuitem", { name: "Team" })).toHaveFocus());
+    await user.keyboard("{Enter}");
+
+    const teamTrigger = await screen.findByRole("button", { name: "Quick save destination: Team · Private" });
+    await user.click(teamTrigger);
+    await user.click(await screen.findByRole("menuitemradio", { name: /Members/ }));
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Quick save destination: Team · Members" })).toBeInTheDocument());
+    expect(browserMock.storage.local.set).toHaveBeenCalledWith({
+      [customKey]: { visibility: "SPACE", space: "spaces/team" },
+    });
+
+    unmount();
+    renderWithUser(<Options />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "Quick save destination: Team · Members" })).toBeInTheDocument());
+  });
+
+  it("switches to follow-popup mode, displays the popup destination, and updates live", async () => {
+    active = { ...readyConn("usememos"), version: "0.31.0" };
+    const connection: DestinationConnection = {
+      source: "usememos",
+      connectionId: "user_123",
+      instanceUrl: "https://memos.example.com",
+    };
+    const popupKey = destinationStorageKey(connection)!;
+    seedStorage({ [popupKey]: { visibility: "SPACE", space: "spaces/team" } });
+    browserMock.runtime.sendMessage.mockImplementation(async (message: unknown) => {
+      if ((message as { type?: string }).type === "LIST_SPACES") {
+        return {
+          ok: true,
+          spaces: [
+            { name: "spaces/team", title: "Team" },
+            { name: "spaces/news", title: "News" },
+          ],
+        };
+      }
+      return undefined;
+    });
+
+    const { user } = renderWithUser(<Options />);
+    const followRadio = await screen.findByRole("radio", { name: "Match last popup save" });
+    await waitFor(() => expect(followRadio).not.toHaveAttribute("aria-disabled", "true"));
+    await user.click(followRadio);
+
+    expect(await screen.findByText("Current popup destination: Team · Members")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Quick save destination:/i })).not.toBeInTheDocument();
+
+    seedStorage({ [popupKey]: { visibility: "PUBLIC", space: "spaces/news" } });
+    await browserMock.storage.onChanged.emit({ [popupKey]: { newValue: { visibility: "PUBLIC", space: "spaces/news" } } }, "local");
+    expect(await screen.findByText("Current popup destination: News · Public")).toBeInTheDocument();
+  });
+
+  it("warns when the configured quick-save Space is unavailable", async () => {
+    active = { ...readyConn("usememos"), version: "0.31.0" };
+    const connection: DestinationConnection = {
+      source: "usememos",
+      connectionId: "user_123",
+      instanceUrl: "https://memos.example.com",
+    };
+    seedStorage({ [quickSaveDestinationStorageKey(connection)!]: { visibility: "SPACE", space: "spaces/deleted" } });
+    browserMock.runtime.sendMessage.mockImplementation(async (message: unknown) => {
+      if ((message as { type?: string }).type === "LIST_SPACES") {
+        return { ok: true, spaces: [{ name: "spaces/team", title: "Team" }] };
+      }
+      return undefined;
+    });
+
+    renderWithUser(<Options />);
+
+    expect(await screen.findByText("Choose another Space or remove the current Space to save.")).toBeInTheDocument();
+  });
+
+  it("retains the saved destination and reports a write failure", async () => {
+    seedStorage({ [QUICK_SAVE_SETTINGS_KEY]: { mode: "custom", visibility: "PROTECTED" } });
+    const { user } = renderWithUser(<Options />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "Quick save destination: Protected" })).toBeEnabled());
+    browserMock.storage.local.set.mockRejectedValueOnce(new Error("storage unavailable"));
+
+    await user.click(screen.getByRole("button", { name: "Quick save destination: Protected" }));
+    await user.click(await screen.findByRole("menuitemradio", { name: /Public/ }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("The extension could not save the quick save destination. Try again.");
+    expect(screen.getByRole("button", { name: "Quick save destination: Protected" })).toBeInTheDocument();
+  });
+
+  it("retains the current destination while the new choice is being saved", async () => {
+    const { user } = renderWithUser(<Options />);
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Custom destination" })).not.toHaveAttribute("aria-disabled", "true"));
+    let finishWrite!: () => void;
+    browserMock.storage.local.set.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          finishWrite = resolve;
+        }),
+    );
+
+    await user.click(screen.getByRole("radio", { name: "Match last popup save" }));
+
+    expect(screen.getByRole("radio", { name: "Custom destination" })).toBeChecked();
+    expect(screen.getByRole("radio", { name: "Match last popup save" })).toHaveAttribute("aria-disabled", "true");
+    finishWrite();
+    await waitFor(() => expect(screen.getByRole("radio", { name: "Match last popup save" })).toBeChecked());
+  });
+
+  it("reports a destination read failure and disables choices until settings are reloaded", async () => {
+    const get = browserMock.storage.local.get.getMockImplementation()!;
+    browserMock.storage.local.get.mockImplementation(async (keys) => {
+      if (Array.isArray(keys) && keys.includes(QUICK_SAVE_SETTINGS_KEY)) throw new Error("storage unavailable");
+      return get(keys);
+    });
+    renderWithUser(<Options />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "The extension could not read the quick save destination. Reload the settings. Try again.",
+    );
+    for (const radio of screen.getAllByRole("radio")) expect(radio).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("button", { name: "Quick save destination: Private" })).toBeDisabled();
+    expect(browserMock.storage.local.set).not.toHaveBeenCalled();
+  });
+
+  it.each([undefined, "SPACE", "invalid"])("shows Private for an absent or invalid quick-save setting (%s)", async (stored) => {
+    seedStorage({ [QUICK_SAVE_SETTINGS_KEY]: stored });
+    renderWithUser(<Options />);
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Quick save destination: Private" })).toBeEnabled());
+    expect(screen.getByRole("radio", { name: "Custom destination" })).toBeChecked();
+    expect(browserMock.storage.local.set).not.toHaveBeenCalled();
   });
 
   it("persists a language choice and applies it immediately", async () => {
